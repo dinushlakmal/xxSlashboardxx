@@ -1,0 +1,1 @@
+sed -i 's/val area = keyAreaDp(size, landscape) \* density/val area = (keyAreaDp(size, landscape) + (maxOf(0, rows - 4) * 38)) * density/g' app/src/main/java/org/slashboard/ime/ime/KeyboardGeometry.kt

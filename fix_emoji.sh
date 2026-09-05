@@ -1,0 +1,1 @@
+sed -i 's/values.addAll(emoji.search(prefix, 2, scanNames = false))/val emojis = emoji.search(prefix, 2, scanNames = false)\n                if (emojis.isNotEmpty()) values.add(1, emojis.first())/g' app/src/main/java/org/slashboard/ime/ime/SlashboardInputMethodService.kt

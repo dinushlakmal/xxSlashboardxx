@@ -1,4 +1,4 @@
-package org.akshara.ime.ime
+package org.slashboard.ime.ime
 
 import android.os.Bundle
 import android.text.InputType
@@ -9,8 +9,8 @@ import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.app.Activity
-import org.akshara.ime.engine.InputMode
-import org.akshara.ime.settings.KeyboardPreferences
+import org.slashboard.ime.engine.InputMode
+import org.slashboard.ime.settings.KeyboardPreferences
 
 /** Debug-build-only, empty editor used for real-device IME acceptance checks. */
 class ImeTestActivity : Activity() {
@@ -25,7 +25,7 @@ class ImeTestActivity : Activity() {
             gravity = Gravity.CENTER_HORIZONTAL
             setPadding(32, 80, 32, 32)
         }
-        root.addView(TextView(this).apply { text = "Akshara device test"; textSize = 24f })
+        root.addView(TextView(this).apply { text = "Slashboard device test"; textSize = 24f })
         val editor = EditText(this).apply {
             id = EDITOR_ID
             hint = "Type here"

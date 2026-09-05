@@ -1,0 +1,1 @@
+sed -i 's/if (emojis.isNotEmpty()) values.add(1, emojis.first())/if (emojis.isNotEmpty()) {\n                    if (values.isNotEmpty()) values.add(minOf(1, values.size), emojis.first())\n                    else values.add(emojis.first())\n                }/g' app/src/main/java/org/slashboard/ime/ime/SlashboardInputMethodService.kt

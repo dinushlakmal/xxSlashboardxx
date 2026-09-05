@@ -1,12 +1,12 @@
 <resources>
     <string-array name="input_mode_entries"><item>Smart Phonetic</item><item>Phonetic</item><item>Wijesekara</item></string-array>
     <string-array name="input_mode_values"><item>SMART_PHONETIC</item><item>PHONETIC</item><item>WIJESEKARA</item></string-array>
-    <string-array name="top_row_entries"><item>Off</item><item>Numbers</item><item>Emoji</item></string-array>
-    <string-array name="top_row_values"><item>none</item><item>numbers</item><item>emoji</item></string-array>
+    <string-array name="top_row_entries"><item>Off</item><item>Numbers</item><item>Emoji</item><item>Both</item></string-array>
+    <string-array name="top_row_values"><item>none</item><item>numbers</item><item>emoji</item><item>both</item></string-array>
     <string-array name="skin_tone_entries"><item>Default</item><item>🏻 Light</item><item>🏼 Medium-light</item><item>🏽 Medium</item><item>🏾 Medium-dark</item><item>🏿 Dark</item></string-array>
     <string-array name="skin_tone_values"><item></item><item>🏻</item><item>🏼</item><item>🏽</item><item>🏾</item><item>🏿</item></string-array>
-    <string-array name="theme_entries"><item>Follow system</item><item>Light</item><item>Dark</item></string-array>
-    <string-array name="theme_values"><item>system</item><item>light</item><item>dark</item></string-array>
+    <string-array name="theme_entries"><item>System Dynamic</item><item>Light</item><item>Dark</item><item>Ocean Blue</item><item>Forest Green</item><item>Sunset Orange</item><item>Cyberpunk</item><item>Dracula</item><item>Nord</item><item>Monokai</item><item>Lavender</item><item>Rose Gold</item><item>Midnight</item><item>Neon Green</item><item>Cherry Blossom</item><item>Coffee</item><item>Deep Space</item><item>Mint</item><item>Crimson</item><item>Solarized Dark</item><item>Solarized Light</item><item>Matcha</item><item>Coral</item><item>Peach</item><item>Royal Purple</item><item>Gold</item><item>Silver</item><item>Emerald</item><item>Ruby</item><item>Sapphire</item><item>Amethyst</item><item>Aquamarine</item><item>Obsidian</item></string-array>
+    <string-array name="theme_values"><item>system</item><item>light</item><item>dark</item><item>ocean_blue</item><item>forest_green</item><item>sunset</item><item>cyberpunk</item><item>dracula</item><item>nord</item><item>monokai</item><item>lavender</item><item>rose_gold</item><item>midnight</item><item>neon_green</item><item>cherry</item><item>coffee</item><item>deep_space</item><item>mint</item><item>crimson</item><item>solarized_dark</item><item>solarized_light</item><item>matcha</item><item>coral</item><item>peach</item><item>royal_purple</item><item>gold</item><item>silver</item><item>emerald</item><item>ruby</item><item>sapphire</item><item>amethyst</item><item>aquamarine</item><item>obsidian</item></string-array>
     <string-array name="spacing_entries"><item>Compact</item><item>Standard</item><item>Spacious</item></string-array>
     <string-array name="spacing_values"><item>compact</item><item>standard</item><item>spacious</item></string-array>
     <string-array name="keyboard_size_entries"><item>Compact</item><item>Standard</item><item>Tall</item></string-array>

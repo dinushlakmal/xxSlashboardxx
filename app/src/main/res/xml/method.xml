@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <input-method xmlns:android="http://schemas.android.com/apk/res/android"
-    android:settingsActivity="org.akshara.ime.settings.SettingsActivity"
+    android:settingsActivity="org.slashboard.ime.settings.SettingsActivity"
     android:supportsSwitchingToNextInputMethod="true">
     <subtype
         android:imeSubtypeLocale="si_LK"
@@ -8,4 +8,9 @@
         android:label="@string/subtype_sinhala"
         android:isAsciiCapable="true"
         android:overridesImplicitlyEnabledSubtype="true" />
+    <subtype
+        android:imeSubtypeLocale="en_US"
+        android:imeSubtypeMode="keyboard"
+        android:label="@string/subtype_english"
+        android:isAsciiCapable="true" />
 </input-method>

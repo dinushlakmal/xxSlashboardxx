@@ -1,0 +1,1 @@
+sed -i 's/if (prefs.emojiSuggestions && prefix.isNotBlank()) val emojis = emoji.search(prefix, 2, scanNames = false)/val emojis = if (prefs.emojiSuggestions \&\& prefix.isNotBlank()) emoji.search(prefix, 2, scanNames = false) else emptyList()/g' app/src/main/java/org/slashboard/ime/ime/SlashboardInputMethodService.kt

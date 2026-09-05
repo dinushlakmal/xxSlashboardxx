@@ -12,7 +12,7 @@ python3 Scripts/build_sinhala_emoji_index.py \
   .corpus-cache/cldr/si.xml \
   .corpus-cache/cldr/si-derived.xml \
   Scripts/SinhalaEmojiOverlay.tsv \
-  AksharaKeyboard/Resources/SinhalaEmojiIndex.json
+  SlashboardKeyboard/Resources/SinhalaEmojiIndex.json
 ```
 
 CLDR data © Unicode, Inc. Licensed under the [Unicode License V3](https://www.unicode.org/license.txt).
