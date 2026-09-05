@@ -45,6 +45,7 @@ class SlashboardInputMethodService : InputMethodService(), KeyboardActions {
     private var previousCommittedWord: String? = null
     private var recentEmoji = mutableListOf<String>()
     private var editorLayout = EditorLayout.TEXT
+    private var voiceInputManager: VoiceInputManager? = null
 
     private var precedingDirty = true
     private var cachedPreceding = emptyList<String>()
@@ -53,7 +54,32 @@ class SlashboardInputMethodService : InputMethodService(), KeyboardActions {
 
     override fun onCreate() {
         super.onCreate()
+        org.slashboard.ime.CrashLogger.init(this)
+        runCatching {
+            com.vanniktech.emoji.EmojiManager.install(com.vanniktech.emoji.ios.IosEmojiProvider())
+        }
         prefs = KeyboardPreferences(this)
+        
+        voiceInputManager = VoiceInputManager(
+            context = this,
+            onVoiceResult = { text ->
+                currentInputConnection?.commitText(text + " ", 1)
+                updateSuggestions()
+            },
+            onPartialResult = { text ->
+                currentInputConnection?.setComposingText(text, 1)
+            },
+            onError = { error ->
+                currentInputConnection?.finishComposingText()
+                if (error == android.speech.SpeechRecognizer.ERROR_INSUFFICIENT_PERMISSIONS) {
+                    android.widget.Toast.makeText(this, "Microphone permission required for voice input", android.widget.Toast.LENGTH_SHORT).show()
+                }
+            },
+            onReady = {
+                // optional UI indication
+                android.widget.Toast.makeText(this, "Listening...", android.widget.Toast.LENGTH_SHORT).show()
+            }
+        )
         
         // Schedule background worker for periodic layout caching and dictionary trimming
         try {
@@ -124,6 +150,7 @@ class SlashboardInputMethodService : InputMethodService(), KeyboardActions {
     }
     override fun onFinishInput() { deleteAnchor = -1; deleteLength = 0; cancelComposition(false); super.onFinishInput() }
     override fun onDestroy() {
+        voiceInputManager?.destroy()
         stopClipboardListener()
         serviceScope.cancel()
         executor.shutdown()
@@ -145,11 +172,7 @@ class SlashboardInputMethodService : InputMethodService(), KeyboardActions {
         runCatching {
             if (editorLayout != EditorLayout.TEXT || prefs.useEnglish) {
                 commitComposition(); currentInputConnection?.commitText(value, 1)
-            } else if (prefs.mode == InputMode.WIJESEKARA && (value == "\u200D" || value.codePoints().anyMatch { it in 0x0D80..0xE0FF })) {
-                slsSource.append(value)
-                val rendered = SinhalaEngine.normalizeSls(slsSource.toString())
-                composition.replace(rendered); currentInputConnection?.setComposingText(rendered, 1)
-            } else if (prefs.mode != InputMode.WIJESEKARA && value.length == 1 && value[0].isLetter() && value[0].code < 128) {
+            } else if (value.length == 1 && value[0].isLetter() && value[0].code < 128) {
                 val rendered = composition.type(value, prefs.mode)
                 currentInputConnection?.setComposingText(rendered, 1)
             } else {
@@ -162,30 +185,11 @@ class SlashboardInputMethodService : InputMethodService(), KeyboardActions {
     override fun onBackspace(word: Boolean) {
         runCatching {
             if (composition.active) {
-                if (prefs.mode == InputMode.WIJESEKARA) {
-                    if (slsSource.isNotEmpty()) {
-                        val next = GraphemeDelete.peelLastScalar(slsSource.toString())
-                        slsSource.setLength(0)
-                        slsSource.append(next)
-                    } else {
-                        slsSource.append(GraphemeDelete.reduceSlashboard(composition.rendered).orEmpty())
-                    }
-                    val rendered = SinhalaEngine.normalizeSls(slsSource.toString())
-                    composition.replace(rendered)
-                    if (rendered.isEmpty()) {
-                        currentInputConnection?.setComposingText("", 1)
-                        currentInputConnection?.finishComposingText()
-                        slsSource.clear()
-                    } else {
-                        currentInputConnection?.setComposingText(rendered, 1)
-                    }
-                } else {
-                    val rendered = composition.backspace(prefs.mode)
-                    if (rendered.isEmpty()) {
-                        currentInputConnection?.setComposingText("", 1)
-                        currentInputConnection?.finishComposingText()
-                    } else currentInputConnection?.setComposingText(rendered, 1)
-                }
+                val rendered = composition.backspace(prefs.mode)
+                if (rendered.isEmpty()) {
+                    currentInputConnection?.setComposingText("", 1)
+                    currentInputConnection?.finishComposingText()
+                } else currentInputConnection?.setComposingText(rendered, 1)
             } else {
                 deleteFromHost(word)
                 precedingDirty = true
@@ -224,6 +228,9 @@ class SlashboardInputMethodService : InputMethodService(), KeyboardActions {
     override fun onGlobe() { runCatching { commitComposition(); switchSystemKeyboard() } }
     override fun onModeRequested(mode: InputMode) { runCatching { commitComposition(); prefs.mode = mode; keyboard.configure(mode, offerSystemSwitch(), enterLabel(currentInputEditorInfo), editorLayout) } }
     override fun onHide() { runCatching { commitComposition(); requestHideSelf(0) } }
+    override fun onVoiceInputRequested() {
+        voiceInputManager?.startListening(prefs.useEnglish)
+    }
     override fun onCursorDelta(delta: Int) {
         runCatching {
             if (delta == 0) return; commitComposition(); val ic = currentInputConnection ?: return
@@ -238,10 +245,8 @@ class SlashboardInputMethodService : InputMethodService(), KeyboardActions {
 
     override fun languageScoreForKey(output: String): Float {
         if (restricted || editorLayout != EditorLayout.TEXT) return 0f
-        val next = if (prefs.mode != InputMode.WIJESEKARA && output.length == 1 && output[0].isLetter() && output[0].code < 128) {
+        val next = if (output.length == 1 && output[0].isLetter() && output[0].code < 128) {
             SinhalaEngine.transliterate(composition.source + output, prefs.mode)
-        } else if (prefs.mode == InputMode.WIJESEKARA) {
-            SinhalaEngine.normalizeSls(slsSource.toString() + output)
         } else return 0f
         return prediction?.prefixEvidence(next) ?: 0f
     }

@@ -51,11 +51,11 @@ internal object KeyboardGeometry {
     const val SPACE_COLLAPSE_SCALE = 0.88f
     const val PREVIEW_HEIGHT_DP = 58
     const val PREVIEW_TEXT_SP = 32f
-    const val EMOJI_TEXT_SP = 40f
-    const val EMOJI_TAB_DP = 44
-    const val EMOJI_MIN_CELL_DP = 48
-    const val EMOJI_COLUMNS_PORTRAIT = 8
-    const val EMOJI_COLUMNS_LANDSCAPE = 10
+    const val EMOJI_TEXT_SP = 32f
+    const val EMOJI_TAB_DP = 40
+    const val EMOJI_MIN_CELL_DP = 42
+    const val EMOJI_COLUMNS_PORTRAIT = 9
+    const val EMOJI_COLUMNS_LANDSCAPE = 13
     const val EMOJI_ROWS_PORTRAIT = 5
     const val EMOJI_ROWS_LANDSCAPE = 3
 

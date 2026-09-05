@@ -5,9 +5,6 @@ import org.slashboard.ime.engine.InputMode
 /** Long-press extras. Base glyph is prepended by the keyboard, Gboard-style. */
 internal object KeyAlternates {
     fun extras(identity: String, mode: InputMode, layer: KeyboardLayer, shifted: Boolean): List<Pair<String, String>> {
-        if (layer == KeyboardLayer.LETTERS && mode == InputMode.WIJESEKARA) {
-            wijesekara(identity)?.let { return it }
-        }
         punctuation(identity)?.let { return it.map { value -> value to value } }
         if (layer == KeyboardLayer.LETTERS) latin(identity, shifted)?.let { return it.map { value -> value to value } }
         if (layer == KeyboardLayer.NUMBERS || layer == KeyboardLayer.SYMBOLS) {
@@ -17,19 +14,7 @@ internal object KeyAlternates {
     }
 
     fun hint(identity: String, mode: InputMode, layer: KeyboardLayer): String? {
-        if (layer != KeyboardLayer.LETTERS || mode != InputMode.WIJESEKARA) return null
-        return wijesekara(identity)?.firstOrNull()?.first
-    }
-
-    private fun wijesekara(identity: String): List<Pair<String, String>>? = when (identity) {
-        "." -> listOf("ඟ" to "ඟ")
-        "c" -> listOf("ඦ" to "ඦ")
-        "v" -> listOf("ඬ" to "ඬ")
-        "o" -> listOf("ඳ" to "ඳ")
-        "r" -> listOf("ර්‍" to "\uE002")
-        "x" -> listOf("ඃ" to "ඃ")
-        "," -> listOf("ඏ" to "ඏ")
-        else -> null
+        return null
     }
 
     private fun punctuation(identity: String): List<String>? = when (identity) {

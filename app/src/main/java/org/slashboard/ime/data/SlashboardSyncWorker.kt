@@ -45,7 +45,7 @@ class SlashboardSyncWorker(appContext: Context, workerParams: WorkerParameters) 
     }
 
     private fun preloadLayouts(width: Float, density: Float, prefs: KeyboardPreferences, isLandscape: Boolean) {
-        val modes = listOf(InputMode.SMART_PHONETIC, InputMode.WIJESEKARA)
+        val modes = listOf(InputMode.SMART_PHONETIC, InputMode.PHONETIC)
         val layers = listOf(KeyboardLayer.LETTERS, KeyboardLayer.NUMBERS, KeyboardLayer.SYMBOLS)
         
         for (mode in modes) {

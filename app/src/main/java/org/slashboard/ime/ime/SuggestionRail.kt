@@ -19,7 +19,8 @@ internal class SuggestionRail(
     private val onCandidate: (String) -> Unit,
     private val onClipboard: () -> Unit,
     private val onSettings: () -> Unit,
-    private val onEmoji: () -> Unit
+    private val onEmoji: () -> Unit,
+    private val onVoice: () -> Unit
 ) : FrameLayout(context) {
     var keySliver = 0
     var onLangToggle: (() -> Unit)? = null
@@ -29,6 +30,7 @@ internal class SuggestionRail(
     private val clipboard = ImageView(context)
     private val settings = ImageView(context)
     private val emojiSwitch = ImageView(context)
+    private val voiceBtn = ImageView(context)
     private val emptyRow = LinearLayout(context)
     private val langToggle = TextView(context).apply {
         textSize = 12f
@@ -89,21 +91,31 @@ internal class SuggestionRail(
         emojiSwitch.isClickable = true
         emojiSwitch.isFocusable = true
 
+        voiceBtn.setImageResource(org.slashboard.ime.R.drawable.ic_key_mic)
+        voiceBtn.imageTintList = android.content.res.ColorStateList.valueOf(ink)
+        voiceBtn.scaleType = ImageView.ScaleType.CENTER_INSIDE
+        voiceBtn.setPadding(dp(10), dp(8), dp(10), dp(8))
+        voiceBtn.contentDescription = "Voice Input"
+        voiceBtn.isClickable = true
+        voiceBtn.isFocusable = true
+
         val ripple = android.util.TypedValue()
         if (context.theme.resolveAttribute(android.R.attr.selectableItemBackgroundBorderless, ripple, true)) {
             clipboard.setBackgroundResource(ripple.resourceId)
             settings.setBackgroundResource(ripple.resourceId)
             emojiSwitch.setBackgroundResource(ripple.resourceId)
+            voiceBtn.setBackgroundResource(ripple.resourceId)
         }
         clipboard.setOnClickListener { onClipboard() }
         settings.setOnClickListener { onSettings() }
         emojiSwitch.setOnClickListener { onEmoji() }
+        voiceBtn.setOnClickListener { onVoice() }
         
         emptyRow.orientation = LinearLayout.HORIZONTAL
         emptyRow.gravity = Gravity.CENTER_VERTICAL
         emptyRow.addView(empty, LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT))
         addView(emptyRow, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT).apply {
-            marginStart = dp(88)
+            marginStart = dp(120)
             marginEnd = dp(88)
         })
         val langSize = dp(32)
@@ -112,6 +124,9 @@ internal class SuggestionRail(
         })
         addView(emojiSwitch, LayoutParams(dp(44), LayoutParams.MATCH_PARENT, Gravity.START or Gravity.CENTER_VERTICAL).apply {
             marginStart = dp(40)
+        })
+        addView(voiceBtn, LayoutParams(dp(44), LayoutParams.MATCH_PARENT, Gravity.START or Gravity.CENTER_VERTICAL).apply {
+            marginStart = dp(84)
         })
         addView(clipboard, LayoutParams(dp(44), LayoutParams.MATCH_PARENT, Gravity.END or Gravity.CENTER_VERTICAL).apply {
             marginEnd = dp(44)
@@ -260,7 +275,7 @@ internal class SuggestionRail(
 
 /** Shared-prefix fade: matching text stays; replacements fade in at full opacity. */
 internal class MorphLabel(context: Context, private val color: Int) : FrameLayout(context) {
-    private val label = TextView(context).apply {
+    private val label = com.vanniktech.emoji.EmojiTextView(context).apply {
         textSize = 17f
         setTextColor(color)
         gravity = Gravity.CENTER

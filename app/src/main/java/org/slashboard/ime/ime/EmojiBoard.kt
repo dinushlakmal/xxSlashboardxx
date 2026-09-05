@@ -13,13 +13,22 @@ import android.widget.TextView
 import androidx.core.graphics.ColorUtils
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.vanniktech.emoji.EmojiTextView
 
-internal class EmojiCell(context: Context, ink: Int) : TextView(context) {
+internal class EmojiCell(context: Context, ink: Int) : EmojiTextView(context) {
     init {
         gravity = Gravity.CENTER
         textSize = KeyboardGeometry.EMOJI_TEXT_SP
-        includeFontPadding = false
-        if (Build.VERSION.SDK_INT >= 28) isFallbackLineSpacing = false
+        val outValue = android.util.TypedValue()
+        if (context.theme.resolveAttribute(android.R.attr.selectableItemBackgroundBorderless, outValue, true) && outValue.resourceId != 0) {
+            setBackgroundResource(outValue.resourceId)
+        } else {
+            background = RippleDrawable(
+                ColorStateList.valueOf(ColorUtils.setAlphaComponent(ink, 40)),
+                null,
+                null
+            )
+        }
         setTextColor(ink)
         minWidth = 0
         minimumWidth = 0
@@ -28,14 +37,10 @@ internal class EmojiCell(context: Context, ink: Int) : TextView(context) {
         setPadding(0, 0, 0, 0)
         isClickable = true
         isFocusable = true
-        background = RippleDrawable(
-            ColorStateList.valueOf(ColorUtils.setAlphaComponent(ink, 40)),
-            null,
-            GradientDrawable().apply {
-                shape = GradientDrawable.OVAL
-                setColor(Color.WHITE)
-            }
-        )
+        maxLines = 1
+        ellipsize = null
+        val density = context.resources.displayMetrics.density
+        setEmojiSize((KeyboardGeometry.EMOJI_TEXT_SP * density).toInt())
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {

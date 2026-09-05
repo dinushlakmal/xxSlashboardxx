@@ -145,7 +145,6 @@ internal object KeyboardLayoutFactory {
     ): List<RowDef> {
         val rows = ArrayList<RowDef>(6)
         val literal = editor != EditorLayout.TEXT || isEnglish
-        val wijesekara = !literal && mode == InputMode.WIJESEKARA
         if (!literal && (topRow == "emoji" || topRow == "both")) {
             rows += RowDef(
                 listOf("😀", "😂", "❤️", "👍", "🙏", "🔥", "✨", "🎉", "🇱🇰", "😊").map { charDef(it, it) },
@@ -157,31 +156,16 @@ internal object KeyboardLayoutFactory {
             rows += RowDef("1234567890".map { charDef(it.toString(), it.toString()) }, expandEdges = true, sliverTop = topRow == "numbers")
         }
         val firstLetters = rows.isEmpty()
-        if (wijesekara) {
-            KeyboardView.slsRows.forEachIndexed { index, ids ->
-                val keys = ids.map { id -> letterDef(id, mode, true, shifted, caps) }
-                val rowKeys = if (index == 2) {
-                    listOf(shiftDef(caps)) + keys + listOf(deleteDef())
-                } else keys
-                val fractions = if (index == 2) wijesekaraThirdFractions(keys.size) else List(rowKeys.size) { 1f / rowKeys.size }
-                rows += RowDef(
-                    rowKeys.mapIndexed { i, def -> def.copy(widthFraction = fractions[i]) },
-                    expandEdges = true,
-                    sliverTop = firstLetters && index == 0
-                )
-            }
-        } else {
-            val q = KeyboardView.qwertyRows[0].map { letterDef(it, mode, false, shifted, caps, KeyboardGeometry.LETTER, isEnglish) }
-            val a = KeyboardView.qwertyRows[1].map { letterDef(it, mode, false, shifted, caps, KeyboardGeometry.LETTER, isEnglish) }
-            val z = KeyboardView.qwertyRows[2].map { letterDef(it, mode, false, shifted, caps, KeyboardGeometry.LETTER, isEnglish) }
-            rows += RowDef(q, startFraction = 0f, expandEdges = true, sliverTop = firstLetters)
-            rows += RowDef(a, startFraction = KeyboardGeometry.ROW2_OFFSET, expandEdges = true)
-            rows += RowDef(
-                listOf(shiftDef(caps).copy(widthFraction = KeyboardGeometry.SHIFT)) +
-                    z +
-                    listOf(deleteDef().copy(widthFraction = KeyboardGeometry.DELETE))
-            )
-        }
+        val q = KeyboardView.qwertyRows[0].map { letterDef(it, mode, false, shifted, caps, KeyboardGeometry.LETTER, isEnglish) }
+        val a = KeyboardView.qwertyRows[1].map { letterDef(it, mode, false, shifted, caps, KeyboardGeometry.LETTER, isEnglish) }
+        val z = KeyboardView.qwertyRows[2].map { letterDef(it, mode, false, shifted, caps, KeyboardGeometry.LETTER, isEnglish) }
+        rows += RowDef(q, startFraction = 0f, expandEdges = true, sliverTop = firstLetters)
+        rows += RowDef(a, startFraction = KeyboardGeometry.ROW2_OFFSET, expandEdges = true)
+        rows += RowDef(
+            listOf(shiftDef(caps).copy(widthFraction = KeyboardGeometry.SHIFT)) +
+                z +
+                listOf(deleteDef().copy(widthFraction = KeyboardGeometry.DELETE))
+        )
         rows += bottomRow(editor, emojiPicker, enterLabel, spaceLabel, offerGlobe)
         return rows
     }

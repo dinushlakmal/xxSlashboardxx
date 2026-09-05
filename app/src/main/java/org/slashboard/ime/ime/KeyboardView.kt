@@ -38,6 +38,7 @@ interface KeyboardActions {
     fun onGlobe()
     fun onModeRequested(mode: InputMode)
     fun onHide()
+    fun onVoiceInputRequested() {}
     fun onCursorDelta(delta: Int)
     fun onPressFeedback() {}
     fun languageScoreForKey(output: String): Float = 0f
@@ -93,7 +94,8 @@ class KeyboardView(
         onEmoji = {
             layer = KeyboardLayer.EMOJI
             render()
-        }
+        },
+        onVoice = { actions.onVoiceInputRequested() }
     )
     private val body = LinearLayout(context)
     private val homePad = View(context)
@@ -558,11 +560,6 @@ class KeyboardView(
 
     companion object {
         val qwertyRows = listOf("qwertyuiop".map(Char::toString), "asdfghjkl".map(Char::toString), "zxcvbnm".map(Char::toString))
-        val slsRows = listOf(
-            listOf("q","w","e","r","t","y","u","i","o","p","["),
-            listOf("a","s","d","f","g","h","j","k","l",";"),
-            listOf("rakaranshaya","x","c","v","b","n","m",",",".")
-        )
         val numbers = listOf("1234567890".map(Char::toString), listOf("@","#","₨","_","&","-","+","(",")","/"), listOf("*","\"","'",":",";","!","?"))
         val symbols = listOf(listOf("~","`","|","•","√","π","÷","×","¶","∆"), listOf("£","€","$","¢","^","°","=","{","}","\\"), listOf("%","©","®","™","✓","[","]"))
         val numericEditors = setOf(EditorLayout.NUMBER, EditorLayout.SIGNED_NUMBER, EditorLayout.DECIMAL, EditorLayout.SIGNED_DECIMAL, EditorLayout.PHONE, EditorLayout.DATETIME)

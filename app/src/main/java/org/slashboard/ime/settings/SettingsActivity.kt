@@ -55,6 +55,11 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringArrayResource
@@ -78,6 +83,9 @@ import kotlinx.coroutines.delay
 class SettingsActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        runCatching {
+            com.vanniktech.emoji.EmojiManager.install(com.vanniktech.emoji.ios.IosEmojiProvider())
+        }
         WindowCompat.setDecorFitsSystemWindows(window, false)
         val prefs = KeyboardPreferences(this)
         
@@ -103,10 +111,10 @@ class SettingsActivity : ComponentActivity() {
                         .background(
                             Brush.verticalGradient(
                                 colors = listOf(
-                                    Color(0xFF00D2FF),
-                                    Color(0xFF0080E6),
-                                    Color(0xFF0044B3),
-                                    Color(0xFF011640)
+                                    Color(0xFF0052D4),
+                                    Color(0xFF0038A8),
+                                    Color(0xFF001F6B),
+                                    Color(0xFF000E33)
                                 )
                             )
                         )
@@ -821,6 +829,60 @@ fun SettingsActionRow(
 
 private fun intColor(c: Int): Color = Color(c.toLong() and 0xFFFFFFFFL)
 
+@Composable
+fun InteractiveKeyboardPreview(prefs: KeyboardPreferences, refresh: Int) {
+    var testText by remember { mutableStateOf("") }
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 14.dp, vertical = 8.dp)
+                .clip(RoundedCornerShape(12.dp))
+        ) {
+            androidx.compose.ui.viewinterop.AndroidView(
+                factory = { ctx ->
+                    val dummyActions = object : org.slashboard.ime.ime.KeyboardActions {
+                        override fun onCharacter(value: String) { testText += value }
+                        override fun onBackspace(word: Boolean) { 
+                            if (testText.isNotEmpty()) testText = testText.dropLast(1)
+                        }
+                        override fun onSpace() { testText += " " }
+                        override fun onEnter() { testText += "\n" }
+                        override fun onCandidate(value: String) {}
+                        override fun onGlobe() {}
+                        override fun onModeRequested(mode: org.slashboard.ime.engine.InputMode) {}
+                        override fun onHide() {}
+                        override fun onCursorDelta(delta: Int) {}
+                    }
+                    // For the settings preview, disable emoji repo and clipboard store to speed up init
+                    val kv = org.slashboard.ime.ime.KeyboardView(ctx, dummyActions, prefs)
+                    kv.configure(org.slashboard.ime.engine.InputMode.SMART_PHONETIC, false, "↵")
+                    kv
+                },
+                update = { view: org.slashboard.ime.ime.KeyboardView ->
+                    // Re-apply theme when it changes
+                    refresh.hashCode() // read the state to trigger recomposition
+                    view.applyTheme()
+                },
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+
+        OutlinedTextField(
+            value = testText,
+            onValueChange = { testText = it },
+            label = { Text("Tap on the preview above to test") },
+            placeholder = { Text("Type here using the preview keyboard...") },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 14.dp, vertical = 6.dp),
+            singleLine = true,
+            readOnly = true,
+            shape = RoundedCornerShape(20.dp)
+        )
+    }
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ThemeLayoutsScreen(
@@ -830,7 +892,6 @@ fun ThemeLayoutsScreen(
 ) {
     val context = LocalContext.current
     var refresh by remember { mutableStateOf(0) }
-    var testText by remember { mutableStateOf("") }
     val themeValues = remember {
         listOf(
             "system", "light", "dark", "ocean_blue", "forest_green", "sunset",
@@ -868,52 +929,7 @@ fun ThemeLayoutsScreen(
                 .fillMaxSize()
                 .padding(padding)
         ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 14.dp, vertical = 8.dp)
-                    .clip(RoundedCornerShape(12.dp))
-            ) {
-                androidx.compose.ui.viewinterop.AndroidView(
-                    factory = { ctx ->
-                        val dummyActions = object : org.slashboard.ime.ime.KeyboardActions {
-                            override fun onCharacter(value: String) { testText += value }
-                            override fun onBackspace(word: Boolean) { 
-                                if (testText.isNotEmpty()) testText = testText.dropLast(1)
-                            }
-                            override fun onSpace() { testText += " " }
-                            override fun onEnter() { testText += "\n" }
-                            override fun onCandidate(value: String) {}
-                            override fun onGlobe() {}
-                            override fun onModeRequested(mode: org.slashboard.ime.engine.InputMode) {}
-                            override fun onHide() {}
-                            override fun onCursorDelta(delta: Int) {}
-                        }
-                        val kv = org.slashboard.ime.ime.KeyboardView(ctx, dummyActions, prefs)
-                        kv.configure(org.slashboard.ime.engine.InputMode.WIJESEKARA, false, "↵")
-                        kv
-                    },
-                    update = { view: org.slashboard.ime.ime.KeyboardView ->
-                        // Re-apply theme when it changes
-                        refresh.hashCode() // read the state to trigger recomposition
-                        view.applyTheme()
-                    },
-                    modifier = Modifier.fillMaxWidth()
-                )
-            }
-
-            OutlinedTextField(
-                value = testText,
-                onValueChange = { testText = it },
-                label = { Text("Tap on the preview above to test") },
-                placeholder = { Text("Type here using the preview keyboard...") },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 14.dp, vertical = 6.dp),
-                singleLine = true,
-                readOnly = true,
-                shape = RoundedCornerShape(20.dp)
-            )
+            InteractiveKeyboardPreview(prefs = prefs, refresh = refresh)
 
             LazyVerticalGrid(
                 columns = GridCells.Fixed(2),
@@ -1008,187 +1024,131 @@ fun MiniKeyboardPreview(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(8.dp)
+                .drawBehind {
+                    val keyColor = Color(palette.key.toLong() and 0xFFFFFFFFL)
+                    val utilColor = Color(palette.utility.toLong() and 0xFFFFFFFFL)
+                    val actionColor = Color(palette.action.toLong() and 0xFFFFFFFFL)
+                    val actionTextColor = Color(palette.actionText.toLong() and 0xFFFFFFFFL)
+                    val inkColor = Color(palette.ink.toLong() and 0xFFFFFFFFL)
+
+                    val spacing = 2.dp.toPx()
+                    val radius = CornerRadius(3.dp.toPx())
+                    val dotRadius = 1.5.dp.toPx()
+
+                    val contentWidth = size.width
+                    
+                    // Vertical arrangement computation
+                    val rowHeight = 14.dp.toPx()
+                    val barHeight = 4.dp.toPx()
+                    // Total height needed for content = barHeight + 4 * rowHeight
+                    val totalContentHeight = barHeight + (4 * rowHeight)
+                    val availableVerticalSpace = size.height - totalContentHeight
+                    val rowSpacing = availableVerticalSpace / 4f
+
+                    var currentY = 0f
+
+                    // Suggestion bar indicator (3 items: 1f, 1.5f, 1f weight)
+                    val barSpacing = 4.dp.toPx()
+                    val barPad = 4.dp.toPx()
+                    val barAvailableWidth = contentWidth - 2 * barPad - 2 * barSpacing
+                    val barUnit = barAvailableWidth / 3.5f
+                    
+                    var barX = barPad
+                    // Item 1
+                    drawRoundRect(color = inkColor.copy(alpha = 0.25f), topLeft = Offset(barX, currentY + 0.5.dp.toPx()), size = Size(barUnit, 3.dp.toPx()), cornerRadius = CornerRadius(1.5.dp.toPx()))
+                    barX += barUnit + barSpacing
+                    // Item 2
+                    drawRoundRect(color = inkColor.copy(alpha = 0.45f), topLeft = Offset(barX, currentY), size = Size(1.5f * barUnit, 4.dp.toPx()), cornerRadius = CornerRadius(2.dp.toPx()))
+                    barX += 1.5f * barUnit + barSpacing
+                    // Item 3
+                    drawRoundRect(color = inkColor.copy(alpha = 0.25f), topLeft = Offset(barX, currentY + 0.5.dp.toPx()), size = Size(barUnit, 3.dp.toPx()), cornerRadius = CornerRadius(1.5.dp.toPx()))
+                    
+                    currentY += barHeight + rowSpacing
+
+                    // Row 1: 10 keys
+                    val keyWidthR1 = (contentWidth - 9 * spacing) / 10f
+                    for (i in 0 until 10) {
+                        val kX = i * (keyWidthR1 + spacing)
+                        drawRoundRect(color = keyColor, topLeft = Offset(kX, currentY), size = Size(keyWidthR1, rowHeight), cornerRadius = radius)
+                        drawCircle(color = inkColor.copy(alpha = 0.7f), radius = dotRadius, center = Offset(kX + keyWidthR1 / 2f, currentY + rowHeight / 2f))
+                    }
+
+                    currentY += rowHeight + rowSpacing
+
+                    // Row 2: 9 keys
+                    val r2Padding = 4.dp.toPx()
+                    val r2Width = contentWidth - 2 * r2Padding
+                    val keyWidthR2 = (r2Width - 8 * spacing) / 9f
+                    for (i in 0 until 9) {
+                        val kX = r2Padding + i * (keyWidthR2 + spacing)
+                        drawRoundRect(color = keyColor, topLeft = Offset(kX, currentY), size = Size(keyWidthR2, rowHeight), cornerRadius = radius)
+                        drawCircle(color = inkColor.copy(alpha = 0.7f), radius = dotRadius, center = Offset(kX + keyWidthR2 / 2f, currentY + rowHeight / 2f))
+                    }
+
+                    currentY += rowHeight + rowSpacing
+
+                    // Row 3: Shift (1.4f), 7 keys (1f), Backspace (1.4f)
+                    val totalWeightR3 = 1.4f + 7f + 1.4f
+                    val availableWidthR3 = contentWidth - 8 * spacing
+                    val unitWidthR3 = availableWidthR3 / totalWeightR3
+
+                    // Shift
+                    val shiftWidth = 1.4f * unitWidthR3
+                    drawRoundRect(color = utilColor, topLeft = Offset(0f, currentY), size = Size(shiftWidth, rowHeight), cornerRadius = radius)
+                    // Draw little arrow for shift
+                    val shiftCenter = Offset(shiftWidth / 2f, currentY + rowHeight / 2f)
+                    drawLine(color = inkColor, start = Offset(shiftCenter.x, shiftCenter.y + 2.dp.toPx()), end = Offset(shiftCenter.x, shiftCenter.y - 3.dp.toPx()), strokeWidth = 1.5.dp.toPx(), cap = StrokeCap.Round)
+                    drawLine(color = inkColor, start = Offset(shiftCenter.x - 2.dp.toPx(), shiftCenter.y - 1.dp.toPx()), end = Offset(shiftCenter.x, shiftCenter.y - 3.dp.toPx()), strokeWidth = 1.5.dp.toPx(), cap = StrokeCap.Round)
+                    drawLine(color = inkColor, start = Offset(shiftCenter.x + 2.dp.toPx(), shiftCenter.y - 1.dp.toPx()), end = Offset(shiftCenter.x, shiftCenter.y - 3.dp.toPx()), strokeWidth = 1.5.dp.toPx(), cap = StrokeCap.Round)
+
+                    var currentX = shiftWidth + spacing
+                    // 7 Keys
+                    for (i in 0 until 7) {
+                        drawRoundRect(color = keyColor, topLeft = Offset(currentX, currentY), size = Size(unitWidthR3, rowHeight), cornerRadius = radius)
+                        drawCircle(color = inkColor.copy(alpha = 0.7f), radius = dotRadius, center = Offset(currentX + unitWidthR3 / 2f, currentY + rowHeight / 2f))
+                        currentX += unitWidthR3 + spacing
+                    }
+
+                    // Backspace
+                    val backspaceWidth = 1.4f * unitWidthR3
+                    drawRoundRect(color = utilColor, topLeft = Offset(currentX, currentY), size = Size(backspaceWidth, rowHeight), cornerRadius = radius)
+                    val bsCenter = Offset(currentX + backspaceWidth / 2f, currentY + rowHeight / 2f)
+                    drawLine(color = inkColor, start = Offset(bsCenter.x + 2.dp.toPx(), bsCenter.y), end = Offset(bsCenter.x - 3.dp.toPx(), bsCenter.y), strokeWidth = 1.5.dp.toPx(), cap = StrokeCap.Round)
+                    drawLine(color = inkColor, start = Offset(bsCenter.x - 1.dp.toPx(), bsCenter.y - 2.dp.toPx()), end = Offset(bsCenter.x - 3.dp.toPx(), bsCenter.y), strokeWidth = 1.5.dp.toPx(), cap = StrokeCap.Round)
+                    drawLine(color = inkColor, start = Offset(bsCenter.x - 1.dp.toPx(), bsCenter.y + 2.dp.toPx()), end = Offset(bsCenter.x - 3.dp.toPx(), bsCenter.y), strokeWidth = 1.5.dp.toPx(), cap = StrokeCap.Round)
+                    drawLine(color = inkColor, start = Offset(bsCenter.x, bsCenter.y - 2.dp.toPx()), end = Offset(bsCenter.x + 2.dp.toPx(), bsCenter.y + 2.dp.toPx()), strokeWidth = 1.5.dp.toPx(), cap = StrokeCap.Round)
+                    drawLine(color = inkColor, start = Offset(bsCenter.x, bsCenter.y + 2.dp.toPx()), end = Offset(bsCenter.x + 2.dp.toPx(), bsCenter.y - 2.dp.toPx()), strokeWidth = 1.5.dp.toPx(), cap = StrokeCap.Round)
+
+                    currentY += rowHeight + rowSpacing
+
+                    // Row 4: 123 (1.4f), Space (4.6f), Enter (1.8f)
+                    val totalWeightR4 = 1.4f + 4.6f + 1.8f
+                    val availableWidthR4 = contentWidth - 2 * spacing
+                    val unitWidthR4 = availableWidthR4 / totalWeightR4
+
+                    currentX = 0f
+                    // 123
+                    val symWidth = 1.4f * unitWidthR4
+                    drawRoundRect(color = utilColor, topLeft = Offset(currentX, currentY), size = Size(symWidth, rowHeight), cornerRadius = radius)
+                    drawRoundRect(color = inkColor.copy(alpha = 0.7f), topLeft = Offset(currentX + symWidth / 2f - 4.dp.toPx(), currentY + rowHeight / 2f - 1.dp.toPx()), size = Size(8.dp.toPx(), 2.dp.toPx()), cornerRadius = CornerRadius(1.dp.toPx()))
+                    currentX += symWidth + spacing
+
+                    // Space
+                    val spaceWidth = 4.6f * unitWidthR4
+                    drawRoundRect(color = keyColor, topLeft = Offset(currentX, currentY), size = Size(spaceWidth, rowHeight), cornerRadius = radius)
+                    drawRoundRect(color = inkColor.copy(alpha = 0.4f), topLeft = Offset(currentX + spaceWidth / 2f - 11.dp.toPx(), currentY + rowHeight / 2f - 1.dp.toPx()), size = Size(22.dp.toPx(), 2.dp.toPx()), cornerRadius = CornerRadius(1.dp.toPx()))
+                    currentX += spaceWidth + spacing
+
+                    // Enter
+                    val enterWidth = 1.8f * unitWidthR4
+                    drawRoundRect(color = actionColor, topLeft = Offset(currentX, currentY), size = Size(enterWidth, rowHeight), cornerRadius = radius)
+                    val enterCenter = Offset(currentX + enterWidth / 2f, currentY + rowHeight / 2f)
+                    drawLine(color = actionTextColor, start = Offset(enterCenter.x + 2.dp.toPx(), enterCenter.y - 2.dp.toPx()), end = Offset(enterCenter.x + 2.dp.toPx(), enterCenter.y + 1.dp.toPx()), strokeWidth = 1.5.dp.toPx(), cap = StrokeCap.Round)
+                    drawLine(color = actionTextColor, start = Offset(enterCenter.x + 2.dp.toPx(), enterCenter.y + 1.dp.toPx()), end = Offset(enterCenter.x - 2.dp.toPx(), enterCenter.y + 1.dp.toPx()), strokeWidth = 1.5.dp.toPx(), cap = StrokeCap.Round)
+                    drawLine(color = actionTextColor, start = Offset(enterCenter.x, enterCenter.y - 1.dp.toPx()), end = Offset(enterCenter.x - 2.dp.toPx(), enterCenter.y + 1.dp.toPx()), strokeWidth = 1.5.dp.toPx(), cap = StrokeCap.Round)
+                    drawLine(color = actionTextColor, start = Offset(enterCenter.x, enterCenter.y + 3.dp.toPx()), end = Offset(enterCenter.x - 2.dp.toPx(), enterCenter.y + 1.dp.toPx()), strokeWidth = 1.5.dp.toPx(), cap = StrokeCap.Round)
+                }
         ) {
-            Column(
-                modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.SpaceEvenly
-            ) {
-                // Suggestion bar indicator
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 4.dp),
-                    horizontalArrangement = Arrangement.spacedBy(4.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .weight(1f)
-                            .height(3.dp)
-                            .background(intColor(palette.ink).copy(alpha = 0.25f), CircleShape)
-                    )
-                    Box(
-                        modifier = Modifier
-                            .weight(1.5f)
-                            .height(4.dp)
-                            .background(intColor(palette.ink).copy(alpha = 0.45f), CircleShape)
-                    )
-                    Box(
-                        modifier = Modifier
-                            .weight(1f)
-                            .height(3.dp)
-                            .background(intColor(palette.ink).copy(alpha = 0.25f), CircleShape)
-                    )
-                }
-
-                // Row 1: 10 keys
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(2.dp)
-                ) {
-                    repeat(10) {
-                        Box(
-                            modifier = Modifier
-                                .weight(1f)
-                                .height(14.dp)
-                                .background(intColor(palette.key), RoundedCornerShape(3.dp)),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Box(
-                                modifier = Modifier
-                                    .size(3.dp)
-                                    .background(intColor(palette.ink).copy(alpha = 0.7f), CircleShape)
-                            )
-                        }
-                    }
-                }
-
-                // Row 2: 9 keys
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 4.dp),
-                    horizontalArrangement = Arrangement.spacedBy(2.dp)
-                ) {
-                    repeat(9) {
-                        Box(
-                            modifier = Modifier
-                                .weight(1f)
-                                .height(14.dp)
-                                .background(intColor(palette.key), RoundedCornerShape(3.dp)),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Box(
-                                modifier = Modifier
-                                    .size(3.dp)
-                                    .background(intColor(palette.ink).copy(alpha = 0.7f), CircleShape)
-                            )
-                        }
-                    }
-                }
-
-                // Row 3: Shift (utility), 7 keys, Backspace (utility)
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(2.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .weight(1.4f)
-                            .height(14.dp)
-                            .background(intColor(palette.utility), RoundedCornerShape(3.dp)),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.ArrowUpward,
-                            contentDescription = null,
-                            tint = intColor(palette.ink),
-                            modifier = Modifier.size(8.dp)
-                        )
-                    }
-                    repeat(7) {
-                        Box(
-                            modifier = Modifier
-                                .weight(1f)
-                                .height(14.dp)
-                                .background(intColor(palette.key), RoundedCornerShape(3.dp)),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Box(
-                                modifier = Modifier
-                                    .size(3.dp)
-                                    .background(intColor(palette.ink).copy(alpha = 0.7f), CircleShape)
-                            )
-                        }
-                    }
-                    Box(
-                        modifier = Modifier
-                            .weight(1.4f)
-                            .height(14.dp)
-                            .background(intColor(palette.utility), RoundedCornerShape(3.dp)),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.Backspace,
-                            contentDescription = null,
-                            tint = intColor(palette.ink),
-                            modifier = Modifier.size(8.dp)
-                        )
-                    }
-                }
-
-                // Row 4: 123 (utility), Space (key), Action/Enter (action)
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(2.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .weight(1.4f)
-                            .height(14.dp)
-                            .background(intColor(palette.utility), RoundedCornerShape(3.dp)),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Box(
-                            modifier = Modifier
-                                .width(8.dp)
-                                .height(2.dp)
-                                .background(intColor(palette.ink).copy(alpha = 0.7f), RoundedCornerShape(1.dp))
-                        )
-                    }
-                    Box(
-                        modifier = Modifier
-                            .weight(4.6f)
-                            .height(14.dp)
-                            .background(intColor(palette.key), RoundedCornerShape(3.dp)),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Box(
-                            modifier = Modifier
-                                .width(22.dp)
-                                .height(2.dp)
-                                .background(intColor(palette.ink).copy(alpha = 0.4f), RoundedCornerShape(1.dp))
-                        )
-                    }
-                    Box(
-                        modifier = Modifier
-                            .weight(1.8f)
-                            .height(14.dp)
-                            .background(intColor(palette.action), RoundedCornerShape(3.dp)),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.KeyboardReturn,
-                            contentDescription = null,
-                            tint = intColor(palette.actionText),
-                            modifier = Modifier.size(9.dp)
-                        )
-                    }
-                }
-            }
-
             // Selection indicator badge
             if (isSelected) {
                 Surface(

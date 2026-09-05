@@ -12,12 +12,33 @@ class EmojiRepository(context: Context) {
     init {
         val text = context.resources.openRawResource(R.raw.sinhala_emoji_index).bufferedReader().use { it.readText() }
         runCatching {
+            val normalizedMap = mutableMapOf<String, String>()
+            runCatching {
+                val provider = com.vanniktech.emoji.ios.IosEmojiProvider()
+                provider.categories.forEach { cat ->
+                    cat.emojis.forEach { e ->
+                        val clean = e.unicode.replace("\uFE0F", "")
+                        normalizedMap[clean] = e.unicode
+                    }
+                }
+            }
+            fun normalize(emoji: String): String {
+                val clean = emoji.replace("\uFE0F", "")
+                return normalizedMap[clean] ?: emoji
+            }
+
             val root = JSONObject(text)
             root.keys().forEach { key ->
                 val value = root.get(key)
                 when (value) {
-                    is String -> index.getOrPut(key.lowercase()) { linkedSetOf() }.add(value).also { catalog.add(value) }
-                    is org.json.JSONArray -> repeat(value.length()) { i -> value.getString(i).let { emoji -> index.getOrPut(key.lowercase()) { linkedSetOf() }.add(emoji); catalog.add(emoji) } }
+                    is String -> {
+                        val e = normalize(value)
+                        index.getOrPut(key.lowercase()) { linkedSetOf() }.add(e).also { catalog.add(e) }
+                    }
+                    is org.json.JSONArray -> repeat(value.length()) { i -> 
+                        val e = normalize(value.getString(i))
+                        index.getOrPut(key.lowercase()) { linkedSetOf() }.add(e); catalog.add(e) 
+                    }
                 }
             }
         }

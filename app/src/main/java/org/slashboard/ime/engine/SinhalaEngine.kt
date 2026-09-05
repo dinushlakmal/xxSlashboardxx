@@ -3,7 +3,7 @@ package org.slashboard.ime.engine
 import java.text.Normalizer
 
 enum class InputMode(val title: String) {
-    WIJESEKARA("Wijesekara"), PHONETIC("Phonetic"), SMART_PHONETIC("Smart Phonetic")
+    PHONETIC("Phonetic"), SMART_PHONETIC("Smart Phonetic"), ENGLISH("English")
 }
 
 /** Direct port of ios/Shared/SinhalaEngine.swift. Keep rule ordering significant. */
@@ -206,9 +206,9 @@ object SinhalaEngine {
     }
 
     fun transliterate(source: String, mode: InputMode): String = when (mode) {
-        InputMode.WIJESEKARA -> normalizeSls(source)
         InputMode.SMART_PHONETIC -> transliterateWith(source, smartConsonants, smartVowels, true)
         InputMode.PHONETIC -> transliterateWith(source, consonants, vowels, false)
+        InputMode.ENGLISH -> source
     }
 
     private fun transliterateWith(source: String, cs: List<Pair<String, String>>, vs: List<Vowel>, smart: Boolean): String {
