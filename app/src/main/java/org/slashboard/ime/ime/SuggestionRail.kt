@@ -24,9 +24,13 @@ internal class SuggestionRail(
 ) : FrameLayout(context) {
     var keySliver = 0
     var onLangToggle: (() -> Unit)? = null
+    var onToolbarAction: ((String) -> Unit)? = null
     private val chips = Array(3) { MorphChip(context, ink) }
     private val chipRow = LinearLayout(context)
     private val empty = TextView(context)
+    private val translateBtn = ImageView(context)
+    private val fontBtn = ImageView(context)
+    private val otpBtn = ImageView(context)
     private val clipboard = ImageView(context)
     private val settings = ImageView(context)
     private val emojiSwitch = ImageView(context)
@@ -67,6 +71,22 @@ internal class SuggestionRail(
         empty.setTextColor(ColorUtils.setAlphaComponent(ink, 170))
         empty.gravity = Gravity.CENTER
         empty.importantForAccessibility = IMPORTANT_FOR_ACCESSIBILITY_NO
+        
+        val setupIcon = { img: ImageView, resId: Int, desc: String, actionId: String ->
+            img.setImageResource(resId)
+            img.imageTintList = android.content.res.ColorStateList.valueOf(ink)
+            img.scaleType = ImageView.ScaleType.CENTER_INSIDE
+            img.setPadding(dp(10), dp(8), dp(10), dp(8))
+            img.contentDescription = desc
+            img.isClickable = true
+            img.isFocusable = true
+            img.setOnClickListener { onToolbarAction?.invoke(actionId) }
+        }
+        setupIcon(translateBtn, org.slashboard.ime.R.drawable.ic_key_translate, "Translator", "translate")
+        setupIcon(fontBtn, org.slashboard.ime.R.drawable.ic_key_font, "Convert to FM", "fm")
+        setupIcon(otpBtn, org.slashboard.ime.R.drawable.ic_key_otp, "Paste OTP", "otp")
+        otpBtn.visibility = View.GONE
+        
         clipboard.setImageResource(org.slashboard.ime.R.drawable.ic_key_clipboard)
         clipboard.imageTintList = android.content.res.ColorStateList.valueOf(ink)
         clipboard.scaleType = ImageView.ScaleType.CENTER_INSIDE
@@ -101,6 +121,9 @@ internal class SuggestionRail(
 
         val ripple = android.util.TypedValue()
         if (context.theme.resolveAttribute(android.R.attr.selectableItemBackgroundBorderless, ripple, true)) {
+            translateBtn.setBackgroundResource(ripple.resourceId)
+            fontBtn.setBackgroundResource(ripple.resourceId)
+            otpBtn.setBackgroundResource(ripple.resourceId)
             clipboard.setBackgroundResource(ripple.resourceId)
             settings.setBackgroundResource(ripple.resourceId)
             emojiSwitch.setBackgroundResource(ripple.resourceId)
@@ -113,7 +136,11 @@ internal class SuggestionRail(
         
         emptyRow.orientation = LinearLayout.HORIZONTAL
         emptyRow.gravity = Gravity.CENTER_VERTICAL
-        emptyRow.addView(empty, LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT))
+        // emptyRow.addView(empty, LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT))
+        emptyRow.addView(translateBtn, LinearLayout.LayoutParams(dp(44), LayoutParams.MATCH_PARENT))
+        emptyRow.addView(fontBtn, LinearLayout.LayoutParams(dp(44), LayoutParams.MATCH_PARENT))
+        emptyRow.addView(otpBtn, LinearLayout.LayoutParams(dp(44), LayoutParams.MATCH_PARENT))
+        
         addView(emptyRow, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT).apply {
             marginStart = dp(120)
             marginEnd = dp(88)
@@ -141,9 +168,16 @@ internal class SuggestionRail(
         langToggle.text = if (isEnglish) "EN" else "සිං"
     }
 
+    fun setOtpAvailable(available: Boolean) {
+        otpBtn.visibility = if (available) View.VISIBLE else View.GONE
+    }
+
     fun updateInk(newInk: Int) {
         this.ink = newInk
         empty.setTextColor(ColorUtils.setAlphaComponent(newInk, 170))
+        translateBtn.imageTintList = android.content.res.ColorStateList.valueOf(newInk)
+        fontBtn.imageTintList = android.content.res.ColorStateList.valueOf(newInk)
+        otpBtn.imageTintList = android.content.res.ColorStateList.valueOf(newInk)
         clipboard.imageTintList = android.content.res.ColorStateList.valueOf(newInk)
         settings.imageTintList = android.content.res.ColorStateList.valueOf(newInk)
         emojiSwitch.imageTintList = android.content.res.ColorStateList.valueOf(newInk)

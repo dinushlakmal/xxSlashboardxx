@@ -419,6 +419,21 @@ fun SettingsScreen(prefs: KeyboardPreferences, onThemeChanged: (String) -> Unit 
                         checked = prefs.haptics,
                         onCheckedChange = { prefs.haptics = it; refresh++ }
                     )
+                    SettingsToggleRow(
+                        title = "Key Sounds",
+                        summary = null,
+                        icon = Icons.AutoMirrored.Filled.VolumeUp,
+                        checked = prefs.keySounds,
+                        onCheckedChange = { prefs.keySounds = it; refresh++ }
+                    )
+                    SettingsChoiceRow(
+                        title = "Sound Pack",
+                        icon = Icons.Default.Audiotrack,
+                        entries = listOf("System", "iOS", "Mechanical", "Typewriter"),
+                        values = listOf("system", "ios", "mechanical", "typewriter"),
+                        currentValue = prefs.soundPack,
+                        onValueChange = { prefs.soundPack = it; refresh++ }
+                    )
                 }
             }
 

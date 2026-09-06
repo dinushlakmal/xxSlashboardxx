@@ -45,6 +45,7 @@ interface KeyboardActions {
     fun onPreviewDelete(clusters: Int) {}
     fun onCommitPreviewDelete() {}
     fun onCancelPreviewDelete() {}
+    fun onToolbarAction(action: String) {}
 }
 
 @SuppressLint("ViewConstructor")
@@ -159,6 +160,9 @@ class KeyboardView(
             prefs.useEnglish = !prefs.useEnglish
             render()
         }
+        rail.onToolbarAction = {
+            actions.onToolbarAction(it)
+        }
         addView(rail, LayoutParams(LayoutParams.MATCH_PARENT, suggestionRailHeight()))
         body.orientation = VERTICAL
         body.clipChildren = true
@@ -213,6 +217,9 @@ class KeyboardView(
     fun setCandidates(values: List<String>) {
         candidates = values.take(3)
         bindRail(true)
+    }
+    fun setOtpAvailable(available: Boolean) {
+        rail.setOtpAvailable(available)
     }
     fun setClipboardItems(recent: List<String>, pinned: List<String> = emptyList()) {
         clipboardRecent = recent

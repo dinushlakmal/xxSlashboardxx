@@ -205,10 +205,30 @@ object SinhalaEngine {
         return text.startsWith(prefix)
     }
 
-    fun transliterate(source: String, mode: InputMode): String = when (mode) {
-        InputMode.SMART_PHONETIC -> transliterateWith(source, smartConsonants, smartVowels, true)
-        InputMode.PHONETIC -> transliterateWith(source, consonants, vowels, false)
-        InputMode.ENGLISH -> source
+    private val slangMap = mapOf(
+        "mcn" to "මචන්",
+        "thx" to "ස්තූතියි",
+        "tnx" to "ස්තූතියි",
+        "np" to "අවුලක් නෑ",
+        "gm" to "සුබ උදෑසනක්",
+        "gn" to "සුබ රාත්‍රියක්",
+        "tc" to "පරිස්සමෙන්",
+        "wc" to "සාදරයෙන් පිළිගන්නවා",
+        "brb" to "දැන් එන්නම්",
+        "omg" to "අයියෝ",
+        "ok" to "හරි",
+        "hw" to "කොහොමද"
+    )
+
+    fun transliterate(source: String, mode: InputMode): String {
+        if (mode == InputMode.ENGLISH) return source
+        val lower = source.lowercase()
+        if (slangMap.containsKey(lower)) return slangMap[lower]!!
+        return when (mode) {
+            InputMode.SMART_PHONETIC -> transliterateWith(source, smartConsonants, smartVowels, true)
+            InputMode.PHONETIC -> transliterateWith(source, consonants, vowels, false)
+            else -> source
+        }
     }
 
     private fun transliterateWith(source: String, cs: List<Pair<String, String>>, vs: List<Vowel>, smart: Boolean): String {

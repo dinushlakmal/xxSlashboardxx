@@ -18,6 +18,18 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.drawWithCache
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.text.drawText
+import androidx.compose.ui.text.rememberTextMeasurer
+
 /**
  * A basic Compose-based keyboard layout to serve as a foundational UI component.
  */
@@ -31,10 +43,19 @@ fun ComposeKeyboard(
     ),
     onKeyPressed: (String) -> Unit
 ) {
+    val surfaceVariant = MaterialTheme.colorScheme.surfaceVariant
+    val keyboardBackground = remember(surfaceVariant) {
+        derivedStateOf { surfaceVariant }
+    }
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.surfaceVariant)
+            .drawWithCache {
+                onDrawBehind {
+                    drawRect(color = keyboardBackground.value)
+                }
+            }
             .padding(vertical = 8.dp)
     ) {
         keys.forEach { row ->
@@ -64,19 +85,54 @@ fun KeyboardKey(
     modifier: Modifier = Modifier,
     onClick: () -> Unit
 ) {
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressedState = interactionSource.collectIsPressedAsState()
+
+    val surface = MaterialTheme.colorScheme.surface
+    val surfaceVariant = MaterialTheme.colorScheme.surfaceVariant
+    val onSurface = MaterialTheme.colorScheme.onSurface
+
+    // Correctly using derivedStateOf by returning a State object and NOT re-remembering on isPressed
+    val backgroundColor = remember(surface, surfaceVariant) {
+        derivedStateOf { if (isPressedState.value) surfaceVariant else surface }
+    }
+
+    val textMeasurer = rememberTextMeasurer()
+    val textStyle = MaterialTheme.typography.bodyLarge.copy(
+        fontWeight = FontWeight.Medium,
+        color = onSurface
+    )
+
     Box(
         modifier = modifier
             .height(54.dp)
-            .clip(RoundedCornerShape(6.dp))
-            .background(MaterialTheme.colorScheme.surface)
-            .clickable(onClick = onClick),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(
-            text = label,
-            color = MaterialTheme.colorScheme.onSurface,
-            fontWeight = FontWeight.Medium,
-            style = MaterialTheme.typography.bodyLarge
-        )
-    }
+            .clickable(
+                interactionSource = interactionSource,
+                indication = null, // Disable default ripple to fully control drawing and prevent UI blocking
+                onClick = onClick
+            )
+            // Implement Modifier.drawBehind and drawWithCache
+            .drawBehind {
+                drawRoundRect(
+                    color = backgroundColor.value,
+                    cornerRadius = CornerRadius(6.dp.toPx(), 6.dp.toPx())
+                )
+            }
+            .drawWithCache {
+                val textLayoutResult = textMeasurer.measure(
+                    text = label,
+                    style = textStyle
+                )
+                onDrawWithContent {
+                    drawContent()
+                    drawText(
+                        textLayoutResult = textLayoutResult,
+                        topLeft = Offset(
+                            x = (size.width - textLayoutResult.size.width) / 2f,
+                            y = (size.height - textLayoutResult.size.height) / 2f
+                        )
+                    )
+                }
+            }
+    )
 }
