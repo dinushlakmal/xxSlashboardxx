@@ -285,6 +285,16 @@ class SlashboardInputMethodService : InputMethodService(), KeyboardActions {
 
     override fun onBackspace(word: Boolean) {
         runCatching {
+            val ic = currentInputConnection
+            val selected = ic?.getSelectedText(0)?.toString()
+            if (!selected.isNullOrEmpty()) {
+                commitComposition()
+                undoRedoManager.recordDeletedText(selected)
+                ic.commitText("", 1)
+                precedingDirty = true
+                updateSuggestions()
+                return
+            }
             if (composition.active) {
                 val rendered = composition.backspace(prefs.mode)
                 if (rendered.isEmpty()) {
@@ -751,6 +761,13 @@ class SlashboardInputMethodService : InputMethodService(), KeyboardActions {
     private fun deleteFromHost(word: Boolean) {
         val ic = currentInputConnection ?: return
         runCatching {
+            val selected = ic.getSelectedText(0)?.toString()
+            if (!selected.isNullOrEmpty()) {
+                undoRedoManager.recordDeletedText(selected)
+                ic.commitText("", 1)
+                return@runCatching
+            }
+
             val before = ic.getTextBeforeCursor(if (word) 256 else 32, 0)?.toString() ?: ""
             if (word) {
                 val target = GraphemeDelete.lastWordSegment(before)
@@ -759,12 +776,14 @@ class SlashboardInputMethodService : InputMethodService(), KeyboardActions {
                     ic.deleteSurroundingText(target.length, 0)
                 } else {
                     ic.sendKeyEvent(KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DEL))
+                    ic.sendKeyEvent(KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_DEL))
                 }
                 return@runCatching
             }
             val cluster = GraphemeDelete.lastCluster(before)
             if (cluster.isEmpty()) {
                 ic.sendKeyEvent(KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DEL))
+                ic.sendKeyEvent(KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_DEL))
                 return@runCatching
             }
             undoRedoManager.recordDeletedCluster(cluster)
