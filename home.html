@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="si">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Slashboard - විශේෂාංග සහ උපදෙස් | Home</title>
+    <meta name="description" content="Slashboard Sinhala Keyboard Features, Typing Guide, and Usage Instructions in Sinhala.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Sinhala:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4F46E5;
+            --primary-light: #6366F1;
+            --primary-dark: #3730A3;
+            --accent: #10B981;
+            --bg-gradient: linear-gradient(135deg, #0B0F19 0%, #171B26 50%, #0B0F19 100%);
+            --card-bg: rgba(26, 32, 48, 0.85);
+            --card-border: rgba(255, 255, 255, 0.08);
+            --text-main: #F8FAFC;
+            --text-muted: #94A3B8;
+            --radius: 16px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Plus Jakarta Sans', 'Noto Sans Sinhala', sans-serif;
+        }
+
+        body {
+            background: var(--bg-gradient);
+            color: var(--text-main);
+            min-height: 100vh;
+            line-height: 1.7;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        /* Navbar */
+        nav {
+            padding: 20px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--card-border);
+            backdrop-filter: blur(12px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: #fff;
+            font-weight: 800;
+            font-size: 1.3rem;
+        }
+
+        .logo-badge {
+            background: linear-gradient(135deg, #4F46E5, #EC4899);
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: color 0.2s;
+        }
+
+        .nav-links a:hover, .nav-links a.active {
+            color: #fff;
+        }
+
+        .header-section {
+            padding: 50px 0 30px;
+            text-align: center;
+        }
+
+        .header-section h1 {
+            font-size: 2.8rem;
+            font-weight: 800;
+            margin-bottom: 16px;
+            background: linear-gradient(to right, #FFFFFF, #C7D2FE, #818CF8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header-section p {
+            color: var(--text-muted);
+            font-size: 1.15rem;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        /* Section Layout */
+        .section-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: var(--radius);
+            padding: 36px;
+            margin-bottom: 32px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+        }
+
+        .section-title {
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #E0E7FF;
+            border-bottom: 1px solid var(--card-border);
+            padding-bottom: 12px;
+        }
+
+        /* Table Styling */
+        .table-responsive {
+            overflow-x: auto;
+            margin: 20px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.95rem;
+        }
+
+        th, td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+        }
+
+        th {
+            background: rgba(79, 70, 229, 0.15);
+            color: #A5B4FC;
+            font-weight: 700;
+            border-radius: 6px;
+        }
+
+        tr:hover td {
+            background: rgba(255,255,255,0.02);
+        }
+
+        .code-tag {
+            background: rgba(79, 70, 229, 0.25);
+            color: #818CF8;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-family: monospace;
+            font-size: 1rem;
+            font-weight: 700;
+        }
+
+        .sin-tag {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: #38BDF8;
+        }
+
+        /* Steps */
+        .step-list {
+            list-style: none;
+            counter-reset: steps-counter;
+        }
+
+        .step-item {
+            position: relative;
+            padding-left: 54px;
+            margin-bottom: 24px;
+        }
+
+        .step-item::before {
+            counter-increment: steps-counter;
+            content: counter(steps-counter);
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 38px;
+            height: 38px;
+            background: linear-gradient(135deg, #4F46E5, #6366F1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            color: #fff;
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.4);
+        }
+
+        .step-item h4 {
+            font-size: 1.15rem;
+            margin-bottom: 4px;
+            color: #F1F5F9;
+        }
+
+        .step-item p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        /* Feature grid cards */
+        .sub-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .sub-card {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .sub-card h4 {
+            color: #38BDF8;
+            margin-bottom: 8px;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .sub-card p {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        /* Footer */
+        footer {
+            margin-top: 60px;
+            padding: 30px 0 50px;
+            border-top: 1px solid var(--card-border);
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        footer a {
+            color: #818CF8;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- Navigation -->
+        <nav>
+            <a href="index.html" class="logo">
+                <div class="logo-badge">⌨️</div>
+                <span>Slashboard</span>
+            </a>
+            <div class="nav-links">
+                <a href="index.html">ගොඩබෑම (Landing)</a>
+                <a href="home.html" class="active">විශේෂාංග (Home)</a>
+                <a href="privacy-policy.html">පෞද්ගලිකත්වය (Privacy)</a>
+            </div>
+        </nav>
+
+        <!-- Header -->
+        <div class="header-section">
+            <h1>Slashboard විශේෂාංග සහ භාවිත උපදෙස්</h1>
+            <p>Android සඳහා නිර්මාණය කරන ලද වේගවත්ම සහ පූර්ණ ආරක්ෂිත සිංහල යතුරුපුවරුව</p>
+        </div>
+
+        <!-- How to Enable Section -->
+        <div class="section-card">
+            <h2 class="section-title">🚀 යතුරුපුවරුව ක්‍රියාත්මක කරගන්නා ආකාරය (Quick Setup)</h2>
+            <div class="step-list">
+                <div class="step-item">
+                    <h4>Slashboard ඇප් එක විවෘත කරන්න</h4>
+                    <p>ඔබගේ දුරකථනයේ ඇති <strong>Slashboard</strong> යෙදුම විවෘත කරන්න.</p>
+                </div>
+                <div class="step-item">
+                    <h4>Enable Slashboard තට්ටු කරන්න</h4>
+                    <p>Android On-Screen Keyboard සැකසුම් වෙත ගොස් <strong>slashboard Sinhala</strong> සක්‍රිය (Turn ON) කරන්න.</p>
+                </div>
+                <div class="step-item">
+                    <h4>Select Active Keyboard තෝරන්න</h4>
+                    <p>යෙදුමට ආපසු පැමිණ <strong>Select active keyboard</strong> තට්ටු කර <strong>slashboard Sinhala</strong> පෙරනිමි යතුරුපුවරුව ලෙස තෝරන්න.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3 Modes Section -->
+        <div class="section-card">
+            <h2 class="section-title">⌨️ යතුරුකරණ ක්‍රම 3 (Typing Modes)</h2>
+            <div class="sub-grid">
+                <div class="sub-card">
+                    <h4>✨ Smart Phonetic (සිංග්ලිෂ්)</h4>
+                    <p>ඉංග්‍රීසි අකුරුවලින් සිංහල ශබ්දය ටයිප් කළ විට (උදා: <code>ammaa</code> ➔ <strong>අම්මා</strong>) ස්වයංක්‍රීයව පරිවර්තනය වේ.</p>
+                </div>
+                <div class="sub-card">
+                    <h4>🔤 Phonetic (ශබ්දානුකූල)</h4>
+                    <p>සම්මත ඍජු ශබ්දානුකූල පරිවර්තන ක්‍රමය. සංකීර්ණ වචන වඩාත් නිරවද්‍යව ලිවීමට සහාය වේ.</p>
+                </div>
+                <div class="sub-card">
+                    <h4>🇱🇰 Wijesekara (විජේසේකර)</h4>
+                    <p>ශ්‍රී ලංකා ජාතික SLS විජේසේකර යතුරු ආකෘතිය. රකාරාංශය, යංශය, ඇ-ඈ පිළි ආදිය පහසුවෙන් ටයිප් කළ හැක.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Singlish Rules Guide -->
+        <div class="section-card">
+            <h2 class="section-title">📖 Singlish අකුරු යතුරුකරණ නීති (Typing Guide)</h2>
+
+            <h3 style="color: #A5B4FC; margin: 16px 0 8px;">1. ස්වර අක්ෂර (Vowels)</h3>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ඉංග්‍රීසි</th>
+                            <th>සිංහල</th>
+                            <th>ඉංග්‍රීසි</th>
+                            <th>සිංහල</th>
+                            <th>ඉංග්‍රීසි</th>
+                            <th>සිංහල</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><span class="code-tag">a</span></td><td><span class="sin-tag">අ</span></td>
+                            <td><span class="code-tag">aa</span></td><td><span class="sin-tag">ආ</span></td>
+                            <td><span class="code-tag">A / ae</span></td><td><span class="sin-tag">ඇ</span></td>
+                        </tr>
+                        <tr>
+                            <td><span class="code-tag">Aa / AA</span></td><td><span class="sin-tag">ඈ</span></td>
+                            <td><span class="code-tag">i</span></td><td><span class="sin-tag">ඉ</span></td>
+                            <td><span class="code-tag">ii</span></td><td><span class="sin-tag">ඊ</span></td>
+                        </tr>
+                        <tr>
+                            <td><span class="code-tag">u</span></td><td><span class="sin-tag">උ</span></td>
+                            <td><span class="code-tag">uu</span></td><td><span class="sin-tag">ඌ</span></td>
+                            <td><span class="code-tag">R</span></td><td><span class="sin-tag">ඍ</span></td>
+                        </tr>
+                        <tr>
+                            <td><span class="code-tag">e</span></td><td><span class="sin-tag">එ</span></td>
+                            <td><span class="code-tag">ee</span></td><td><span class="sin-tag">ඒ</span></td>
+                            <td><span class="code-tag">ai</span></td><td><span class="sin-tag">ඓ</span></td>
+                        </tr>
+                        <tr>
+                            <td><span class="code-tag">o</span></td><td><span class="sin-tag">ඔ</span></td>
+                            <td><span class="code-tag">oo</span></td><td><span class="sin-tag">ඕ</span></td>
+                            <td><span class="code-tag">au / ou</span></td><td><span class="sin-tag">ඖ</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3 style="color: #A5B4FC; margin: 24px 0 8px;">2. මහාප්‍රාණ සහ සඤ්ඤක අක්ෂර</h3>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>වර්ගය</th>
+                            <th>යතුරුකරණය (Singlish Key)</th>
+                            <th>ප්‍රතිඵලය (Result)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>මහාප්‍රාණ</td><td><span class="code-tag">kha</span>, <span class="code-tag">gha</span>, <span class="code-tag">chha</span>, <span class="code-tag">pha</span>, <span class="code-tag">bha</span></td><td><span class="sin-tag">ඛ, ඝ, ඡ, ඵ, භ</span></td></tr>
+                        <tr><td>මූර්ධජ</td><td><span class="code-tag">Ta</span>, <span class="code-tag">Da</span>, <span class="code-tag">Na</span>, <span class="code-tag">La</span>, <span class="code-tag">Sha</span></td><td><span class="sin-tag">ඨ, ඪ, ණ, ළ, ෂ</span></td></tr>
+                        <tr><td>සඤ්ඤක</td><td><span class="code-tag">zga</span> (ඟ), <span class="code-tag">zda</span> (ඬ), <span class="code-tag">zdha/zqa</span> (ඳ), <span class="code-tag">Ba/mba</span> (ඹ)</td><td><span class="sin-tag">ඟ, ඬ, ඳ, ඹ</span></td></tr>
+                        <tr><td>යංශය / රකාරාංශය</td><td><span class="code-tag">kya</span> ➔ ක්‍ය, <span class="code-tag">kra</span> ➔ ක්‍ර</td><td><span class="sin-tag">ක්‍ය, ක්‍ර</span></td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Special Features -->
+        <div class="section-card">
+            <h2 class="section-title">🌟 අමතර පහසුකම් (Additional Tools)</h2>
+            <div class="sub-grid">
+                <div class="sub-card">
+                    <h4>🌐 In-Keyboard Translator</h4>
+                    <p>සිංහල ⇄ ඉංග්‍රීසි ක්ෂණික පරිවර්තනය සහ නිතර භාවිතා වන Quick Phrases එකවර යැවීම.</p>
+                </div>
+                <div class="sub-card">
+                    <h4>📋 Clipboard Manager</h4>
+                    <p>Copy කරගත් වැකි ඉතිහාසය, නිතර අවශ්‍ය වැකි Pin කර තබා ගැනීමේ හැකියාව.</p>
+                </div>
+                <div class="sub-card">
+                    <h4>😀 Rich Emoji Board</h4>
+                    <p>WhatsApp සම්මත Categories සහ ශ්‍රී ලංකා ධජය (🇱🇰) සහිත පහසු Emoji තේරීම.</p>
+                </div>
+                <div class="sub-card">
+                    <h4>🔒 Zero Data Collection</h4>
+                    <p>කිසිදු සේවාදායකයකට (Servers) තොරතුරු යැවීමක් සිදු නොවන 100% On-Device ආරක්ෂාව.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer>
+            <p>© 2026 Slashboard Sinhala Keyboard. Crafted by <strong>Dinush Lakmal</strong>.</p>
+            <p style="margin-top: 8px;">
+                <a href="index.html">Landing Page</a> • 
+                <a href="privacy-policy.html">Privacy Policy</a>
+            </p>
+        </footer>
+    </div>
+
+</body>
+</html>

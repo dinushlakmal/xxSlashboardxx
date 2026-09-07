@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="si">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Slashboard Sinhala Keyboard | ස්ලෑෂ්බෝඩ් සිංහල යතුරුපුවරුව</title>
+    <meta name="description" content="Slashboard is a 100% offline, private, and native Sinhala keyboard for Android by Dinush Lakmal.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Sinhala:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4F46E5;
+            --primary-light: #6366F1;
+            --primary-dark: #3730A3;
+            --accent: #F59E0B;
+            --bg-gradient: linear-gradient(135deg, #0F172A 0%, #1E1B4B 50%, #0F172A 100%);
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --card-border: rgba(255, 255, 255, 0.1);
+            --text-main: #F8FAFC;
+            --text-muted: #94A3B8;
+            --radius: 16px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Plus Jakarta Sans', 'Noto Sans Sinhala', sans-serif;
+        }
+
+        body {
+            background: var(--bg-gradient);
+            color: var(--text-main);
+            min-height: 100vh;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        /* Navbar */
+        nav {
+            padding: 24px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--card-border);
+            backdrop-filter: blur(10px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: #fff;
+            font-weight: 800;
+            font-size: 1.4rem;
+        }
+
+        .logo-badge {
+            background: linear-gradient(135deg, #4F46E5, #EC4899);
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            box-shadow: 0 4px 14px rgba(79, 70, 229, 0.4);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 24px;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: color 0.2s;
+        }
+
+        .nav-links a:hover, .nav-links a.active {
+            color: #fff;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #4F46E5, #6366F1);
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 700;
+            box-shadow: 0 4px 15px rgba(79, 70, 229, 0.4);
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(79, 70, 229, 0.6);
+        }
+
+        /* Hero Section */
+        .hero {
+            padding: 80px 0 60px;
+            text-align: center;
+        }
+
+        .tagline {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(79, 70, 229, 0.2);
+            border: 1px solid rgba(79, 70, 229, 0.4);
+            padding: 6px 16px;
+            border-radius: 99px;
+            color: #A5B4FC;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 24px;
+        }
+
+        .hero h1 {
+            font-size: 3.2rem;
+            font-weight: 800;
+            line-height: 1.2;
+            margin-bottom: 20px;
+            background: linear-gradient(to right, #FFFFFF, #E0E7FF, #A5B4FC);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            color: var(--text-muted);
+            max-width: 720px;
+            margin: 0 auto 36px;
+        }
+
+        .cta-group {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid var(--card-border);
+            color: #fff;
+            padding: 12px 24px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: background 0.2s, border 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.25);
+        }
+
+        /* Interactive Demo Box */
+        .demo-box {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            padding: 32px;
+            margin: 50px auto 70px;
+            max-width: 800px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+            text-align: left;
+        }
+
+        .demo-box h3 {
+            margin-bottom: 12px;
+            font-size: 1.2rem;
+            color: #E2E8F0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .demo-input-container {
+            position: relative;
+            margin-bottom: 16px;
+        }
+
+        .demo-input {
+            width: 100%;
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            padding: 16px;
+            color: #fff;
+            font-size: 1.1rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .demo-input:focus {
+            border-color: var(--primary-light);
+        }
+
+        .demo-result {
+            background: rgba(79, 70, 229, 0.15);
+            border: 1px solid rgba(79, 70, 229, 0.3);
+            border-radius: 12px;
+            padding: 16px;
+            font-size: 1.4rem;
+            color: #38BDF8;
+            font-weight: 700;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+        }
+
+        /* Features Grid */
+        .features-section {
+            padding: 60px 0;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 48px;
+        }
+
+        .section-header h2 {
+            font-size: 2.2rem;
+            font-weight: 800;
+            margin-bottom: 12px;
+        }
+
+        .section-header p {
+            color: var(--text-muted);
+            font-size: 1.05rem;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 24px;
+        }
+
+        .feature-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            padding: 28px;
+            border-radius: var(--radius);
+            transition: transform 0.2s, border-color 0.2s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(99, 102, 241, 0.4);
+        }
+
+        .feature-icon {
+            width: 52px;
+            height: 52px;
+            background: rgba(79, 70, 229, 0.2);
+            border: 1px solid rgba(79, 70, 229, 0.4);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.6rem;
+            margin-bottom: 20px;
+        }
+
+        .feature-card h3 {
+            font-size: 1.3rem;
+            margin-bottom: 10px;
+            color: #F1F5F9;
+        }
+
+        .feature-card p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        /* Footer */
+        footer {
+            margin-top: 80px;
+            padding: 40px 0;
+            border-top: 1px solid var(--card-border);
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        footer a {
+            color: #818CF8;
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.2rem;
+            }
+            .nav-links {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- Navigation -->
+        <nav>
+            <a href="index.html" class="logo">
+                <div class="logo-badge">⌨️</div>
+                <span>Slashboard</span>
+            </a>
+            <div class="nav-links">
+                <a href="home.html">මුල් පිටුව (Home)</a>
+                <a href="privacy-policy.html">පෞද්ගලිකත්වය (Privacy)</a>
+                <a href="https://github.com/dinushlakmal01" target="_blank">Developer</a>
+                <a href="home.html" class="btn-primary">Features ගවේෂණය කරන්න</a>
+            </div>
+        </nav>
+
+        <!-- Hero Section -->
+        <section class="hero">
+            <div class="tagline">
+                🇱🇰 100% On-Device & Private Sinhala Keyboard for Android
+            </div>
+            <h1>වේගවත්, ආරක්ෂිත සහ පහසු<br>සිංහල යතුරුකරණය</h1>
+            <p>
+                Slashboard යනු කිසිදු අන්තර්ජාල සම්බන්ධතාවයකින් තොරව, 100% ආරක්ෂිතව ඔබගේ දුරකථනය තුළම ක්‍රියාත්මක වන ස්වදේශික සිංහල යතුරුපුවරුවයි.
+            </p>
+            <div class="cta-group">
+                <a href="home.html" class="btn-primary" style="padding: 14px 30px; font-size: 1.1rem;">
+                    🚀 සියලු විශේෂාංග බලන්න
+                </a>
+                <a href="privacy-policy.html" class="btn-secondary" style="padding: 14px 30px; font-size: 1.1rem;">
+                    🔒 Privacy Policy කියවන්න
+                </a>
+            </div>
+
+            <!-- Live Interactive Demo -->
+            <div class="demo-box">
+                <h3>⚡ Singlish Live Typing Preview:</h3>
+                <div class="demo-input-container">
+                    <input type="text" id="singlishInput" class="demo-input" placeholder="Type here in Singlish (e.g. ammaa, oyaata aadhareyi, sri lankaa)..." value="mama oyaata aadhareyi">
+                </div>
+                <div class="demo-result" id="sinhalaOutput">
+                    මම ඔයාට ආදරෙයි
+                </div>
+            </div>
+        </section>
+
+        <!-- Feature Highlights -->
+        <section class="features-section">
+            <div class="section-header">
+                <h2>ප්‍රධාන සුවිශේෂතා</h2>
+                <p>ඔබගේ එදිනෙදා සිංහල ටයිප් කිරීම පහසු කරන බලවත් මෙවලම්</p>
+            </div>
+
+            <div class="grid">
+                <div class="feature-card">
+                    <div class="feature-icon">⌨️</div>
+                    <h3>යතුරුකරණ ක්‍රම 3ක්</h3>
+                    <p>Smart Phonetic (සිංග්ලිෂ්), සම්මත Phonetic සහ ශ්‍රී ලංකා ජාතික විජේසේකර (SLS) යන ක්‍රම 3න්ම ටයිප් කිරීමේ පහසුව.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">🌐</div>
+                    <h3>ක්ෂණික පරිවර්තකය</h3>
+                    <p>යතුරුපුවරුව තුළින්ම (In-Keyboard) සිංහලෙන් ඉංග්‍රීසියට සහ ඉංග්‍රීසියෙන් සිංහලට ක්ෂණිකව පරිවර්තනය කර යැවීම.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">📋</div>
+                    <h3>ස්මාර්ට් Clipboard</h3>
+                    <p>නිතර අවශ්‍ය වන වචන සහ වාක්‍ය Pin කර තබා ගැනීම සහ පිටපත් කළ සටහන් ඉතිහාසය පහසුවෙන් භාවිතය.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">😀</div>
+                    <h3>Emoji Keyboard</h3>
+                    <p>WhatsApp සම්මත ප්‍රවර්ග සමග ශ්‍රී ලංකා ධජය (🇱🇰) මුලින්ම සහිත සම්පූර්ණ Emoji පුවරුව සහ සිංහලෙන් Emoji සෙවීම.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">🎨</div>
+                    <h3>තේමාවන් සහ හැඩතල</h3>
+                    <p>Material You Dynamic, OLED Dark, Sunset, Forest ආදී විවිධ තේමාවන් සහ යතුරු උස/පරතර වෙනස් කිරීමේ හැකියාව.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">🔒</div>
+                    <h3>100% Offline & Private</h3>
+                    <p>කිසිදු Internet අවසරයක් නොමැත. ඔබ ටයිප් කරන සියල්ල ඔබගේ දුරකථනය තුළ පමණක් ආරක්ෂිතව පවතී.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer>
+            <p>© 2026 Slashboard Sinhala Keyboard. Crafted with ❤️ for Sri Lanka 🇱🇰 by <strong>Dinush Lakmal</strong>.</p>
+            <p style="margin-top: 8px;">
+                <a href="home.html">Home</a> • 
+                <a href="privacy-policy.html">Privacy Policy</a> • 
+                <a href="https://github.com/dinushlakmal01">GitHub</a>
+            </p>
+        </footer>
+    </div>
+
+    <script>
+        // Simple client-side Singlish converter for the live preview demo
+        const consonants = {
+            "chha": "ඡ", "thha": "ථ", "dhha": "ධ", "zdha": "ඳ", "zqa": "ඳ", "ndha": "ඳ",
+            "nnda": "ඬ", "nda": "ඳ", "zda": "ඬ", "zga": "ඟ", "nga": "ඟ", "zja": "ඦ",
+            "zka": "ඤ", "kna": "ඤ", "nya": "ඤ", "zha": "ඥ", "gna": "ඥ", "mba": "ඹ",
+            "kha": "ඛ", "gha": "ඝ", "pha": "ඵ", "bha": "භ", "jha": "ඣ", "sha": "ශ",
+            "Sha": "ෂ", "Tha": "ඨ", "Dha": "ඪ", "cha": "ච", "tha": "ත", "dha": "ද",
+            "qa": "ද", "ka": "ක", "ga": "ග", "ca": "ච", "ja": "ජ", "ta": "ට",
+            "da": "ඩ", "na": "න", "Na": "ණ", "pa": "ප", "ba": "බ", "Ba": "ඹ",
+            "ma": "ම", "ya": "ය", "ra": "ර", "la": "ල", "La": "ළ", "wa": "ව",
+            "va": "ව", "sa": "ස", "Sa": "ෂ", "ha": "හ", "fa": "ෆ", "Ka": "ඛ",
+            "Ga": "ඝ", "Ca": "ඡ", "Ta": "ඨ", "Da": "ඪ", "Pa": "ඵ", "Ja": "ඣ"
+        };
+        const vowels = {
+            "ruu": { ind: "", sign: "ෲ" }, "aee": { ind: "ඈ", sign: "ෑ" }, "Aa": { ind: "ඈ", sign: "ෑ" },
+            "AA": { ind: "ඈ", sign: "ෑ" }, "ae": { ind: "ඇ", sign: "ැ" }, "aa": { ind: "ආ", sign: "ා" },
+            "ii": { ind: "ඊ", sign: "ී" }, "uu": { ind: "ඌ", sign: "ූ" }, "ee": { ind: "ඒ", sign: "ේ" },
+            "ai": { ind: "ඓ", sign: "ෛ" }, "oo": { ind: "ඕ", sign: "ෝ" }, "au": { ind: "ඖ", sign: "ෞ" },
+            "ou": { ind: "ඖ", sign: "ෞ" }, "ru": { ind: "", sign: "ෘ" }, "A": { ind: "ඇ", sign: "ැ" },
+            "I": { ind: "ඊ", sign: "ී" }, "U": { ind: "ඌ", sign: "ූ" }, "E": { ind: "ඒ", sign: "ේ" },
+            "O": { ind: "ඕ", sign: "ෝ" }, "a": { ind: "අ", sign: "" }, "i": { ind: "ඉ", sign: "ි" },
+            "u": { ind: "උ", sign: "ු" }, "e": { ind: "එ", sign: "ෙ" }, "o": { ind: "ඔ", sign: "ො" },
+            "R": { ind: "ඍ", sign: "" }, "x": { ind: "ං", sign: "ං" }, "M": { ind: "ං", sign: "ං" }
+        };
+
+        const consonantKeys = [
+            "chha","thha","dhha","zdha","zqa","ndha","nnda","nda","zda","zga","nga","zja","zka","kna","nya","zha","gna","mba","kha","gha","pha","bha","jha","sha","Sha","Tha","Dha","cha","tha","dha","qa","ka","ga","ca","ja","ta","da","na","Na","pa","ba","Ba","ma","ya","ra","la","La","wa","va","sa","Sa","ha","fa","Ka","Ga","Ca","Ta","Da","Pa","Ja","chh","thh","dhh","zdh","zq","ndh","nnd","nd","zd","zg","ng","zj","zk","kn","ny","zh","gn","mb","kh","gh","ph","bh","jh","sh","Sh","Th","Dh","ch","th","dh","q","k","g","c","j","t","d","n","N","p","b","B","m","y","r","l","L","w","v","s","S","h","f","K","G","C","T","D","P","J","Y","W","V","X"
+        ];
+        const vowelKeys = [
+            "ruu","aee","Aa","AA","ae","aa","ii","uu","ee","ai","oo","au","ou","ru","A","I","U","E","O","a","i","u","e","o","R","x","M"
+        ];
+
+        function transliterate(str) {
+            let out = "";
+            let i = 0;
+            while (i < str.length) {
+                let matchCons = consonantKeys.find(k => str.startsWith(k, i));
+                if (matchCons) {
+                    let baseChar = consonants[matchCons] || consonants[matchCons + "a"] || "";
+                    if (!baseChar) {
+                        // fallback
+                        baseChar = consonants[matchCons.toLowerCase()] || "";
+                    }
+                    i += matchCons.length;
+                    let matchVow = vowelKeys.find(k => str.startsWith(k, i));
+                    if (matchVow) {
+                        out += (baseChar || matchCons) + (vowels[matchVow]?.sign ?? "");
+                        i += matchVow.length;
+                    } else if (i < str.length && (str[i] === 'y' || str[i] === 'Y')) {
+                        out += (baseChar || matchCons) + "්\u200Dය";
+                        i++;
+                        let vAfter = vowelKeys.find(k => str.startsWith(k, i));
+                        if (vAfter) { out += (vowels[vAfter]?.sign ?? ""); i += vAfter.length; }
+                    } else if (i < str.length && (str[i] === 'r' || str[i] === 'R')) {
+                        out += (baseChar || matchCons) + "්\u200Dර";
+                        i++;
+                        let vAfter = vowelKeys.find(k => str.startsWith(k, i));
+                        if (vAfter) { out += (vowels[vAfter]?.sign ?? ""); i += vAfter.length; }
+                    } else {
+                        out += (baseChar || matchCons) + "්";
+                    }
+                    continue;
+                }
+                let matchVow = vowelKeys.find(k => str.startsWith(k, i));
+                if (matchVow) {
+                    out += vowels[matchVow].ind;
+                    i += matchVow.length;
+                    continue;
+                }
+                out += str[i];
+                i++;
+            }
+            return out;
+        }
+
+        const inputEl = document.getElementById('singlishInput');
+        const outputEl = document.getElementById('sinhalaOutput');
+
+        inputEl.addEventListener('input', (e) => {
+            const val = e.target.value;
+            outputEl.textContent = transliterate(val) || '...';
+        });
+    </script>
+</body>
+</html>
