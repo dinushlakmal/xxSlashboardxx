@@ -32,4 +32,14 @@
     <string name="reset_title">Reset keyboard settings</string><string name="reset_summary">Restore defaults and clear local keyboard data</string><string name="reset_message">This restores all keyboard settings and clears learned words and clipboard history.</string><string name="clear">Clear</string>
     <string name="about_title">Slashboard by Dinush Lakmal</string><string name="about_summary">Inspired Slashboard • Version %1$s</string>
     <string name="privacy_title">Private by design</string><string name="privacy_summary">Typing, learning, emoji search, and clipboard history stay on this device. Slashboard has no internet permission.</string>
+    <string name="toolbar_customization_title">Top Bar Icons</string>
+    <string name="toolbar_customization_summary">Customize, toggle, and reorder icons on the keyboard toolbar</string>
+    <string name="long_press_delay">Long-press delay</string>
+    <string name="long_press_delay_summary">Milliseconds before key popup and long-press actions trigger</string>
+    <string name="app_layout_memory_title">App-Specific Layout Memory</string>
+    <string name="app_layout_memory_summary">Auto-switch layout based on current app (Terminal/Dev, Chat/Singlish, Banking/Numpad)</string>
+    <string name="smart_modifiers_title">Smart URL &amp; Email Keys</string>
+    <string name="smart_modifiers_summary">Provide quick @, /, .lk, and .com shortcuts in email and URL fields</string>
+    <string name="thumb_reach_title">Thumb-Reach Ergonomics</string>
+    <string name="thumb_reach_summary">Adjust key hit zones to match natural thumb reach zones</string>
 </resources>

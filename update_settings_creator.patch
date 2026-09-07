@@ -1,0 +1,59 @@
+--- app/src/main/java/org/slashboard/ime/settings/SettingsActivity.kt
++++ app/src/main/java/org/slashboard/ime/settings/SettingsActivity.kt
+@@ -102,6 +102,7 @@
+ import org.slashboard.ime.settings.ToolbarCustomizationScreen
+ import org.slashboard.ime.ime.SlashboardInputMethodService
+ import org.slashboard.ime.settings.DeveloperSettingsScreen
++import org.slashboard.ime.settings.theme.ThemeCreatorScreen
+ 
+ class SettingsActivity : ComponentActivity() {
+     override fun onCreate(savedInstanceState: Bundle?) {
+@@ -134,6 +135,7 @@
+     var refresh by remember { mutableStateOf(0) }
+     var showThemesPage by remember { mutableStateOf(false) }
+     var showToolbarCustomization by remember { mutableStateOf(false) }
++    var showThemeCreator by remember { mutableStateOf(false) }
+ 
+     val lifecycleOwner = LocalLifecycleOwner.current
+     DisposableEffect(lifecycleOwner) {
+@@ -166,6 +168,19 @@
+             }
+         )
+         return
++    }
++
++    if (showThemeCreator) {
++        ThemeCreatorScreen(
++            prefs = prefs,
++            onThemeCreated = {
++                onThemeChanged(it)
++                showThemeCreator = false
++            },
++            onBack = {
++                showThemeCreator = false
++            }
++        )
++        return
+     }
+ 
+     if (showThemesPage) {
+@@ -1025,7 +1040,8 @@
+ fun ThemeLayoutsScreen(
+     prefs: KeyboardPreferences,
+     onThemeChanged: (String) -> Unit = {},
+-    onBack: () -> Unit
++    onBack: () -> Unit,
++    onCreateTheme: () -> Unit = {}
+ ) {
+     val context = LocalContext.current
+     var refresh by remember { mutableStateOf(0) }
+@@ -1064,6 +1080,9 @@
+                     IconButton(onClick = { launcher.launch("*/*") }) {
+                         Icon(Icons.Default.Add, "Import Theme")
+                     }
++                    IconButton(onClick = onCreateTheme) {
++                        Icon(Icons.Default.Edit, "Create Theme")
++                    }
+                 },
+                 navigationIcon = {
+                     IconButton(onClick = onBack) {

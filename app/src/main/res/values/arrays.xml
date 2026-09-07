@@ -9,8 +9,8 @@
     <string-array name="theme_values"><item>system</item><item>light</item><item>dark</item><item>ocean_blue</item><item>forest_green</item><item>sunset</item><item>cyberpunk</item><item>dracula</item><item>nord</item><item>monokai</item><item>lavender</item><item>rose_gold</item><item>midnight</item><item>neon_green</item><item>cherry</item><item>coffee</item><item>deep_space</item><item>mint</item><item>crimson</item><item>solarized_dark</item><item>solarized_light</item><item>matcha</item><item>coral</item><item>peach</item><item>royal_purple</item><item>gold</item><item>silver</item><item>emerald</item><item>ruby</item><item>sapphire</item><item>amethyst</item><item>aquamarine</item><item>obsidian</item></string-array>
     <string-array name="spacing_entries"><item>Compact</item><item>Standard</item><item>Spacious</item></string-array>
     <string-array name="spacing_values"><item>compact</item><item>standard</item><item>spacious</item></string-array>
-    <string-array name="keyboard_size_entries"><item>Compact</item><item>Standard</item><item>Tall</item></string-array>
-    <string-array name="keyboard_size_values"><item>compact</item><item>standard</item><item>tall</item></string-array>
+        <string-array name="keyboard_size_entries"><item>Compact</item><item>Standard</item><item>Tall</item><item>Extra Tall</item><item>Giant</item></string-array>
+        <string-array name="keyboard_size_values"><item>compact</item><item>standard</item><item>tall</item><item>extra_tall</item><item>giant</item></string-array>
     <string-array name="one_handed_entries"><item>Full width</item><item>Dock left</item><item>Dock right</item></string-array>
     <string-array name="one_handed_values"><item>center</item><item>left</item><item>right</item></string-array>
 </resources>

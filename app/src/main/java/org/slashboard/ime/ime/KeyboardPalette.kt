@@ -17,10 +17,24 @@ data class KeyboardPalette(
     val selected: Int,
     val dark: Boolean,
     val highContrast: Boolean,
-    val dynamic: Boolean
+    val dynamic: Boolean,
+    val keyRadiusDp: Float? = null,
+    val blurEffect: Boolean = false,
+    val keyOpacity: Float = 1.0f,
+    val backgroundImagePath: String? = null,
+    val spaceKey: Int? = null,
+    val spaceBorder: Int? = null
 )
 
 object KeyboardPaletteResolver {
+    private fun safeParseColor(colorStr: String, defaultColor: String): Int {
+        return try {
+            Color.parseColor(colorStr)
+        } catch (e: Exception) {
+            Color.parseColor(defaultColor)
+        }
+    }
+
     fun resolve(context: Context, theme: String, highContrast: Boolean): KeyboardPalette {
         val dark = when (theme) {
             "light", "cyberpunk", "lavender", "rose_gold", "cherry", "solarized_light", "mint", "peach", "silver" -> false
@@ -36,6 +50,24 @@ object KeyboardPaletteResolver {
             }
         }
         
+        if (theme.startsWith("custom_")) {
+            val custom = org.slashboard.ime.settings.theme.CustomThemeManager.getTheme(context, theme)
+            if (custom != null) {
+                return KeyboardPalette(
+                    safeParseColor(custom.background, "#0F172A"),
+                    safeParseColor(custom.key, "#1E293B"),
+                    safeParseColor(custom.utility, "#1E293B"),
+                    safeParseColor(custom.ink, "#38BDF8"),
+                    safeParseColor(custom.action, "#0284C7"),
+                    safeParseColor(custom.actionText, "#FFFFFF"),
+                    safeParseColor(custom.selected, "#334155"),
+                    custom.dark, highContrast || custom.highContrast, false, custom.keyRadiusDp, custom.blurEffect, custom.keyOpacity, custom.backgroundImagePath,
+                    spaceKey = custom.spaceKey?.let { safeParseColor(it, custom.key) },
+                    spaceBorder = custom.spaceBorder?.let { safeParseColor(it, custom.ink) }
+                )
+            }
+        }
+        
         return when (theme) {
             "ocean_blue" -> custom(bg="#0F172A", key="#1E293B", util="#1E293B", ink="#38BDF8", action="#0284C7", actText="#FFFFFF", sel="#334155", dark=true, hc=highContrast)
             "forest_green" -> custom(bg="#064E3B", key="#065F46", util="#065F46", ink="#A7F3D0", action="#059669", actText="#FFFFFF", sel="#047857", dark=true, hc=highContrast)
@@ -46,7 +78,7 @@ object KeyboardPaletteResolver {
             "monokai" -> custom(bg="#272822", key="#3E3D32", util="#3E3D32", ink="#F8F8F2", action="#F92672", actText="#FFFFFF", sel="#49483E", dark=true, hc=highContrast)
             "lavender" -> custom(bg="#F3E8FF", key="#FFFFFF", util="#E9D5FF", ink="#4C1D95", action="#7C3AED", actText="#FFFFFF", sel="#DDD6FE", dark=false, hc=highContrast)
             "rose_gold" -> custom(bg="#FFF1F2", key="#FFE4E6", util="#FFE4E6", ink="#881337", action="#E11D48", actText="#FFFFFF", sel="#FECDD3", dark=false, hc=highContrast)
-            "midnight" -> custom(bg="#000000", key="#111111", util="#111111", ink="#FFFFFF", action="#333333", actText="#FFFFFF", sel="#222222", dark=true, hc=highContrast)
+            "midnight" -> custom(bg="#000000", key="#111111", util="#111111", ink="#FFFFFF", action="#FFFFFF", actText="#000000", sel="#222222", dark=true, hc=highContrast)
             "neon_green" -> custom(bg="#052E16", key="#064E3B", util="#064E3B", ink="#4ADE80", action="#22C55E", actText="#052E16", sel="#166534", dark=true, hc=highContrast)
             "cherry" -> custom(bg="#FDF2F8", key="#FCE7F3", util="#FCE7F3", ink="#831843", action="#DB2777", actText="#FFFFFF", sel="#FBCFE8", dark=false, hc=highContrast)
             "coffee" -> custom(bg="#3E2723", key="#4E342E", util="#4E342E", ink="#D7CCC8", action="#795548", actText="#FFFFFF", sel="#5D4037", dark=true, hc=highContrast)
@@ -67,12 +99,13 @@ object KeyboardPaletteResolver {
             "amethyst" -> custom(bg="#291238", key="#3F1C55", util="#3F1C55", ink="#9966CC", action="#663399", actText="#FFFFFF", sel="#552B72", dark=true, hc=highContrast)
             "aquamarine" -> custom(bg="#002E29", key="#004840", util="#004840", ink="#7FFFD4", action="#20B2AA", actText="#002E29", sel="#006359", dark=true, hc=highContrast)
             "obsidian" -> custom(bg="#0B0B0B", key="#1C1C1C", util="#1C1C1C", ink="#A9A9A9", action="#4A4A4A", actText="#FFFFFF", sel="#2D2D2D", dark=true, hc=highContrast)
+            "dark" -> custom(bg="#151A22", key="#222B38", util="#222B38", ink="#F1F5F9", action="#0072FF", actText="#FFFFFF", sel="#334155", dark=true, hc=highContrast)
             "light" -> custom(bg="#ECE6F0", key="#FFFFFF", util="#EADDFF", ink="#1C1B1F", action="#0B57D0", actText="#FFFFFF", sel="#D0D0D0", dark=false, hc=highContrast)
-            else -> custom(bg="#1C1B1F", key="#2B2D30", util="#2B2D30", ink="#E6E1E5", action="#A8C7FA", actText="#040C19", sel="#444444", dark=true, hc=highContrast) // Dark as fallback
+            else -> custom(bg="#151A22", key="#222B38", util="#222B38", ink="#F1F5F9", action="#0072FF", actText="#FFFFFF", sel="#334155", dark=true, hc=highContrast) // Dark as default fallback
         }
     }
 
-    private fun custom(bg: String, key: String, util: String, ink: String, action: String, actText: String, sel: String, dark: Boolean, hc: Boolean) = KeyboardPalette(
+    private fun custom(bg: String, key: String, util: String, ink: String, action: String, actText: String, sel: String, dark: Boolean, hc: Boolean, keyOpacity: Float = 1.0f) = KeyboardPalette(
         background = Color.parseColor(bg),
         key = Color.parseColor(key),
         utility = Color.parseColor(util),
@@ -82,7 +115,8 @@ object KeyboardPaletteResolver {
         selected = Color.parseColor(sel),
         dark = dark,
         highContrast = hc,
-        dynamic = false
+        dynamic = false,
+        keyOpacity = keyOpacity
     )
 
     @RequiresApi(Build.VERSION_CODES.S)
@@ -104,7 +138,8 @@ object KeyboardPaletteResolver {
                 selected = color(android.R.color.system_accent2_700),
                 dark = true,
                 highContrast = highContrast,
-                dynamic = true
+                dynamic = true,
+                keyOpacity = 1.0f
             )
         } else {
             KeyboardPalette(
@@ -117,7 +152,8 @@ object KeyboardPaletteResolver {
                 selected = color(android.R.color.system_accent2_200),
                 dark = false,
                 highContrast = highContrast,
-                dynamic = true
+                dynamic = true,
+                keyOpacity = 1.0f
             )
         }
     }

@@ -9,48 +9,46 @@ enum class InputMode(val title: String) {
 /** Direct port of ios/Shared/SinhalaEngine.swift. Keep rule ordering significant. */
 object SinhalaEngine {
     private val consonants = listOf(
-        "ng" to "ඞ", "gn" to "ඥ", "ny" to "ඤ", "kh" to "ඛ", "gh" to "ඝ",
-        "ch" to "ච", "jh" to "ඣ", "Th" to "ඨ", "Dh" to "ඪ", "th" to "ත",
-        "dh" to "ද", "ph" to "ඵ", "bh" to "භ", "sh" to "ශ", "Sh" to "ෂ",
-        "k" to "ක", "g" to "ග", "c" to "ක", "j" to "ජ", "C" to "ඡ",
-        "T" to "ට", "D" to "ඩ", "N" to "ණ", "t" to "ට", "d" to "ඩ",
-        "n" to "න", "p" to "ප", "b" to "බ", "m" to "ම", "y" to "ය",
-        "r" to "ර", "l" to "ල", "L" to "ළ", "v" to "ව", "w" to "ව",
-        "s" to "ස", "h" to "හ", "f" to "ෆ", "R" to "ර", "Y" to "ය"
+        "chh" to "ඡ", "thh" to "ථ", "dhh" to "ධ", "zdh" to "ඳ", "zq" to "ඳ",
+        "ndh" to "ඳ", "nnd" to "ඬ", "nd" to "ඳ", "zd" to "ඬ", "zg" to "ඟ",
+        "ng" to "ඟ", "zj" to "ඦ", "zk" to "ඤ", "kn" to "ඤ", "ny" to "ඤ",
+        "zh" to "ඥ", "gn" to "ඥ", "mb" to "ඹ", "kh" to "ඛ", "gh" to "ඝ",
+        "ph" to "ඵ", "bh" to "භ", "jh" to "ඣ", "sh" to "ශ", "Sh" to "ෂ",
+        "Th" to "ඨ", "Dh" to "ඪ", "ch" to "ච", "th" to "ත", "dh" to "ද",
+        "q" to "ද", "k" to "ක", "g" to "ග", "c" to "ච", "j" to "ජ",
+        "t" to "ට", "d" to "ඩ", "n" to "න", "N" to "ණ", "p" to "ප",
+        "b" to "බ", "B" to "ඹ", "m" to "ම", "y" to "ය", "r" to "ර",
+        "l" to "ල", "L" to "ළ", "w" to "ව", "v" to "ව", "s" to "ස",
+        "S" to "ෂ", "h" to "හ", "f" to "ෆ", "K" to "ඛ", "G" to "ඝ",
+        "C" to "ඡ", "T" to "ඨ", "D" to "ඪ", "P" to "ඵ", "J" to "ඣ",
+        "Y" to "ය", "W" to "ව", "V" to "ව", "X" to "ඞ"
     )
+
     private data class Vowel(val key: String, val independent: String, val sign: String?)
+
     private val vowels = listOf(
-        Vowel("aee", "ඈ", "ෑ"), Vowel("ae", "ඇ", "ැ"), Vowel("aa", "ආ", "ා"),
-        Vowel("ii", "ඊ", "ී"), Vowel("uu", "ඌ", "ූ"), Vowel("ee", "ඒ", "ේ"),
-        Vowel("ai", "ඓ", "ෛ"), Vowel("oo", "ඕ", "ෝ"), Vowel("au", "ඖ", "ෞ"),
-        Vowel("A", "ආ", "ා"), Vowel("I", "ඊ", "ී"), Vowel("U", "ඌ", "ූ"),
-        Vowel("E", "ඒ", "ේ"), Vowel("O", "ඕ", "ෝ"), Vowel("a", "අ", ""),
-        Vowel("i", "ඉ", "ි"), Vowel("u", "උ", "ු"), Vowel("e", "එ", "ෙ"), Vowel("o", "ඔ", "ො")
-    )
-    private val smartConsonants = listOf(
-        "chh" to "ඡ", "thh" to "ථ", "dhh" to "ධ", "zdh" to "ඳ", "ch" to "ච",
-        "th" to "ත", "dh" to "ද", "sh" to "ශ", "Sh" to "ෂ", "kh" to "ඛ",
-        "gh" to "ඝ", "ph" to "ඵ", "bh" to "භ", "zg" to "ඟ", "zj" to "ඦ",
-        "zd" to "ඬ", "zq" to "ඳ", "zk" to "ඤ", "zh" to "ඥ", "k" to "ක",
-        "g" to "ග", "c" to "ක", "j" to "ජ", "t" to "ට", "d" to "ඩ",
-        "q" to "ද", "n" to "න", "N" to "ණ", "p" to "ප", "b" to "බ",
-        "m" to "ම", "y" to "ය", "r" to "ර", "l" to "ල", "L" to "ළ",
-        "w" to "ව", "v" to "ව", "s" to "ස", "S" to "ෂ", "h" to "හ",
-        "f" to "ෆ", "T" to "ඨ", "D" to "ඪ", "B" to "ඹ", "X" to "ඞ",
-        "K" to "ඛ", "P" to "ඵ", "W" to "ව", "C" to "ඛ", "V" to "ව",
-        "J" to "ඣ", "G" to "ඝ"
-    )
-    private val smartVowels = listOf(
-        Vowel("ruu", "", "ෲ"), Vowel("Aa", "ඈ", "ෑ"), Vowel("AA", "ඈ", "ෑ"),
+        Vowel("ruu", "", "ෲ"), Vowel("aae", "ඈ", "ෑ"), Vowel("aee", "ඈ", "ෑ"),
+        Vowel("Aee", "ඈ", "ෑ"), Vowel("AEE", "ඈ", "ෑ"), Vowel("Aa", "ඈ", "ෑ"),
+        Vowel("AA", "ඈ", "ෑ"), Vowel("aA", "ඈ", "ෑ"), Vowel("Ae", "ඈ", "ෑ"),
+        Vowel("aE", "ඈ", "ෑ"), Vowel("AE", "ඈ", "ෑ"), Vowel("ae", "ඇ", "ැ"),
         Vowel("aa", "ආ", "ා"), Vowel("ii", "ඊ", "ී"), Vowel("uu", "ඌ", "ූ"),
-        Vowel("UU", "ඌ", "ූ"), Vowel("Uu", "ඌ", "ූ"), Vowel("ee", "ඒ", "ේ"),
-        Vowel("ai", "ඓ", "ෛ"), Vowel("oo", "ඕ", "ෝ"), Vowel("OO", "ඕ", "ෝ"),
-        Vowel("Oo", "ඕ", "ෝ"), Vowel("au", "ඖ", "ෞ"), Vowel("ou", "ඖ", "ෞ"),
-        Vowel("Ru", "ඎ", null), Vowel("ru", "", "ෘ"), Vowel("A", "ඇ", "ැ"),
-        Vowel("I", "ඊ", "ී"), Vowel("U", "උ", "ු"), Vowel("E", "ඓ", "ෛ"),
-        Vowel("O", "ඔ", "ො"), Vowel("a", "අ", ""), Vowel("i", "ඉ", "ි"),
-        Vowel("u", "උ", "ු"), Vowel("e", "එ", "ෙ"), Vowel("o", "ඔ", "ො"), Vowel("R", "ඍ", null)
+        Vowel("UU", "ඌ", "ූ"), Vowel("Uu", "ඌ", "ූ"), Vowel("uU", "ඌ", "ූ"),
+        Vowel("ee", "ඒ", "ේ"), Vowel("EE", "ඒ", "ේ"), Vowel("Ee", "ඒ", "ේ"),
+        Vowel("ea", "ඒ", "ේ"), Vowel("ai", "ඓ", "ෛ"), Vowel("Ai", "ඓ", "ෛ"),
+        Vowel("oo", "ඕ", "ෝ"), Vowel("OO", "ඕ", "ෝ"), Vowel("Oo", "ඕ", "ෝ"),
+        Vowel("oO", "ඕ", "ෝ"), Vowel("oe", "ඕ", "ෝ"), Vowel("au", "ඖ", "ෞ"),
+        Vowel("Au", "ඖ", "ෞ"), Vowel("ou", "ඖ", "ෞ"), Vowel("Ou", "ඖ", "ෞ"),
+        Vowel("Ru", "ඎ", null), Vowel("ru", "", "ෘ"),
+        Vowel("A", "ඇ", "ැ"), Vowel("I", "ඊ", "ී"), Vowel("U", "ඌ", "ූ"),
+        Vowel("E", "ඒ", "ේ"), Vowel("O", "ඕ", "ෝ"),
+        Vowel("a", "අ", ""), Vowel("i", "ඉ", "ි"), Vowel("u", "උ", "ු"),
+        Vowel("e", "එ", "ෙ"), Vowel("o", "ඔ", "ො"), Vowel("R", "ඍ", null),
+        Vowel("x", "ං", "ං"), Vowel("M", "ං", "ං"), Vowel("zn", "ං", "ං"),
+        Vowel("X", "ඞ", "ඞ")
     )
+
+    private val smartConsonants = consonants
+    private val smartVowels = vowels
 
     private const val JOIN = '\uE000'
     private const val TOUCH = '\uE001'
@@ -232,36 +230,106 @@ object SinhalaEngine {
     }
 
     private fun transliterateWith(source: String, cs: List<Pair<String, String>>, vs: List<Vowel>, smart: Boolean): String {
-        val out = StringBuilder(); var i = 0
+        val out = StringBuilder()
+        var i = 0
         fun consonant() = cs.firstOrNull { source.startsWith(it.first, i) }
         fun vowel() = vs.firstOrNull { source.startsWith(it.key, i) }
+
         while (i < source.length) {
             val ch = source[i]
-            if (ch == 'M' || (smart && ch == 'x')) { out.append("ං"); i++; continue }
-            if (smart && source.startsWith("zn", i)) { out.append("ං"); i += 2; continue }
-            if (smart && ch == 'z' && listOf("zg", "zj", "zd", "zdh", "zq", "zk", "zh").none { source.startsWith(it, i) }) { i++; continue }
-            if (ch == 'H') { out.append("ඃ"); i++; continue }
+
+            // Special stand-alone tokens
+            if (ch == 'H') {
+                out.append("ඃ")
+                i++
+                continue
+            }
+            if (source.startsWith("zn", i)) {
+                out.append("ං")
+                i += 2
+                continue
+            }
+            if (ch == 'x' || ch == 'M') {
+                out.append("ං")
+                i++
+                continue
+            }
+            if (ch == 'X') {
+                out.append("ඞ")
+                i++
+                continue
+            }
+            if (smart && ch == 'z' && listOf("zg", "zj", "zd", "zdh", "zq", "zk", "zh").none { source.startsWith(it, i) }) {
+                i++
+                continue
+            }
+
             val c = consonant()
             if (c != null) {
-                out.append(c.second); i += c.first.length
+                val rawConsonantChar = c.second
+                i += c.first.length
+
                 val v = vowel()
-                if (v != null && (!smart || v.sign != null)) { out.append(v.sign ?: ""); i += v.key.length }
-                else if (!smart && i < source.length && source[i] == 'r') {
-                    out.append("්‍ර"); i++; vowel()?.let { out.append(it.sign ?: ""); i += it.key.length }
+                if (v != null) {
+                    out.append(rawConsonantChar).append(v.sign ?: "")
+                    i += v.key.length
+                } else if (i < source.length && (source[i] == 'y' || source[i] == 'Y')) {
+                    // Yansaya (ක්‍ය)
+                    out.append(rawConsonantChar).append("්\u200Dය")
+                    i++
+                    val afterYVowel = vowel()
+                    if (afterYVowel != null) {
+                        out.append(afterYVowel.sign ?: "")
+                        i += afterYVowel.key.length
+                    }
+                } else if (i < source.length && (source[i] == 'r' || source[i] == 'R') && !source.startsWith("ru", i) && !source.startsWith("ruu", i)) {
+                    // Rakaransaya (ක්‍ර)
+                    out.append(rawConsonantChar).append("්\u200Dර")
+                    i++
+                    val afterRVowel = vowel()
+                    if (afterRVowel != null) {
+                        out.append(afterRVowel.sign ?: "")
+                        i += afterRVowel.key.length
+                    }
+                } else if (i < source.length && source[i] == 'H') {
+                    // Visargaya (කඃ)
+                    out.append(rawConsonantChar).append("ඃ")
+                    i++
+                } else if (i < source.length && (source[i] == 'x' || source[i] == 'M' || source.startsWith("zn", i))) {
+                    // Anusvaraya (කං)
+                    out.append(rawConsonantChar).append("ං")
+                    i += if (source.startsWith("zn", i)) 2 else 1
+                } else if (i < source.length && source[i] == 'X') {
+                    // ඞ (කඞ)
+                    out.append(rawConsonantChar).append("ඞ")
+                    i++
                 } else {
-                    val next = consonant()
-                    if (next != null) {
-                        val join = next.first == "y" || (next.first == "r" && c.first !in listOf("m", "n", "l"))
-                        out.append(if (join) "්‍" else "්")
-                    } else out.append("්")
+                    // Hal consonant (ක්)
+                    out.append(rawConsonantChar).append("්")
                 }
                 continue
             }
+
             val v = vowel()
-            if (v != null && v.independent.isNotEmpty()) { out.append(v.independent); i += v.key.length; continue }
-            out.append(ch); i++
+            if (v != null && v.independent.isNotEmpty()) {
+                out.append(v.independent)
+                i += v.key.length
+                continue
+            }
+
+            out.append(ch)
+            i++
         }
         return out.toString()
+    }
+}
+
+/**
+ * Slashboard Phonetic Parser for standard Singlish transliteration.
+ */
+object slashboardPhoneticParser {
+    fun parse(input: String): String {
+        return SinhalaEngine.transliterate(input, InputMode.SMART_PHONETIC)
     }
 }
 

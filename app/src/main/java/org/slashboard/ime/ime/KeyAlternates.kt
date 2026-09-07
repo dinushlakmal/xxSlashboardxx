@@ -7,10 +7,39 @@ internal object KeyAlternates {
     fun extras(identity: String, mode: InputMode, layer: KeyboardLayer, shifted: Boolean): List<Pair<String, String>> {
         punctuation(identity)?.let { return it.map { value -> value to value } }
         if (layer == KeyboardLayer.LETTERS) latin(identity, shifted)?.let { return it.map { value -> value to value } }
-        if (layer == KeyboardLayer.NUMBERS || layer == KeyboardLayer.SYMBOLS) {
+        if (layer == KeyboardLayer.NUMBERS || layer == KeyboardLayer.SYMBOLS || layer == KeyboardLayer.SINHALA_GLYPHS) {
+            astrologyOrSinhala(identity)?.let { return it.map { value -> value to value } }
             numbers(identity)?.let { return it.map { value -> value to value } }
         }
         return emptyList()
+    }
+
+    private fun astrologyOrSinhala(identity: String): List<String>? = when (identity) {
+        "♈" -> listOf("මේෂ", "රවි", "☀️")
+        "♉" -> listOf("වෘෂභ", "සඳු", "🌙")
+        "♊" -> listOf("මිථුන", "කුජ", "♂")
+        "♋" -> listOf("කටක", "බුධ", "☿")
+        "♌" -> listOf("සිංහ", "ගුරු", "♃")
+        "♍" -> listOf("කන්‍යා", "සිකුරු", "♀")
+        "♎" -> listOf("තුලා", "ශනි", "♄")
+        "♏" -> listOf("වෘශ්චික", "රාහු", "☊")
+        "♐" -> listOf("ධනු", "කේතු", "☋")
+        "♑" -> listOf("මකර", "හෝරා")
+        "♒" -> listOf("කුම්භ", "දිනය")
+        "♓" -> listOf("මීන", "යෝග")
+        "෴" -> listOf("තිථි", "නැකත", "යෝග", "කරණ", "හෝරා", "දිනය", "෵")
+        "𑇡" -> listOf("෧", "𑇫", "𑇳", "𑇴")
+        "𑇢" -> listOf("෨", "𑇬")
+        "𑇣" -> listOf("෩", "𑇭")
+        "𑇤" -> listOf("෪", "𑇮")
+        "𑇥" -> listOf("෫", "𑇯")
+        "𑇦" -> listOf("෬", "𑇰")
+        "𑇧" -> listOf("෭", "𑇱")
+        "𑇨" -> listOf("෮", "𑇲")
+        "𑇩" -> listOf("෯", "𑇳")
+        "𑇪" -> listOf("෦", "𑇴")
+        "෦" -> listOf("෧", "෨", "෩", "෪", "෫", "෬", "෭", "෮", "෯")
+        else -> null
     }
 
     fun hint(identity: String, mode: InputMode, layer: KeyboardLayer): String? {

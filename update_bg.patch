@@ -1,0 +1,26 @@
+--- app/src/main/java/org/slashboard/ime/ime/KeyboardView.kt
++++ app/src/main/java/org/slashboard/ime/ime/KeyboardView.kt
+@@ -10,6 +10,8 @@
+ import android.view.Gravity
+ import android.view.MotionEvent
+ import android.widget.FrameLayout
++import android.graphics.drawable.BitmapDrawable
++import android.graphics.BitmapFactory
+ import androidx.core.view.children
+ import org.slashboard.ime.engine.InputMode
+ import org.slashboard.ime.engine.LanguageScorer
+@@ -215,6 +217,14 @@
+         actionText = palette.actionText
+         ink = palette.ink
+         setBackgroundColor(bg)
++        if (palette.backgroundImagePath != null) {
++            val bitmap = BitmapFactory.decodeFile(palette.backgroundImagePath)
++            if (bitmap != null) {
++                background = BitmapDrawable(resources, bitmap).apply {
++                    setAlpha(if (palette.dark) 100 else 180)
++                }
++            }
++        }
+         val colors = KeyboardColors(key, utility, ink, action, actionText, palette.dark, palette.highContrast, palette.keyRadiusDp)
+         panel.updateColors(colors)
+         rail.updateInk(ink)

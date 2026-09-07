@@ -34,7 +34,8 @@ internal data class RowDef(
     val keys: List<KeyDef>,
     val startFraction: Float = 0f,
     val expandEdges: Boolean = true,
-    val sliverTop: Boolean = false
+    val sliverTop: Boolean = false,
+    val heightFactor: Float = 1.0f
 )
 
 internal data class KeySpec(

@@ -1,43 +1,65 @@
 package org.slashboard.ime.ime
 
+import android.content.ClipData
+import android.content.ClipDescription
 import android.content.ClipboardManager
 import android.content.Context
+import android.content.Intent
 import android.inputmethodservice.InputMethodService
+import android.media.AudioAttributes
 import android.media.AudioManager
+import android.media.SoundPool
+import android.net.Uri
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
-import android.text.InputType
 import android.view.KeyEvent
 import android.view.View
 import android.view.inputmethod.EditorInfo
+import android.view.inputmethod.ExtractedTextRequest
 import android.view.inputmethod.InputConnection
 import android.view.inputmethod.InputMethodManager
-import androidx.core.view.WindowCompat
+import android.widget.Toast
+import androidx.core.view.inputmethod.InputConnectionCompat
+import androidx.core.view.inputmethod.InputContentInfoCompat
+import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.ExistingWorkPolicy
+import androidx.work.OneTimeWorkRequest
+import androidx.work.PeriodicWorkRequest
+import androidx.work.WorkManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import org.slashboard.ime.data.*
-import org.slashboard.ime.engine.*
+import org.slashboard.ime.CrashLogger
+import org.slashboard.ime.data.Candidate
+import org.slashboard.ime.data.ClipboardHistoryStore
+import org.slashboard.ime.data.EmojiRepository
+import org.slashboard.ime.data.LocalLearningStore
+import org.slashboard.ime.data.PredictionRepository
+import org.slashboard.ime.engine.EnglishPredictionEngine
+import org.slashboard.ime.engine.SlashboardEasterEgg
+import org.slashboard.ime.data.SlashboardSyncWorker
+import org.slashboard.ime.engine.CompositionSession
+import org.slashboard.ime.engine.FmConverter
+import org.slashboard.ime.engine.GraphemeDelete
+import org.slashboard.ime.engine.InputMode
+import org.slashboard.ime.engine.SinhalaEngine
+import org.slashboard.ime.engine.SinhalaPillamCorrector
 import org.slashboard.ime.settings.KeyboardPreferences
 import java.util.concurrent.Executors
 import java.util.concurrent.Future
-import android.media.SoundPool
-import android.media.AudioAttributes
+import java.util.concurrent.TimeUnit
 
 class SlashboardInputMethodService : InputMethodService(), KeyboardActions {
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
     private lateinit var prefs: KeyboardPreferences
     private lateinit var keyboard: KeyboardView
-    private var soundPool: SoundPool? = null
-    private var soundIos = 0
-    private var soundMech = 0
-    private var soundType = 0
     private var learning: LocalLearningStore? = null
     private var prediction: PredictionRepository? = null
+    private var englishPrediction: EnglishPredictionEngine? = null
     private var emoji: EmojiRepository? = null
     private var clipboardHistory: ClipboardHistoryStore? = null
     private val composition = CompositionSession()
@@ -49,102 +71,139 @@ class SlashboardInputMethodService : InputMethodService(), KeyboardActions {
     private var restricted = false
     private var lastSelectionEnd = -1
     private var previousCommittedWord: String? = null
+    private var previousEarlierCommittedWord: String? = null
+    private var activeEnglishPrefix: String? = null
     private var recentEmoji = mutableListOf<String>()
     private var editorLayout = EditorLayout.TEXT
     private var voiceInputManager: VoiceInputManager? = null
-
     private var precedingDirty = true
-    override fun onStartInputView(info: EditorInfo?, restarting: Boolean) {
-        super.onStartInputView(info, restarting)
-        prefs = KeyboardPreferences(this)
-        restricted = info?.let(::isRestrictedEditor) ?: true
-        editorLayout = editorLayout(info)
-        keyboard.configure(prefs.mode, offerSystemSwitch(), enterLabel(info), editorLayout)
-        keyboard.learningEnabled = !restricted && editorLayout == EditorLayout.TEXT
-        checkOtp()
-        if (prefs.clipboardHistory) captureClipboard()
-        clipboardHistory?.let { keyboard.setClipboardItems(it.items(), it.pinnedItems()) }
-        listenForClipboard()
-        keyboard.setRecentEmoji(recentEmoji)
-        updateSuggestions()
-    }
-
-    override fun onFinishInput() {
-        deleteAnchor = -1
-        deleteLength = 0
-        cancelComposition(false)
-        super.onFinishInput()
-    }
-
-    override fun onDestroy() {
-        voiceInputManager?.destroy()
-        soundPool?.release()
-        stopClipboardListener()
-        serviceScope.cancel()
-        executor.shutdown()
-        super.onDestroy()
-    }
-
-    override fun onFinishInputView(finishingInput: Boolean) {
-        stopClipboardListener()
-        cancelComposition(false)
-        super.onFinishInputView(finishingInput)
-    }
-
-    override fun onUpdateSelection(oldSelStart: Int, oldSelEnd: Int, newSelStart: Int, newSelEnd: Int, candidatesStart: Int, candidatesEnd: Int) {
-        super.onUpdateSelection(oldSelStart, oldSelEnd, newSelStart, newSelEnd, candidatesStart, candidatesEnd)
-        if (composition.active && candidatesStart >= 0 && (newSelEnd < candidatesStart || newSelEnd > candidatesEnd)) {
-            cancelComposition(false)
-        }
-        lastSelectionEnd = newSelEnd
-    }
     private var cachedPreceding = emptyList<String>()
     private var deleteAnchor = -1
     private var deleteLength = 0
+    private val undoRedoManager = UndoRedoManager()
+    private var activeCorrection: String? = null
+
+    private val clipListener = ClipboardManager.OnPrimaryClipChangedListener {
+        captureClipboard()
+        if (::keyboard.isInitialized && clipboardHistory != null) {
+            keyboard.setClipboardItems(clipboardHistory!!.items(), clipboardHistory!!.pinnedItems())
+        }
+    }
 
     override fun onCreate() {
         super.onCreate()
-        org.slashboard.ime.CrashLogger.init(this)
-        
-        val attrs = AudioAttributes.Builder()
-            .setUsage(AudioAttributes.USAGE_ASSISTANCE_SONIFICATION)
-            .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-            .build()
-        soundPool = SoundPool.Builder()
-            .setMaxStreams(4)
-            .setAudioAttributes(attrs)
-            .build()
-        soundPool?.let {
-            soundIos = it.load(this, org.slashboard.ime.R.raw.sound_ios, 1)
-            soundMech = it.load(this, org.slashboard.ime.R.raw.sound_mechanical, 1)
-            soundType = it.load(this, org.slashboard.ime.R.raw.sound_typewriter, 1)
+        CrashLogger.init(this)
+        runCatching {
+            com.vanniktech.emoji.EmojiManager.install(com.vanniktech.emoji.ios.IosEmojiProvider())
+        }
+
         prefs = KeyboardPreferences(this)
-        
+        recentEmoji = prefs.recentEmojis.toMutableList()
+        org.slashboard.ime.sound.KeySoundPlayer.getInstance(this)
+        org.slashboard.ime.translator.TranslatorEngine.init(this)
+
         voiceInputManager = VoiceInputManager(
             context = this,
             onVoiceResult = { text ->
                 currentInputConnection?.commitText(text + " ", 1)
                 updateSuggestions()
+            },
+            onPartialResult = { text ->
+                currentInputConnection?.setComposingText(text, 1)
+            },
             onError = { error ->
                 currentInputConnection?.finishComposingText()
                 if (error == android.speech.SpeechRecognizer.ERROR_INSUFFICIENT_PERMISSIONS) {
-                    android.widget.Toast.makeText(this, "Microphone permission required for voice input", android.widget.Toast.LENGTH_SHORT).show()
+                    val intent = android.content.Intent(this, org.slashboard.ime.settings.PermissionActivity::class.java).apply {
+                        addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
+                    }
+                    startActivity(intent)
+                    android.widget.Toast.makeText(this, "Please grant microphone permission", android.widget.Toast.LENGTH_SHORT).show()
+                }
+            },
             onReady = {
-                // optional UI indication
-                android.widget.Toast.makeText(this, "Listening...", android.widget.Toast.LENGTH_SHORT).show()
-            // WorkManager might not be initialized in Robolectric tests.
+                Toast.makeText(this, "Listening...", Toast.LENGTH_SHORT).show()
+            }
+        )
+
+        try {
+            val workRequest = PeriodicWorkRequest.Builder(SlashboardSyncWorker::class.java, 1L, TimeUnit.DAYS).build()
+            WorkManager.getInstance(this).enqueueUniquePeriodicWork(
+                "SlashboardBackgroundSync",
+                ExistingPeriodicWorkPolicy.KEEP,
+                workRequest
+            )
+            val initialRequest = OneTimeWorkRequest.Builder(SlashboardSyncWorker::class.java).build()
+            WorkManager.getInstance(this).enqueueUniqueWork(
+                "SlashboardInitialSync",
+                ExistingWorkPolicy.KEEP,
+                initialRequest
+            )
+        } catch (e: Exception) {
             e.printStackTrace()
+        }
+
+        serviceScope.launch(Dispatchers.IO) {
+            val localLearning = LocalLearningStore(this@SlashboardInputMethodService)
+            val predictionRepo = PredictionRepository(this@SlashboardInputMethodService, localLearning)
+            val englishEngine = EnglishPredictionEngine(this@SlashboardInputMethodService, localLearning)
+            val emojiRepo = EmojiRepository(this@SlashboardInputMethodService)
+            val clipboardStore = ClipboardHistoryStore(this@SlashboardInputMethodService)
+            predictionRepo.warmup()
+            learning = localLearning
+            prediction = predictionRepo
+            englishPrediction = englishEngine
+            emoji = emojiRepo
+            clipboardHistory = clipboardStore
+            withContext(Dispatchers.Main) {
+                if (::keyboard.isInitialized) {
+                    keyboard.updateRepositories(emojiRepo, clipboardStore)
+                    keyboard.setClipboardItems(clipboardStore.items(), clipboardStore.pinnedItems())
+                    updateSuggestions()
+                }
+            }
+        }
+    }
+
+    override fun onCreateInputView(): View {
+        keyboard = KeyboardView(this, this, prefs, emoji, clipboardHistory).apply {
+            voiceInputManager?.let { setVoiceManager(it) }
+        }
+        return keyboard
+    }
+
     override fun onStartInput(attribute: EditorInfo?, restarting: Boolean) {
         super.onStartInput(attribute, restarting)
-        // Safely re-initialize state on focus regain to prevent stale InputConnection usage
         if (!restarting) {
             cancelComposition(false)
-
+        }
+        restricted = attribute?.let { isRestrictedEditor(it) } ?: true
+        lastSelectionEnd = attribute?.initialSelEnd ?: -1
+        precedingDirty = true
+    }
 
     override fun onStartInputView(info: EditorInfo?, restarting: Boolean) {
         super.onStartInputView(info, restarting)
-        prefs = KeyboardPreferences(this); restricted = info?.let(::isRestrictedEditor) ?: true
+        prefs = KeyboardPreferences(this)
+        restricted = info?.let { isRestrictedEditor(it) } ?: true
         editorLayout = editorLayout(info)
+
+        // App-Specific Layout Memory
+        if (prefs.appLayoutMemory && info != null) {
+            val pkg = info.packageName?.lowercase().orEmpty()
+            if (isTerminalOrDevApp(pkg)) {
+                // Terminal / Termux / Code editor -> Switch to English Programmer / ASCII layout
+                prefs.useEnglish = true
+                if (editorLayout == EditorLayout.TEXT) {
+                    editorLayout = EditorLayout.ASCII
+                }
+            } else if (isChatApp(pkg)) {
+                // WhatsApp / Viber / Telegram -> Switch to Sinhala Singlish (phonetic)
+                prefs.useEnglish = false
+                prefs.mode = InputMode.PHONETIC
+            }
+        }
+
         keyboard.configure(prefs.mode, offerSystemSwitch(), enterLabel(info), editorLayout)
         keyboard.learningEnabled = !restricted && editorLayout == EditorLayout.TEXT
         checkOtp()
@@ -153,213 +212,586 @@ class SlashboardInputMethodService : InputMethodService(), KeyboardActions {
         listenForClipboard()
         keyboard.setRecentEmoji(recentEmoji)
         updateSuggestions()
+    }
+
+    override fun onFinishInput() {
+        deleteAnchor = -1
+        deleteLength = 0
+        cancelComposition(false)
+        super.onFinishInput()
+    }
+
+    override fun onDestroy() {
+        voiceInputManager?.destroy()
+        stopClipboardListener()
+        serviceScope.cancel()
+        executor.shutdown()
+        super.onDestroy()
+    }
+
     override fun onFinishInputView(finishingInput: Boolean) {
         stopClipboardListener()
         cancelComposition(false)
         super.onFinishInputView(finishingInput)
+    }
+
+    override fun onUpdateSelection(
+        oldSelStart: Int,
+        oldSelEnd: Int,
+        newSelStart: Int,
+        newSelEnd: Int,
+        candidatesStart: Int,
+        candidatesEnd: Int
+    ) {
+        super.onUpdateSelection(oldSelStart, oldSelEnd, newSelStart, newSelEnd, candidatesStart, candidatesEnd)
+        if (composition.active && candidatesStart >= 0 && (newSelEnd < candidatesStart || newSelEnd > candidatesEnd)) {
+            cancelComposition(false)
+        }
+        lastSelectionEnd = newSelEnd
+    }
 
     override fun onCharacter(value: String) {
         runCatching {
             if (editorLayout != EditorLayout.TEXT || prefs.useEnglish) {
-                commitComposition(); currentInputConnection?.commitText(value, 1)
-                commitComposition(); currentInputConnection?.commitText(value, 1); if (value.codePoints().anyMatch { it > 0x1F000 }) rememberEmoji(value)
+                commitComposition()
+                currentInputConnection?.commitText(value, 1)
+                if (value.codePoints().anyMatch { it > 0x1F000 }) {
+                    rememberEmoji(value)
+                }
+            } else if (value.length == 1 && Character.isLetter(value[0]) && value[0] < '\u0080') {
+                val rendered = composition.type(value, prefs.mode)
+                val corrected = SinhalaPillamCorrector.correctText(rendered)
+                currentInputConnection?.setComposingText(corrected, 1)
+            } else {
+                val ic = currentInputConnection
+                val preceding = ic?.getTextBeforeCursor(4, 0)?.toString().orEmpty()
+                val pillamCorrection = SinhalaPillamCorrector.handleCharacterInput(preceding, value)
+                if (pillamCorrection != null && ic != null) {
+                    commitComposition()
+                    ic.deleteSurroundingText(pillamCorrection.deleteCount, 0)
+                    ic.commitText(pillamCorrection.replacement, 1)
+                } else {
+                    commitComposition()
+                    ic?.commitText(value, 1)
+                }
+                if (value.codePoints().anyMatch { it > 0x1F000 }) {
+                    rememberEmoji(value)
+                }
+            }
+            precedingDirty = true
             updateSuggestions()
-    override fun onSpace() { runCatching { val word = commitComposition(); currentInputConnection?.commitText(" ", 1); learn(word); precedingDirty = true; updateSuggestions() } }
-    override fun onStartInputView(info: EditorInfo?, restarting: Boolean) {
-        super.onStartInputView(info, restarting)
-        prefs = KeyboardPreferences(this)
-        restricted = info?.let(::isRestrictedEditor) ?: true
-        editorLayout = editorLayout(info)
-        keyboard.configure(prefs.mode, offerSystemSwitch(), enterLabel(info), editorLayout)
-        keyboard.learningEnabled = !restricted && editorLayout == EditorLayout.TEXT
-        checkOtp()
-        if (prefs.clipboardHistory) captureClipboard()
-        clipboardHistory?.let { keyboard.setClipboardItems(it.items(), it.pinnedItems()) }
-        listenForClipboard()
-        keyboard.setRecentEmoji(recentEmoji)
-        updateSuggestions()
-    }
-
-    override fun onFinishInput() {
-        deleteAnchor = -1
-        deleteLength = 0
-        cancelComposition(false)
-        super.onFinishInput()
-    }
-
-    override fun onDestroy() {
-        voiceInputManager?.destroy()
-        soundPool?.release()
-        stopClipboardListener()
-        serviceScope.cancel()
-        executor.shutdown()
-        super.onDestroy()
-    }
-
-    override fun onFinishInputView(finishingInput: Boolean) {
-        stopClipboardListener()
-        cancelComposition(false)
-        super.onFinishInputView(finishingInput)
-    }
-
-    override fun onUpdateSelection(oldSelStart: Int, oldSelEnd: Int, newSelStart: Int, newSelEnd: Int, candidatesStart: Int, candidatesEnd: Int) {
-        super.onUpdateSelection(oldSelStart, oldSelEnd, newSelStart, newSelEnd, candidatesStart, candidatesEnd)
-        if (composition.active && candidatesStart >= 0 && (newSelEnd < candidatesStart || newSelEnd > candidatesEnd)) {
-            cancelComposition(false)
         }
-        lastSelectionEnd = newSelEnd
     }
+
+    override fun onBackspace(word: Boolean) {
+        runCatching {
+            if (composition.active) {
+                val rendered = composition.backspace(prefs.mode)
+                if (rendered.isEmpty()) {
+                    currentInputConnection?.setComposingText("", 1)
+                    currentInputConnection?.finishComposingText()
+                } else {
+                    currentInputConnection?.setComposingText(rendered, 1)
+                }
+            } else {
+                deleteFromHost(word)
+                precedingDirty = true
+            }
+            updateSuggestions()
+        }
+    }
+
+    override fun onSpace() {
+        runCatching {
+            if (prefs.useEnglish) {
+                val ic = currentInputConnection
+                val before = ic?.getTextBeforeCursor(64, 0)?.toString().orEmpty()
+                val prefix = activeEnglishPrefix ?: Regex("([A-Za-z0-9'’]+)$").find(before)?.value.orEmpty()
+                val correction = activeCorrection
+                if (correction != null && prefix.isNotEmpty() && !correction.equals(prefix, ignoreCase = true) && before.endsWith(prefix)) {
+                    ic?.deleteSurroundingText(prefix.length, 0)
+                    ic?.commitText(correction, 1)
+                    ic?.commitText(" ", 1)
+                    learnEnglish(correction)
+                } else {
+                    if (prefix.isNotEmpty()) {
+                        learnEnglish(prefix)
+                    }
+                    ic?.commitText(" ", 1)
+                }
+                activeCorrection = null
+                activeEnglishPrefix = null
+                precedingDirty = true
+                updateSuggestions()
+                return@runCatching
+            }
+
+            val correction = activeCorrection
+            val word = if (composition.active && correction != null && correction != composition.rendered) {
+                currentInputConnection?.setComposingText(correction, 1)
+                currentInputConnection?.finishComposingText()
+                composition.clear()
+                slsSource.clear()
+                generation++
+                correction
+            } else {
+                commitComposition()
+            }
+            activeCorrection = null
+            currentInputConnection?.commitText(" ", 1)
+            learn(word)
+            precedingDirty = true
+            updateSuggestions()
+        }
+    }
+
     override fun onEnter() {
         runCatching {
-            val word = commitComposition(); learn(word)
+            if (prefs.useEnglish) {
+                val before = currentInputConnection?.getTextBeforeCursor(64, 0)?.toString().orEmpty()
+                val prefix = Regex("([A-Za-z0-9'’]+)$").find(before)?.value.orEmpty()
+                if (prefix.isNotEmpty()) {
+                    learnEnglish(prefix)
+                }
+                activeCorrection = null
+                activeEnglishPrefix = null
+            }
+            val word = commitComposition()
+            if (!prefs.useEnglish) learn(word)
             val info = currentInputEditorInfo
-            val action = info?.imeOptions?.and(EditorInfo.IME_MASK_ACTION) ?: EditorInfo.IME_ACTION_NONE
+            val action = (info?.imeOptions ?: 0) and EditorInfo.IME_MASK_ACTION
             if (action != EditorInfo.IME_ACTION_NONE && action != EditorInfo.IME_ACTION_UNSPECIFIED) {
                 currentInputConnection?.performEditorAction(action)
-                if (action == EditorInfo.IME_ACTION_DONE) requestHideSelf(0)
-            cancelComposition(false); updateSuggestions()
+                if (action == EditorInfo.IME_ACTION_DONE) {
+                    requestHideSelf(0)
+                }
+            } else {
+                currentInputConnection?.sendKeyEvent(KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_ENTER))
+                currentInputConnection?.sendKeyEvent(KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_ENTER))
+            }
+            cancelComposition(false)
+            updateSuggestions()
+        }
+    }
+
     override fun onCandidate(value: String) {
         runCatching {
             feedback()
             if (value == SlashboardEasterEgg.TRUE_NAME_DISPLAY) {
-                currentInputConnection?.setComposingText(SlashboardEasterEgg.TRUE_NAME_INSERT, 1); currentInputConnection?.finishComposingText()
-                composition.clear(); slsSource.clear(); updateSuggestions(); return
+                currentInputConnection?.setComposingText(SlashboardEasterEgg.TRUE_NAME_INSERT, 1)
+                currentInputConnection?.finishComposingText()
+                composition.clear()
+                slsSource.clear()
+                updateSuggestions()
+                return@runCatching
+            }
+
+            if (prefs.useEnglish) {
+                val ic = currentInputConnection
+                if (value.codePoints().anyMatch { it > 0x1F000 }) {
+                    ic?.commitText(value + " ", 1)
+                    rememberEmoji(value)
+                    precedingDirty = true
+                    updateSuggestions()
+                    return@runCatching
+                }
+                val before = ic?.getTextBeforeCursor(64, 0)?.toString().orEmpty()
+                val prefix = activeEnglishPrefix ?: Regex("([A-Za-z0-9'’]+)$").find(before)?.value.orEmpty()
+                if (prefix.isNotEmpty() && before.endsWith(prefix)) {
+                    ic?.deleteSurroundingText(prefix.length, 0)
+                }
+                ic?.commitText(value, 1)
+                ic?.commitText(" ", 1)
+                learnEnglish(value)
+                activeCorrection = null
+                activeEnglishPrefix = null
+                precedingDirty = true
+                updateSuggestions()
+                return@runCatching
+            }
+
+            if (value.codePoints().anyMatch { it > 0x1F000 }) {
+                currentInputConnection?.commitText(value + " ", 1)
+                rememberEmoji(value)
+                precedingDirty = true
+                updateSuggestions()
+                return@runCatching
+            }
+
+            if (composition.active) {
+                currentInputConnection?.setComposingText(value, 1)
+                currentInputConnection?.finishComposingText()
+                composition.clear()
+                slsSource.clear()
+            } else {
+                val ic = currentInputConnection
+                val before = ic?.getTextBeforeCursor(64, 0)?.toString().orEmpty()
+                val sinPrefix = Regex("([\\p{L}\\p{M}\u200D\u200C]+)$").find(before)?.value.orEmpty()
+                if (sinPrefix.isNotEmpty() && before.endsWith(sinPrefix)) {
+                    ic?.deleteSurroundingText(sinPrefix.length, 0)
+                }
+                ic?.commitText(value, 1)
+            }
+            learn(value)
+            currentInputConnection?.commitText(" ", 1)
+            precedingDirty = true
+            updateSuggestions()
+        }
+    }
+
+    override fun onGlobe() {
+        runCatching {
+            commitComposition()
+            precedingDirty = true
+            updateSuggestions()
+        }
+    }
+
+    override fun onModeRequested(mode: InputMode) {
+        runCatching {
+            commitComposition()
+            prefs.mode = mode
+            if (::keyboard.isInitialized) {
+                keyboard.configure(mode, offerSystemSwitch(), enterLabel(currentInputEditorInfo), editorLayout)
+            }
+        }
+    }
+
+    override fun onHide() {
+        runCatching {
+            commitComposition()
+            requestHideSelf(0)
+        }
+    }
+
+    override fun onToolbarAction(action: String) {
+        val ic = currentInputConnection ?: return
+        when (action) {
+            "undo" -> {
+                feedback()
+                undoRedoManager.performUndo(ic) { msg ->
+                    runCatching {
+                        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
+                    }
+                }
+                precedingDirty = true
+                updateSuggestions()
+            }
+            "redo" -> {
+                feedback()
+                undoRedoManager.performRedo(ic) { msg ->
+                    runCatching {
+                        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
+                    }
+                }
+                precedingDirty = true
+                updateSuggestions()
+            }
+            "fm", "font" -> {
+                feedback()
+                var textToConvert = ""
+                if (composition.active && composition.rendered.isNotEmpty()) {
+                    textToConvert = composition.rendered
+                    commitComposition()
+                } else {
+                    val sel = ic.getSelectedText(0)?.toString()
+                    if (!sel.isNullOrEmpty()) {
+                        textToConvert = sel
+                    } else {
+                        val before = ic.getTextBeforeCursor(200, 0)?.toString().orEmpty()
+                        if (before.isNotEmpty()) {
+                            val lastWord = before.split(Regex("\\s+")).lastOrNull() ?: before
+                            textToConvert = lastWord
+                            ic.deleteSurroundingText(lastWord.length, 0)
+                        } else {
+                            val extracted = ic.getExtractedText(ExtractedTextRequest(), 0)
+                            val fullText = extracted?.text?.toString().orEmpty()
+                            if (fullText.isNotEmpty()) {
+                                textToConvert = fullText
+                                ic.setSelection(0, fullText.length)
+                            }
+                        }
+                    }
+                }
+                if (textToConvert.isNotEmpty()) {
+                    val converted = FmConverter.convert(textToConvert)
+                    ic.commitText(converted, 1)
+                    runCatching {
+                        Toast.makeText(this, "FM: $converted", Toast.LENGTH_SHORT).show()
+                    }
+                } else {
+                    runCatching {
+                        Toast.makeText(this, "වචනයක් ටයිප් කර FM අයිකනය ඔබන්න", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+            "lang_toggle" -> {
+                feedback()
+                onGlobe()
+            }
+            "translate" -> {
+                feedback()
+                keyboard.openTranslator()
+            }
+            "font" -> {
+                runCatching {
+                    android.widget.Toast.makeText(this, "Font styling is not available.", android.widget.Toast.LENGTH_SHORT).show()
+                }
+            }
+            "otp" -> {
+                val cm = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                val clip = cm.primaryClip
+                if (clip != null && clip.itemCount > 0) {
+                    val text = clip.getItemAt(0).text?.toString()
+                    if (text != null && Regex(".*\\b\\d{4,8}\\b.*").matches(text)) {
+                        val otp = Regex("\\b\\d{4,8}\\b").find(text)?.value
+                        if (otp != null) {
+                            ic.commitText(otp, 1)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    override fun onVoiceInputRequested() {
+        if (::keyboard.isInitialized) {
+            keyboard.openVoiceTyping()
+        } else {
+            voiceInputManager?.startListening(prefs.useEnglish)
+        }
+    }
+
+    override fun onMediaSelected(uri: Uri, mimeType: String, description: String) {
+        runCatching {
+            feedback()
+            commitComposition()
+            val ic = currentInputConnection
+            val editorInfo = currentInputEditorInfo
+            val packageName = editorInfo?.packageName
+
+            // Explicitly grant read URI permission to target app (e.g. WhatsApp, Telegram, etc.)
+            if (!packageName.isNullOrEmpty()) {
+                runCatching {
+                    grantUriPermission(packageName, uri, Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                }
+            }
+
+            val mimeTypes = arrayOf(mimeType, "image/webp", "image/png", "image/*")
+            val contentInfo = InputContentInfoCompat(
+                uri,
+                ClipDescription(description, mimeTypes),
+                null
+            )
+            var flags = 0
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
+                flags = flags or InputConnectionCompat.INPUT_CONTENT_GRANT_READ_URI_PERMISSION
+            }
+            val committed = if (ic != null && editorInfo != null) {
+                InputConnectionCompat.commitContent(ic, editorInfo, contentInfo, flags, null)
+            } else {
+                false
+            }
+            if (!committed) {
+                val sendIntent = Intent(Intent.ACTION_SEND).apply {
+                    type = mimeType
+                    putExtra(Intent.EXTRA_STREAM, uri)
+                    if (!packageName.isNullOrEmpty()) {
+                        setPackage(packageName)
+                    }
+                    addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                }
+                val chooser = Intent.createChooser(sendIntent, "Share Image").apply {
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                }
+                startActivity(chooser)
+            }
+        }
+    }
+
     override fun onCursorDelta(delta: Int) {
         runCatching {
-            if (delta == 0) return; commitComposition(); val ic = currentInputConnection ?: return
-            val extracted = ic.getExtractedText(android.view.inputmethod.ExtractedTextRequest(), 0) ?: return
-            val next = (extracted.selectionEnd + delta).coerceIn(0, extracted.text.length); ic.setSelection(next, next)
+            if (delta == 0) return@runCatching
+            commitComposition()
+            val ic = currentInputConnection ?: return@runCatching
+            val extracted = ic.getExtractedText(ExtractedTextRequest(), 0) ?: return@runCatching
+            val next = (extracted.selectionEnd + delta).coerceIn(0, extracted.text.length)
+            ic.setSelection(next, next)
+        }
+    }
 
     override fun onPressFeedback() {
-        if (prefs.keySounds) {
-            runCatching {
-                when (prefs.soundPack) {
-                    "ios" -> soundPool?.play(soundIos, 1f, 1f, 1, 0, 1f)
-                    "mechanical" -> soundPool?.play(soundMech, 1f, 1f, 1, 0, 1f)
-                    "typewriter" -> soundPool?.play(soundType, 1f, 1f, 1, 0, 1f)
-                    else -> (getSystemService(AUDIO_SERVICE) as AudioManager).playSoundEffect(AudioManager.FX_KEY_CLICK, .35f)
-                // Fallback to default click if sound pool fails
-                (getSystemService(AUDIO_SERVICE) as AudioManager).playSoundEffect(AudioManager.FX_KEY_CLICK, .35f)
+        if (!prefs.keySounds) return
+        org.slashboard.ime.sound.KeySoundPlayer.getInstance(this).playIfEnabled(prefs)
+    }
+
+    override fun languageScoreForKey(output: String): Float {
+        if (restricted || editorLayout != EditorLayout.TEXT) return 0f
+        val string = if (output.length == 1 && Character.isLetter(output[0]) && output[0] < '\u0080') {
+            composition.source + output
+        } else {
+            return 0f
+        }
+        val next = SinhalaEngine.transliterate(string, prefs.mode)
         return prediction?.prefixEvidence(next) ?: 0f
+    }
+
+    override fun onPreviewDelete(clusters: Int) {
+        val ic = currentInputConnection ?: return
+        commitComposition()
+        val extracted = ic.getExtractedText(ExtractedTextRequest(), 0) ?: return
+        if (deleteAnchor < 0) {
+            deleteAnchor = extracted.selectionEnd
+        }
+        val before = ic.getTextBeforeCursor(256, 0)?.toString() ?: ""
+        var consumed = 0
+        var text = before
+        var remaining = clusters
+        while (remaining > 0 && text.isNotEmpty()) {
+            val cluster = GraphemeDelete.lastCluster(text)
+            if (cluster.isEmpty()) break
+            consumed += cluster.length
+            text = text.dropLast(cluster.length)
+            remaining--
+        }
         deleteLength = consumed
-        runCatching { ic.setSelection((deleteAnchor - consumed).coerceAtLeast(0), deleteAnchor) }
+        runCatching {
+            ic.setSelection((deleteAnchor - consumed).coerceAtLeast(0), deleteAnchor)
+        }
+    }
+
+    override fun onCommitPreviewDelete() {
+        val ic = currentInputConnection
+        if (ic != null && deleteLength > 0) {
+            val deleted = ic.getTextBeforeCursor(deleteLength, 0)?.toString().orEmpty()
+            if (deleted.isNotEmpty()) {
+                undoRedoManager.recordDeletedText(deleted)
+            }
+            ic.commitText("", 1)
+        }
+        deleteAnchor = -1
+        deleteLength = 0
+        precedingDirty = true
+        updateSuggestions()
+    }
 
     override fun onCancelPreviewDelete() {
         val ic = currentInputConnection
-        if (ic != null && deleteAnchor >= 0) runCatching { ic.setSelection(deleteAnchor, deleteAnchor) }
+        if (ic != null && deleteAnchor >= 0) {
+            runCatching {
+                ic.setSelection(deleteAnchor, deleteAnchor)
+            }
+        }
         deleteAnchor = -1
         deleteLength = 0
-        if (keyCode == KeyEvent.KEYCODE_DEL) { onBackspace(); return true }
-        if (keyCode == KeyEvent.KEYCODE_SPACE) { onSpace(); return true }
-        if (keyCode == KeyEvent.KEYCODE_ENTER) { onEnter(); return true }
+    }
+
+    override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
+        if (event != null && event.isPrintingKey && !event.isCtrlPressed && !event.isAltPressed) {
+            onCharacter(event.unicodeChar.toChar().toString())
+            return true
+        }
+        if (keyCode == KeyEvent.KEYCODE_DEL) {
+            onBackspace()
+            return true
+        }
+        if (keyCode == KeyEvent.KEYCODE_SPACE) {
+            onSpace()
+            return true
+        }
+        if (keyCode == KeyEvent.KEYCODE_ENTER) {
+            onEnter()
+            return true
+        }
         return super.onKeyDown(keyCode, event)
+    }
+
+    private fun commitComposition(): String? {
+        if (!composition.active) return null
+        val rendered = composition.rendered
+        val word = if (rendered.isNotBlank()) rendered else null
+        currentInputConnection?.finishComposingText()
+        composition.clear()
+        slsSource.clear()
+        generation++
+        activeCorrection = null
+        return word
+    }
+
     private fun clearLocalCompositionState() {
-        composition.clear(); slsSource.clear(); generation++; predictionTask?.cancel(true)
+        composition.clear()
+        slsSource.clear()
+        generation++
+        predictionTask?.cancel(true)
+        activeCorrection = null
         precedingDirty = true
-    override fun onStartInputView(info: EditorInfo?, restarting: Boolean) {
-        super.onStartInputView(info, restarting)
-        prefs = KeyboardPreferences(this)
-        restricted = info?.let(::isRestrictedEditor) ?: true
-        editorLayout = editorLayout(info)
-        keyboard.configure(prefs.mode, offerSystemSwitch(), enterLabel(info), editorLayout)
-        keyboard.learningEnabled = !restricted && editorLayout == EditorLayout.TEXT
-        checkOtp()
-        if (prefs.clipboardHistory) captureClipboard()
-        clipboardHistory?.let { keyboard.setClipboardItems(it.items(), it.pinnedItems()) }
-        listenForClipboard()
-        keyboard.setRecentEmoji(recentEmoji)
-        updateSuggestions()
-    }
-
-    override fun onFinishInput() {
-        deleteAnchor = -1
-        deleteLength = 0
-        cancelComposition(false)
-        super.onFinishInput()
-    }
-
-    override fun onDestroy() {
-        voiceInputManager?.destroy()
-        soundPool?.release()
-        stopClipboardListener()
-        serviceScope.cancel()
-        executor.shutdown()
-        super.onDestroy()
-    }
-
-    override fun onFinishInputView(finishingInput: Boolean) {
-        stopClipboardListener()
-        cancelComposition(false)
-        super.onFinishInputView(finishingInput)
-    }
-
-    override fun onUpdateSelection(oldSelStart: Int, oldSelEnd: Int, newSelStart: Int, newSelEnd: Int, candidatesStart: Int, candidatesEnd: Int) {
-        super.onUpdateSelection(oldSelStart, oldSelEnd, newSelStart, newSelEnd, candidatesStart, candidatesEnd)
-        if (composition.active && candidatesStart >= 0 && (newSelEnd < candidatesStart || newSelEnd > candidatesEnd)) {
-            cancelComposition(false)
+        if (::keyboard.isInitialized) {
+            keyboard.setCandidates(emptyList())
         }
-        lastSelectionEnd = newSelEnd
     }
-        if (::keyboard.isInitialized) keyboard.setCandidates(emptyList())
-        composition.clear(); slsSource.clear(); generation++; predictionTask?.cancel(true)
+
+    private fun cancelComposition(removeHostText: Boolean) {
+        runCatching {
+            if (removeHostText && composition.rendered.isNotEmpty()) {
+                currentInputConnection?.deleteSurroundingText(composition.rendered.length, 0)
+            }
+            currentInputConnection?.finishComposingText()
+        }
+        composition.clear()
+        slsSource.clear()
+        generation++
+        predictionTask?.cancel(true)
         precedingDirty = true
-    override fun onStartInputView(info: EditorInfo?, restarting: Boolean) {
-        super.onStartInputView(info, restarting)
-        prefs = KeyboardPreferences(this)
-        restricted = info?.let(::isRestrictedEditor) ?: true
-        editorLayout = editorLayout(info)
-        keyboard.configure(prefs.mode, offerSystemSwitch(), enterLabel(info), editorLayout)
-        keyboard.learningEnabled = !restricted && editorLayout == EditorLayout.TEXT
-        checkOtp()
-        if (prefs.clipboardHistory) captureClipboard()
-        clipboardHistory?.let { keyboard.setClipboardItems(it.items(), it.pinnedItems()) }
-        listenForClipboard()
-        keyboard.setRecentEmoji(recentEmoji)
-        updateSuggestions()
-    }
-
-    override fun onFinishInput() {
-        deleteAnchor = -1
-        deleteLength = 0
-        cancelComposition(false)
-        super.onFinishInput()
-    }
-
-    override fun onDestroy() {
-        voiceInputManager?.destroy()
-        soundPool?.release()
-        stopClipboardListener()
-        serviceScope.cancel()
-        executor.shutdown()
-        super.onDestroy()
-    }
-
-    override fun onFinishInputView(finishingInput: Boolean) {
-        stopClipboardListener()
-        cancelComposition(false)
-        super.onFinishInputView(finishingInput)
-    }
-
-    override fun onUpdateSelection(oldSelStart: Int, oldSelEnd: Int, newSelStart: Int, newSelEnd: Int, candidatesStart: Int, candidatesEnd: Int) {
-        super.onUpdateSelection(oldSelStart, oldSelEnd, newSelStart, newSelEnd, candidatesStart, candidatesEnd)
-        if (composition.active && candidatesStart >= 0 && (newSelEnd < candidatesStart || newSelEnd > candidatesEnd)) {
-            cancelComposition(false)
+        if (::keyboard.isInitialized) {
+            keyboard.setCandidates(emptyList())
         }
-        lastSelectionEnd = newSelEnd
     }
-        if (::keyboard.isInitialized) keyboard.setCandidates(emptyList())
+
+    private fun deleteFromHost(word: Boolean) {
+        val ic = currentInputConnection ?: return
+        runCatching {
+            val before = ic.getTextBeforeCursor(if (word) 256 else 32, 0)?.toString() ?: ""
+            if (word) {
+                val target = GraphemeDelete.lastWordSegment(before)
+                if (target.isNotEmpty()) {
+                    undoRedoManager.recordDeletedText(target)
+                    ic.deleteSurroundingText(target.length, 0)
+                } else {
+                    ic.sendKeyEvent(KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DEL))
+                }
+                return@runCatching
+            }
             val cluster = GraphemeDelete.lastCluster(before)
             if (cluster.isEmpty()) {
                 ic.sendKeyEvent(KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DEL))
-                return
+                return@runCatching
+            }
+            undoRedoManager.recordDeletedCluster(cluster)
+            val reduced = GraphemeDelete.reduceSlashboard(cluster)
+            if (reduced == null) {
+                ic.deleteSurroundingText(cluster.length, 0)
+                return@runCatching
+            }
             ic.beginBatchEdit()
             ic.deleteSurroundingText(cluster.length, 0)
             ic.commitText(reduced, 1)
             ic.endBatchEdit()
+        }
+    }
+
     private fun updateSuggestions() {
-        if (!::keyboard.isInitialized || restricted || !prefs.suggestions) { if (::keyboard.isInitialized) keyboard.setCandidates(emptyList()); return }
-        
-        val beforeString = runCatching { currentInputConnection?.getTextBeforeCursor(100, 0)?.toString() }.getOrNull().orEmpty()
+        if (!::keyboard.isInitialized || restricted || !prefs.suggestions) {
+            if (::keyboard.isInitialized) {
+                keyboard.setCandidates(emptyList())
+            }
+            return
+        }
+
+        val beforeString = runCatching {
+            currentInputConnection?.getTextBeforeCursor(128, 0)?.toString()
+        }.getOrNull() ?: ""
+
         val mathMatch = Regex("([0-9]+(?:\\.[0-9]+)?)([\\+\\-\\*\\/])([0-9]+(?:\\.[0-9]+)?)=$").find(beforeString)
         if (mathMatch != null && !composition.active) {
             val a = mathMatch.groupValues[1].toDoubleOrNull() ?: 0.0
@@ -371,67 +803,201 @@ class SlashboardInputMethodService : InputMethodService(), KeyboardActions {
                 "*" -> a * b
                 "/" -> if (b != 0.0) a / b else 0.0
                 else -> 0.0
-        
-        if (!composition.active) precedingDirty = true
-    override fun onStartInputView(info: EditorInfo?, restarting: Boolean) {
-        super.onStartInputView(info, restarting)
-        prefs = KeyboardPreferences(this)
-        restricted = info?.let(::isRestrictedEditor) ?: true
-        editorLayout = editorLayout(info)
-        keyboard.configure(prefs.mode, offerSystemSwitch(), enterLabel(info), editorLayout)
-        keyboard.learningEnabled = !restricted && editorLayout == EditorLayout.TEXT
-        checkOtp()
-        if (prefs.clipboardHistory) captureClipboard()
-        clipboardHistory?.let { keyboard.setClipboardItems(it.items(), it.pinnedItems()) }
-        listenForClipboard()
-        keyboard.setRecentEmoji(recentEmoji)
-        updateSuggestions()
-    }
-
-    override fun onFinishInput() {
-        deleteAnchor = -1
-        deleteLength = 0
-        cancelComposition(false)
-        super.onFinishInput()
-    }
-
-    override fun onDestroy() {
-        voiceInputManager?.destroy()
-        soundPool?.release()
-        stopClipboardListener()
-        serviceScope.cancel()
-        executor.shutdown()
-        super.onDestroy()
-    }
-
-    override fun onFinishInputView(finishingInput: Boolean) {
-        stopClipboardListener()
-        cancelComposition(false)
-        super.onFinishInputView(finishingInput)
-    }
-
-    override fun onUpdateSelection(oldSelStart: Int, oldSelEnd: Int, newSelStart: Int, newSelEnd: Int, candidatesStart: Int, candidatesEnd: Int) {
-        super.onUpdateSelection(oldSelStart, oldSelEnd, newSelStart, newSelEnd, candidatesStart, candidatesEnd)
-        if (composition.active && candidatesStart >= 0 && (newSelEnd < candidatesStart || newSelEnd > candidatesEnd)) {
-            cancelComposition(false)
+            }
+            val formatted = if (res == res.toLong().toDouble()) res.toLong().toString() else res.toString()
+            keyboard.setCandidates(listOf(formatted))
+            return
         }
-        lastSelectionEnd = newSelEnd
-    }
-        val prefix = composition.rendered; val context = precedingWords(); val token = ++generation
+
+        generation++
+        val token = generation
         predictionTask?.cancel(true)
+
+        if (prefs.useEnglish) {
+            val currentEngPrediction = englishPrediction
+            val engMatch = Regex("([A-Za-z0-9'’]+)$").find(beforeString)
+            val engPrefix = engMatch?.value.orEmpty()
+
+            if (currentEngPrediction == null || engPrefix.isBlank()) {
+                activeCorrection = null
+                activeEnglishPrefix = null
+                keyboard.setCandidates(emptyList())
+                return
+            }
+
+            val textWithoutPrefix = beforeString.dropLast(engPrefix.length)
+            val engPreceding = Regex("[A-Za-z0-9'’]+").findAll(textWithoutPrefix)
+                .map { it.value }
+                .toList()
+                .takeLast(2)
+
+            predictionTask = executor.submit {
+                try {
+                    val candidates = currentEngPrediction.candidates(engPrefix, engPreceding, 3)
+                    val corrections = candidates.filter { it.isCorrection }.map { it.text }.toSet()
+                    val topCorrection = candidates.firstOrNull { it.isCorrection }?.text
+                    val values = candidates.map { it.text }.toMutableList()
+
+                    if (prefs.emojiSuggestions) {
+                        val emojiCandidate = emoji?.search(engPrefix)?.firstOrNull()
+                        if (emojiCandidate != null && !values.contains(emojiCandidate)) {
+                            if (values.size >= 3) {
+                                values[2] = emojiCandidate
+                            } else {
+                                values.add(emojiCandidate)
+                            }
+                        }
+                    }
+
+                    main.post {
+                        if (token == generation && ::keyboard.isInitialized) {
+                            activeCorrection = topCorrection
+                            activeEnglishPrefix = engPrefix
+                            keyboard.setCandidates(values.distinct().take(3), corrections)
+                        }
+                    }
+                } catch (t: Throwable) {
+                    main.post {
+                        if (token == generation && ::keyboard.isInitialized) {
+                            activeCorrection = null
+                            activeEnglishPrefix = null
+                            keyboard.setCandidates(emptyList())
+                        }
+                    }
+                }
+            }
+            return
+        }
+
+        if (!composition.active) {
+            precedingDirty = true
+        }
+        val prefix = if (composition.active && composition.rendered.isNotEmpty()) {
+            composition.rendered
+        } else {
+            Regex("([\\p{L}\\p{M}\u200D\u200C]+)$").find(beforeString)?.value.orEmpty()
+        }
+        val context = precedingWords()
+
         val currentPrediction = prediction
-        if (currentPrediction == null) {
+        if (currentPrediction == null || prefix.isBlank()) {
             keyboard.setCandidates(emptyList())
             return
-                main.post { if (token == generation) keyboard.setCandidates(values.distinct().take(3)) }
+        }
+        predictionTask = executor.submit {
+            try {
+                val candidates = currentPrediction.candidates(prefix, context, 3)
+                val corrections = candidates.filter { it.isCorrection }.map { it.text }.toSet()
+                val topCorrection = candidates.firstOrNull { it.isCorrection }?.text
+                val values = candidates.map { it.text }.toMutableList()
+                if (SlashboardEasterEgg.isCompleteTrueName(prefix, composition.source)) {
+                    values.add(0, SlashboardEasterEgg.TRUE_NAME_DISPLAY)
+                }
+                if (prefs.emojiSuggestions) {
+                    val emojiCandidate = emoji?.search(prefix)?.firstOrNull()
+                    if (emojiCandidate != null && !values.contains(emojiCandidate)) {
+                        if (values.size >= 3) {
+                            values[2] = emojiCandidate
+                        } else {
+                            values.add(emojiCandidate)
+                        }
+                    }
+                }
+                main.post {
+                    if (token == generation && ::keyboard.isInitialized) {
+                        activeCorrection = topCorrection
+                        keyboard.setCandidates(values.distinct().take(3), corrections)
+                    }
+                }
+            } catch (t: Throwable) {
+                main.post {
+                    if (token == generation && ::keyboard.isInitialized) {
+                        activeCorrection = null
+                        keyboard.setCandidates(emptyList())
+                    }
+                }
+            }
+        }
+    }
+
     private fun precedingWords(): List<String> {
-        if (!precedingDirty && composition.active) return cachedPreceding
-        val before = runCatching { currentInputConnection?.getTextBeforeCursor(256, 0)?.toString() }.getOrNull().orEmpty()
-        val withoutComposing = if (composition.rendered.isNotEmpty() && before.endsWith(composition.rendered)) before.dropLast(composition.rendered.length) else before
-        cachedPreceding = Regex("[\\p{L}\\p{M}]+").findAll(withoutComposing).map { it.value }.toList().takeLast(2)
+        if (!precedingDirty && composition.active) {
+            return cachedPreceding
+        }
+        val before = runCatching {
+            currentInputConnection?.getTextBeforeCursor(256, 0)?.toString()
+        }.getOrNull() ?: ""
+
+        val withoutComposing = if (composition.rendered.isNotEmpty() && before.endsWith(composition.rendered)) {
+            before.dropLast(composition.rendered.length)
+        } else {
+            before
+        }
+
+        cachedPreceding = Regex("[\\p{L}\\p{M}]+").findAll(withoutComposing)
+            .map { it.value }
+            .toList()
+            .takeLast(2)
         precedingDirty = false
         return cachedPreceding
+    }
+
+    private fun learn(word: String?) {
+        if (word.isNullOrBlank() || restricted) return
+        val clean = word.trim()
+        val earlier = previousEarlierCommittedWord
+        val previous = previousCommittedWord
+        previousEarlierCommittedWord = previous
+        previousCommittedWord = clean
+        val store = learning ?: return
+        executor.submit {
+            store.record(clean, previous, earlier)
+        }
+    }
+
+    private fun learnEnglish(word: String?) {
+        if (word.isNullOrBlank() || restricted) return
+        val clean = word.trim()
+        val earlier = previousEarlierCommittedWord
+        val previous = previousCommittedWord
+        previousEarlierCommittedWord = previous
+        previousCommittedWord = clean
+        val store = learning
+        val eng = englishPrediction
+        executor.submit {
+            store?.record(clean, previous, earlier)
+            eng?.learn(clean, previous, earlier)
+        }
+    }
+
+    private fun captureClipboard() {
+        runCatching {
+            checkOtp()
+            if (!prefs.clipboardHistory || restricted || editorLayout != EditorLayout.TEXT) return
+            val manager = getSystemService(Context.CLIPBOARD_SERVICE) as? ClipboardManager ?: return
+            val clip = manager.primaryClip ?: return
+            if (clip.itemCount == 0) return
+            val store = clipboardHistory ?: return
+            val text = clip.getItemAt(0).coerceToText(this)?.toString()
+            if (text != null) {
+                store.add(text)
+            }
+        }
+    }
+
+    private fun checkOtp() {
+        if (!::keyboard.isInitialized) return
+        val manager = getSystemService(Context.CLIPBOARD_SERVICE) as? ClipboardManager ?: return
+        val clip = manager.primaryClip
+        var hasOtp = false
+        if (clip != null && clip.itemCount > 0) {
+            val text = clip.getItemAt(0).text?.toString()
+            if (text != null && Regex(".*\\b\\d{4,8}\\b.*").matches(text)) {
+                hasOtp = true
+            }
+        }
         keyboard.setOtpAvailable(hasOtp)
+    }
 
     private fun listenForClipboard() {
         runCatching {
@@ -439,27 +1005,121 @@ class SlashboardInputMethodService : InputMethodService(), KeyboardActions {
             manager.removePrimaryClipChangedListener(clipListener)
             if (prefs.clipboardHistory && !restricted && editorLayout == EditorLayout.TEXT) {
                 manager.addPrimaryClipChangedListener(clipListener)
-        if (prefs.keySounds) (getSystemService(AUDIO_SERVICE) as AudioManager).playSoundEffect(AudioManager.FX_KEY_CLICK, .35f)
+            }
+        }
+    }
+
+    private fun stopClipboardListener() {
+        runCatching {
+            val manager = getSystemService(Context.CLIPBOARD_SERVICE) as? ClipboardManager ?: return
+            manager.removePrimaryClipChangedListener(clipListener)
+        }
+    }
+
+    private fun rememberEmoji(value: String) {
+        recentEmoji.remove(value)
+        recentEmoji.add(0, value)
+        if (recentEmoji.size > 36) {
+            recentEmoji = recentEmoji.take(36).toMutableList()
+        }
+        prefs.recentEmojis = recentEmoji
+        if (::keyboard.isInitialized) {
+            keyboard.setRecentEmoji(recentEmoji)
+        }
+    }
+
+    private fun feedback() {
+        if (prefs.haptics && ::keyboard.isInitialized) {
+            runCatching {
+                val flags = android.view.HapticFeedbackConstants.FLAG_IGNORE_VIEW_SETTING or android.view.HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING
+                keyboard.performHapticFeedback(android.view.HapticFeedbackConstants.KEYBOARD_TAP, flags)
+            }
+        }
+        if (prefs.keySounds) {
+            runCatching {
+                (getSystemService(Context.AUDIO_SERVICE) as? AudioManager)?.playSoundEffect(AudioManager.FX_KEY_CLICK, 1.0f)
+            }
+        }
+    }
+
+    private fun offerSystemSwitch(): Boolean {
+        return if (Build.VERSION.SDK_INT >= 28) {
+            shouldOfferSwitchingToNextInputMethod()
+        } else {
+            val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+            val token = window?.window?.attributes?.token
+            imm.shouldOfferSwitchingToNextInputMethod(token)
+        }
+    }
+
+    private fun switchSystemKeyboard() {
+        if (Build.VERSION.SDK_INT >= 28) {
+            switchToNextInputMethod(false)
+        } else {
+            val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+            val token = window?.window?.attributes?.token
+            imm.switchToNextInputMethod(token, false)
+        }
+    }
 
     companion object {
         fun isRestrictedEditor(info: EditorInfo): Boolean {
-            val cls = info.inputType and InputType.TYPE_MASK_CLASS
-            val variation = info.inputType and InputType.TYPE_MASK_VARIATION
-            if (cls == InputType.TYPE_CLASS_NUMBER || cls == InputType.TYPE_CLASS_PHONE || cls == InputType.TYPE_CLASS_DATETIME) return true
-            if (cls == InputType.TYPE_CLASS_TEXT && variation in setOf(
-                    InputType.TYPE_TEXT_VARIATION_PASSWORD, InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD, InputType.TYPE_TEXT_VARIATION_WEB_PASSWORD,
-                    InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS, InputType.TYPE_TEXT_VARIATION_WEB_EMAIL_ADDRESS, InputType.TYPE_TEXT_VARIATION_URI, InputType.TYPE_TEXT_VARIATION_FILTER
-                )) return true
-            return info.imeOptions and EditorInfo.IME_FLAG_NO_PERSONALIZED_LEARNING != 0 ||
-                info.imeOptions and EditorInfo.IME_MASK_ACTION == EditorInfo.IME_ACTION_SEARCH
+            val cls = info.inputType and EditorInfo.TYPE_MASK_CLASS
+            val variation = info.inputType and EditorInfo.TYPE_MASK_VARIATION
+            if (cls == EditorInfo.TYPE_CLASS_NUMBER || cls == EditorInfo.TYPE_CLASS_PHONE || cls == EditorInfo.TYPE_CLASS_DATETIME) {
+                return true
+            }
+            // Only actual password fields are restricted
+            return cls == EditorInfo.TYPE_CLASS_TEXT && (variation == 128 || variation == 144 || variation == 224)
+        }
+
+        fun enterLabel(info: EditorInfo?): String {
+            return when (info?.imeOptions?.and(EditorInfo.IME_MASK_ACTION)) {
+                EditorInfo.IME_ACTION_GO -> "Go"
+                EditorInfo.IME_ACTION_SEARCH -> "⌕"
+                EditorInfo.IME_ACTION_SEND -> "Send"
+                EditorInfo.IME_ACTION_NEXT -> "Next"
+                EditorInfo.IME_ACTION_DONE -> "Done"
+                else -> "↵"
+            }
+        }
+
+        fun isTerminalOrDevApp(pkg: String): Boolean {
+            return pkg.contains("termux") || pkg.contains("terminal") || pkg.contains("connectbot") ||
+                   pkg.contains("juicessh") || pkg.contains("shell") || pkg.contains("console") ||
+                   pkg.contains("code") || pkg.contains("editor") || pkg.contains("ide")
+        }
+
+        fun isChatApp(pkg: String): Boolean {
+            return pkg.contains("whatsapp") || pkg.contains("viber") || pkg.contains("telegram") ||
+                   pkg.contains("messenger") || pkg.contains("signal") || pkg.contains("im.vector") ||
+                   pkg.contains("discord") || pkg.contains("line") || pkg.contains("wechat")
+        }
+
+        fun isBankingOrFinanceApp(pkg: String): Boolean {
+            return pkg.contains("bank") || pkg.contains("boc") || pkg.contains("peoplesbank") ||
+                   pkg.contains("combank") || pkg.contains("sampath") || pkg.contains("hnb") ||
+                   pkg.contains("seylan") || pkg.contains("nsb") || pkg.contains("ndb") ||
+                   pkg.contains("wallet") || pkg.contains("pay") || pkg.contains("finance") ||
+                   pkg.contains("money") || pkg.contains("koko") || pkg.contains("frimi")
+        }
 
         fun editorLayout(info: EditorInfo?): EditorLayout {
             if (info == null) return EditorLayout.TEXT
-            val cls = info.inputType and InputType.TYPE_MASK_CLASS
-            val variation = info.inputType and InputType.TYPE_MASK_VARIATION
+            val cls = info.inputType and EditorInfo.TYPE_MASK_CLASS
+            val variation = info.inputType and EditorInfo.TYPE_MASK_VARIATION
             return when (cls) {
-                InputType.TYPE_CLASS_NUMBER -> {
-                    val decimal = info.inputType and InputType.TYPE_NUMBER_FLAG_DECIMAL != 0
-                    val signed = info.inputType and InputType.TYPE_NUMBER_FLAG_SIGNED != 0
-                    when { decimal && signed -> EditorLayout.SIGNED_DECIMAL; decimal -> EditorLayout.DECIMAL; signed -> EditorLayout.SIGNED_NUMBER; else -> EditorLayout.NUMBER }
+                EditorInfo.TYPE_CLASS_NUMBER -> EditorLayout.TEXT
+                EditorInfo.TYPE_CLASS_PHONE -> EditorLayout.TEXT
+                EditorInfo.TYPE_CLASS_DATETIME -> EditorLayout.TEXT
+                EditorInfo.TYPE_CLASS_TEXT -> {
+                    when (variation) {
+                        128, 144, 224 -> EditorLayout.ASCII
+                        else -> EditorLayout.TEXT
+                    }
+                }
                 else -> EditorLayout.TEXT
+            }
+        }
+    }
+}

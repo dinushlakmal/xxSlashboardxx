@@ -16,7 +16,9 @@ internal object LayoutPreloadCache {
         val layer: String,
         val topRow: String,
         val isEnglish: Boolean,
-        val keySpacing: String
+        val keySpacing: String,
+        val shifted: Boolean = false,
+        val capsLock: Boolean = false
     )
 
     private val cache = ConcurrentHashMap<CacheKey, KeyboardLayout>()
@@ -29,7 +31,9 @@ internal object LayoutPreloadCache {
         layer: String,
         topRow: String,
         isEnglish: Boolean,
-        keySpacing: String
+        keySpacing: String,
+        shifted: Boolean = false,
+        capsLock: Boolean = false
     ): KeyboardLayout? {
         val key = CacheKey(
             width = width.toInt(),
@@ -39,7 +43,9 @@ internal object LayoutPreloadCache {
             layer = layer,
             topRow = topRow,
             isEnglish = isEnglish,
-            keySpacing = keySpacing
+            keySpacing = keySpacing,
+            shifted = shifted,
+            capsLock = capsLock
         )
         return cache[key]
     }
@@ -53,6 +59,8 @@ internal object LayoutPreloadCache {
         topRow: String,
         isEnglish: Boolean,
         keySpacing: String,
+        shifted: Boolean = false,
+        capsLock: Boolean = false,
         layout: KeyboardLayout
     ) {
         val key = CacheKey(
@@ -63,7 +71,9 @@ internal object LayoutPreloadCache {
             layer = layer,
             topRow = topRow,
             isEnglish = isEnglish,
-            keySpacing = keySpacing
+            keySpacing = keySpacing,
+            shifted = shifted,
+            capsLock = capsLock
         )
         cache[key] = layout
     }

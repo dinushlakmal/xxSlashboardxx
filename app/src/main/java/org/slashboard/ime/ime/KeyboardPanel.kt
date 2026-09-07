@@ -54,7 +54,8 @@ internal class KeyboardPanel(
         scheduler = scheduler,
         listener = this,
         learningEnabled = true,
-        debug = false
+        debug = false,
+        longPressMs = prefs.longPressMs
     )
     private var debugFrame: TouchController.DebugFrame? = null
     private var downElapsed = 0L
@@ -74,12 +75,16 @@ internal class KeyboardPanel(
     private var cacheLayer: String = ""
     private var cacheTopRow: String = ""
     private var cacheIsEnglish: Boolean = false
+    private var cacheShifted: Boolean = false
+    private var cacheCapsLock: Boolean = false
 
-    fun bindContext(mode: String, layer: String, topRow: String, isEnglish: Boolean) {
+    fun bindContext(mode: String, layer: String, topRow: String, isEnglish: Boolean, shifted: Boolean = false, capsLock: Boolean = false) {
         this.cacheMode = mode
         this.cacheLayer = layer
         this.cacheTopRow = topRow
         this.cacheIsEnglish = isEnglish
+        this.cacheShifted = shifted
+        this.cacheCapsLock = capsLock
     }
 
     fun bind(rows: List<RowDef>, rowHeight: Float) {
@@ -88,6 +93,8 @@ internal class KeyboardPanel(
         pendingSpaceIntro = playSpaceIntro
         playSpaceIntro = false
         controller.decoder = if (prefs.spatialDecoder) SpatialTouchDecoder() else RectangularTouchDecoder()
+        controller.longPressMs = prefs.longPressMs
+        personalization.thumbReachMode = prefs.thumbReachMode
         controller.setDensity(resources.displayMetrics.density)
         val needed = rows.sumOf { it.keys.size }
         while (caps.size < needed) {
@@ -126,7 +133,7 @@ internal class KeyboardPanel(
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         val width = MeasureSpec.getSize(widthMeasureSpec)
-        val height = (rows.size * rowHeight).toInt().coerceAtLeast(0)
+        val height = rows.sumOf { (rowHeight * it.heightFactor).toDouble() }.toInt().coerceAtLeast(0)
         setMeasuredDimension(width, height)
     }
 
@@ -145,10 +152,7 @@ internal class KeyboardPanel(
         ) {
             layout!!
         } else {
-            val cached = LayoutPreloadCache.get(
-                width, rowHeight, density, cacheMode, cacheLayer, cacheTopRow, cacheIsEnglish, keySpacing
-            )
-            val computed = cached ?: KeyboardLayoutFactory.place(
+            val computed = KeyboardLayoutFactory.place(
                 rows, width, rowHeight,
                 KeyboardGeometry.visualInsetH(density, keySpacing),
                 KeyboardGeometry.visualInsetV(density, keySpacing),
@@ -288,13 +292,17 @@ internal class KeyboardPanel(
 
     override fun onHaptic() {
         actions.onPressFeedback()
-        val type = if (Build.VERSION.SDK_INT >= 27) HapticFeedbackConstants.KEYBOARD_PRESS else HapticFeedbackConstants.KEYBOARD_TAP
-        if (prefs.haptics) performHapticFeedback(type)
+        val type = if (Build.VERSION.SDK_INT >= 27) android.view.HapticFeedbackConstants.KEYBOARD_PRESS else android.view.HapticFeedbackConstants.KEYBOARD_TAP
+        val flags = android.view.HapticFeedbackConstants.FLAG_IGNORE_VIEW_SETTING or android.view.HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING
+        if (prefs.haptics) performHapticFeedback(type, flags)
     }
 
     override fun onCursorDelta(delta: Int) = actions.onCursorDelta(delta)
     override fun onCursorTick() {
-        if (prefs.haptics) performHapticFeedback(HapticFeedbackConstants.CLOCK_TICK)
+        if (prefs.haptics) {
+            val flags = android.view.HapticFeedbackConstants.FLAG_IGNORE_VIEW_SETTING or android.view.HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING
+            performHapticFeedback(android.view.HapticFeedbackConstants.CLOCK_TICK, flags)
+        }
     }
     override fun onPreviewDelete(length: Int) = actions.onPreviewDelete(length)
     override fun onCommitPreviewDelete() = actions.onCommitPreviewDelete()
@@ -320,7 +328,13 @@ internal class KeyboardPanel(
             KeyCode.DELETE -> actions.onBackspace(false)
             KeyCode.SPACE -> actions.onSpace()
             KeyCode.ENTER -> actions.onEnter()
-            KeyCode.LAYER -> spec.payload.takeIf { it.isNotEmpty() }?.let { onLayer(KeyboardLayer.valueOf(it)) }
+            KeyCode.LAYER -> {
+                if (spec.payload == "lang_toggle") {
+                    actions.onGlobe()
+                } else {
+                    spec.payload.takeIf { it.isNotEmpty() }?.let { onLayer(KeyboardLayer.valueOf(it)) }
+                }
+            }
             KeyCode.EMOJI -> onLayer(KeyboardLayer.EMOJI)
             KeyCode.GLOBE -> actions.onGlobe()
         }

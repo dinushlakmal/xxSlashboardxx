@@ -3,10 +3,10 @@ package org.slashboard.ime.ime
 import android.content.res.Resources
 
 internal object KeyTypography {
-    const val LATIN_SP = 23f
-    const val SINHALA_SP = 21.5f
-    const val HINT_SP = 11f
-    const val FUNCTION_SP = 14f
+    const val LATIN_SP = 24f
+    const val SINHALA_SP = 22.5f
+    const val HINT_SP = 11.5f
+    const val FUNCTION_SP = 14.5f
     const val PREVIEW_SP = 28f
 
     fun isSinhala(text: String) = text.codePoints().anyMatch { it in 0x0D80..0x0DFF }

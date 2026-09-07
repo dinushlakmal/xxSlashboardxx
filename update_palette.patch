@@ -1,0 +1,32 @@
+--- app/src/main/java/org/slashboard/ime/ime/KeyboardPalette.kt
++++ app/src/main/java/org/slashboard/ime/ime/KeyboardPalette.kt
+@@ -17,7 +17,10 @@
+     val selected: Int,
+     val dark: Boolean,
+     val highContrast: Boolean,
+-    val dynamic: Boolean
++    val dynamic: Boolean,
++    val keyRadiusDp: Float? = null,
++    val blurEffect: Boolean = false,
++    val backgroundImagePath: String? = null
+ )
+ 
+ object KeyboardPaletteResolver {
+@@ -37,6 +40,16 @@
+             }
+         }
+         
++        if (theme.startsWith("custom_")) {
++            val custom = org.slashboard.ime.settings.theme.CustomThemeManager.getTheme(context, theme)
++            if (custom != null) {
++                return KeyboardPalette(
++                    Color.parseColor(custom.background), Color.parseColor(custom.key), Color.parseColor(custom.utility), Color.parseColor(custom.ink),
++                    Color.parseColor(custom.action), Color.parseColor(custom.actionText), Color.parseColor(custom.selected),
++                    custom.dark, custom.highContrast, false, custom.keyRadiusDp, custom.blurEffect, custom.backgroundImagePath
++                )
++            }
++        }
++        
+         return when (theme) {
+             "ocean_blue" -> custom(bg="#0F172A", key="#1E293B", util="#1E293B", ink="#38BDF8", action="#0284C7", actText="#FFFFFF", sel="#334155", dark=true, hc=highContrast)
+             "forest_green" -> custom(bg="#064E3B", key="#065F46", util="#065F46", ink="#A7F3D0", action="#059669", actText="#FFFFFF", sel="#047857", dark=true, hc=highContrast)

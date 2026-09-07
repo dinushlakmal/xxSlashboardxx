@@ -22,7 +22,11 @@ internal data class KeyboardColors(
     val action: Int,
     val actionText: Int,
     val dark: Boolean,
-    val highContrast: Boolean
+    val highContrast: Boolean,
+    val keyRadiusDp: Float? = null,
+    val keyOpacity: Float = 1.0f,
+    val spaceBarKey: Int? = null,
+    val spaceBarBorder: Int? = null
 )
 
 internal class KeyCap(context: Context) : View(context) {
@@ -35,7 +39,7 @@ internal class KeyCap(context: Context) : View(context) {
             isClickable = value != null
             invalidate()
         }
-    var colors: KeyboardColors = KeyboardColors(0, 0, 0, 0, 0, false, false)
+    var colors: KeyboardColors = KeyboardColors(0, 0, 0, 0, 0, false, false, null, 1.0f)
         set(value) { field = value; invalidate() }
     var flickActive = false
         set(value) { field = value; invalidate() }
@@ -61,7 +65,14 @@ internal class KeyCap(context: Context) : View(context) {
     override fun onDraw(canvas: Canvas) {
         val key = spec ?: return
         val pressed = isPressed
+        val isSpace = key.action == KeyCode.SPACE
+        val isGlobe = key.action == KeyCode.GLOBE || key.id == "globe"
+        val isComma = key.id == "comma" || key.label == ","
+        val isPeriod = key.id == "period" || key.label == "."
+        val isReducedBottomKey = isGlobe || isComma || isPeriod
+
         val base = when {
+            isSpace && colors.spaceBarKey != null -> colors.spaceBarKey!!
             key.action == KeyCode.ENTER -> colors.action
             key.utility -> colors.utility
             else -> colors.key
@@ -69,23 +80,53 @@ internal class KeyCap(context: Context) : View(context) {
         val drawInk = if (key.action == KeyCode.ENTER) colors.actionText else colors.ink
         
         val currentHighlight = if (pressed) 1f else highlightAlpha
-        fill.color = if (currentHighlight > 0f) ColorUtils.blendARGB(base, if (colors.dark) 0xFFFFFFFF.toInt() else 0xFF000000.toInt(), 0.18f * currentHighlight) else base
-        val radius = when (key.action) {
-            KeyCode.LAYER, KeyCode.ENTER, KeyCode.SHIFT -> height / 2f
-            else -> dp(KeyboardGeometry.LETTER_RADIUS_DP)
+        val baseAlpha = (colors.keyOpacity * 255).toInt().coerceIn(0, 255)
+        val finalBase = ColorUtils.setAlphaComponent(base, baseAlpha)
+        fill.color = if (currentHighlight > 0f) ColorUtils.blendARGB(finalBase, if (colors.dark) 0xFFFFFFFF.toInt() else 0xFF000000.toInt(), 0.18f * currentHighlight) else finalBase
+        
+        val radius: Float
+        if (isSpace) {
+            val vInset = dp(7.5f)
+            val hInset = dp(4f)
+            rect.set(hInset, vInset, width.toFloat() - hInset, height.toFloat() - vInset)
+            radius = colors.keyRadiusDp?.let { dp(it) } ?: dp(8f)
+        } else if (isReducedBottomKey) {
+            val vInset = dp(5.5f)
+            val hInset = dp(1.5f)
+            rect.set(hInset, vInset, width.toFloat() - hInset, height.toFloat() - vInset)
+            radius = colors.keyRadiusDp?.let { dp(it) } ?: dp(8f)
+        } else {
+            rect.set(0f, 0f, width.toFloat(), height.toFloat())
+            radius = colors.keyRadiusDp?.let { dp(it) } ?: when (key.action) {
+                KeyCode.LAYER, KeyCode.ENTER, KeyCode.SHIFT -> height / 2f
+                else -> dp(KeyboardGeometry.LETTER_RADIUS_DP)
+            }
         }
-        rect.set(0f, 0f, width.toFloat(), height.toFloat())
         canvas.drawRoundRect(rect, radius, radius, fill)
+
         if (colors.highContrast) {
             fill.style = Paint.Style.STROKE
             fill.strokeWidth = dp(2)
-            fill.color = drawInk
+            fill.color = if (isSpace && colors.spaceBarBorder != null) colors.spaceBarBorder!! else drawInk
+            canvas.drawRoundRect(rect, radius, radius, fill)
+            fill.style = Paint.Style.FILL
+        } else if (isSpace) {
+            fill.style = Paint.Style.STROKE
+            fill.strokeWidth = dp(1.2f)
+            fill.color = colors.spaceBarBorder ?: ColorUtils.setAlphaComponent(drawInk, if (colors.dark) 70 else 50)
+            canvas.drawRoundRect(rect, radius, radius, fill)
+            fill.style = Paint.Style.FILL
+        } else if (isReducedBottomKey) {
+            fill.style = Paint.Style.STROKE
+            fill.strokeWidth = dp(1f)
+            fill.color = ColorUtils.setAlphaComponent(drawInk, if (colors.dark) 50 else 35)
             canvas.drawRoundRect(rect, radius, radius, fill)
             fill.style = Paint.Style.FILL
         }
         if (key.icon != null) {
             val drawable = iconFor(key.icon, drawInk)
-            val size = dp(KeyboardGeometry.ICON_DP).toInt().coerceAtMost(minOf(width, height) - dp(8).toInt())
+            val iconDp = if (key.id == "globe") 16f else KeyboardGeometry.ICON_DP
+            val size = dp(iconDp).toInt().coerceAtMost(minOf(width, height) - dp(6).toInt())
             val left = (width - size) / 2
             val top = (height - size) / 2
             drawable?.setBounds(left, top, left + size, top + size)
@@ -197,29 +238,15 @@ internal class KeyCap(context: Context) : View(context) {
     }
 
     private fun drawSpaceCaption(canvas: Canvas, text: String, ink: Int) {
-        val progress = spaceProgress.coerceIn(0f, 1f)
         val density = resources.displayMetrics.scaledDensity
-        val introSize = fitSpaceSize(text, KeyboardGeometry.SPACE_INTRO_SP * density)
-        val collapsedSize = introSize * (KeyboardGeometry.SPACE_COLLAPSE_SP / KeyboardGeometry.SPACE_INTRO_SP)
-        val textSize = introSize + (collapsedSize - introSize) * progress
-        val scale = 1f + (KeyboardGeometry.SPACE_COLLAPSE_SCALE - 1f) * progress
-        val alpha = (255f * (1f + (KeyboardGeometry.SPACE_COLLAPSE_ALPHA - 1f) * progress)).toInt()
+        val textSize = fitSpaceSize(text, 13f * density)
         labelPaint.textSize = textSize
-        labelPaint.color = ColorUtils.setAlphaComponent(ink, alpha)
+        labelPaint.color = ColorUtils.setAlphaComponent(ink, if (colors.dark) 190 else 160)
         labelPaint.typeface = Typeface.create(Typeface.DEFAULT, Typeface.NORMAL)
         val fm = labelPaint.fontMetrics
-        val textWidth = labelPaint.measureText(text)
-        val textHeight = fm.descent - fm.ascent
-        val introX = width / 2f
-        val introY = height / 2f
-        val collapsedX = width - dp(10) - textWidth / 2f
-        val collapsedY = height - dp(7) - textHeight / 2f
-        val gx = introX + (collapsedX - introX) * progress
-        val gy = introY + (collapsedY - introY) * progress
-        canvas.save()
-        canvas.scale(scale, scale, gx, gy)
-        canvas.drawText(text, gx, KeyTypography.baseline(gy, fm), labelPaint)
-        canvas.restore()
+        val centerX = width / 2f
+        val centerY = height / 2f
+        canvas.drawText(text, centerX, KeyTypography.baseline(centerY, fm), labelPaint)
     }
 
     private fun fitSpaceSize(text: String, start: Float): Float {

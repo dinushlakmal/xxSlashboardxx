@@ -9,6 +9,7 @@ internal class TouchPersonalizationStore(context: Context) {
     private var lastKey: String? = null
     private var lastObservedX = 0f
     private var lastObservedY = 0f
+    var thumbReachMode: String = "off"
 
     data class Offset(val x: Float, val y: Float, val samples: Int)
 
@@ -27,7 +28,29 @@ internal class TouchPersonalizationStore(context: Context) {
 
     fun center(key: KeySpec): Pair<Float, Float> {
         val off = offset(key.id)
-        return key.geometricCenterX + off.x to key.geometricCenterY + off.y
+        var ergonomicShiftX = 0f
+        var ergonomicShiftY = 0f
+        
+        // Thumb-Reach Heatmap Customization:
+        // Adjust effective reach zone based on dominant thumb movement arc
+        if (thumbReachMode == "right_thumb") {
+            // Right thumb naturally pivots from the bottom right: keys towards the left/top require reaching
+            // Shift target center slightly towards the right thumb arc for easier acquisition
+            ergonomicShiftX = key.logical.width * 0.08f
+            ergonomicShiftY = key.logical.height * 0.06f
+        } else if (thumbReachMode == "left_thumb") {
+            // Left thumb naturally pivots from bottom left
+            ergonomicShiftX = -key.logical.width * 0.08f
+            ergonomicShiftY = key.logical.height * 0.06f
+        } else if (thumbReachMode == "adaptive_heatmap") {
+            // Adaptive heatmap based on learned touch sample density
+            if (off.samples > 5) {
+                ergonomicShiftX = off.x * 0.25f
+                ergonomicShiftY = off.y * 0.25f
+            }
+        }
+        
+        return (key.geometricCenterX + off.x + ergonomicShiftX) to (key.geometricCenterY + off.y + ergonomicShiftY)
     }
 
     fun learn(key: KeySpec, touchX: Float, touchY: Float, highConfidence: Boolean) {

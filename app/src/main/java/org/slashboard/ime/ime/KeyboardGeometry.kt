@@ -4,11 +4,14 @@ package org.slashboard.ime.ime
 internal object KeyboardGeometry {
     const val LETTER = 0.10f
     const val ROW2_OFFSET = 0.05f
-    const val SHIFT = 0.15f
-    const val DELETE = 0.15f
-    const val SYMBOLS = 0.15f
-    const val PUNCT = 0.10f
-    const val ENTER = 0.15f
+    const val SHIFT = 0.14f
+    const val DELETE = 0.14f
+    const val SYMBOLS = 0.13f
+    const val PUNCT = 0.075f
+    const val GLOBE = 0.07f
+    const val COMMA = 0.07f
+    const val PERIOD = 0.075f
+    const val ENTER = 0.135f
     const val HYSTERESIS = 0.14f
     const val SEARCH_KEYS = 1.15f
     const val SIGMA_X = 0.45f
@@ -20,13 +23,15 @@ internal object KeyboardGeometry {
     /** Fraction of each neighbouring cell the space bar steals as extra hit area. */
     const val SPACE_STEAL = 0.28f
     const val SHIFT_DOUBLE_MS = 400L
-    const val VISUAL_INSET_H_DP = 4f
-    const val VISUAL_INSET_V_DP = 5.5f
-    const val RAIL_PORTRAIT_DP = 46
-    const val RAIL_LANDSCAPE_DP = 38
-    const val KEY_AREA_COMPACT_DP = 216
-    const val KEY_AREA_STANDARD_DP = 232
-    const val KEY_AREA_TALL_DP = 248
+    const val VISUAL_INSET_H_DP = 3.2f
+    const val VISUAL_INSET_V_DP = 4.2f
+    const val RAIL_PORTRAIT_DP = 38
+    const val RAIL_LANDSCAPE_DP = 32
+    const val KEY_AREA_COMPACT_DP = 226
+    const val KEY_AREA_STANDARD_DP = 244
+    const val KEY_AREA_TALL_DP = 260
+    const val KEY_AREA_EXTRA_TALL_DP = 276
+    const val KEY_AREA_GIANT_DP = 292
     const val SLIVER_DP = 4
     const val LONG_PRESS_MS = 400L
     const val DELETE_REPEAT_START_MS = 420L
@@ -39,9 +44,9 @@ internal object KeyboardGeometry {
     const val SPACE_DRAG_DP = 12
     const val SPACE_STEP_DP = 24
     const val DELETE_SWIPE_DP = 24
-    const val ICON_DP = 22f
-    const val TOP_PAD_DP = 8
-    const val BOTTOM_PAD_DP = 28
+    const val ICON_DP = 23f
+    const val TOP_PAD_DP = 6
+    const val BOTTOM_PAD_DP = 26
     const val LETTER_RADIUS_DP = 8f
     const val SPACE_INTRO_MS = 1200L
     const val SPACE_COLLAPSE_MS = 580L
@@ -54,6 +59,7 @@ internal object KeyboardGeometry {
     const val EMOJI_TEXT_SP = 32f
     const val EMOJI_TAB_DP = 40
     const val EMOJI_MIN_CELL_DP = 42
+    const val EMOJI_BOTTOM_DP = 48
     const val EMOJI_COLUMNS_PORTRAIT = 9
     const val EMOJI_COLUMNS_LANDSCAPE = 13
     const val EMOJI_ROWS_PORTRAIT = 5
@@ -63,18 +69,22 @@ internal object KeyboardGeometry {
         if (landscape) return when (size) {
             "compact" -> 152
             "tall" -> 176
+            "extra_tall" -> 192
+            "giant" -> 208
             else -> 164
         }
         return when (size) {
             "compact" -> KEY_AREA_COMPACT_DP
             "tall" -> KEY_AREA_TALL_DP
+            "extra_tall" -> KEY_AREA_EXTRA_TALL_DP
+            "giant" -> KEY_AREA_GIANT_DP
             else -> KEY_AREA_STANDARD_DP
         }
     }
 
     fun rowHeightPx(size: String, landscape: Boolean, density: Float, rows: Int = 4): Float {
-        val area = (keyAreaDp(size, landscape) + (maxOf(0, rows - 4) * 38)) * density
-        return area / rows.coerceAtLeast(1)
+        val area = keyAreaDp(size, landscape) * density
+        return area / 4f
     }
 
     fun railHeightPx(landscape: Boolean, density: Float): Float {
@@ -84,8 +94,8 @@ internal object KeyboardGeometry {
 
     fun visualInsetH(density: Float, spacing: String): Float {
         val dp = when (spacing) {
-            "compact" -> 3f
-            "spacious" -> 5f
+            "compact" -> 2.2f
+            "spacious" -> 4.5f
             else -> VISUAL_INSET_H_DP
         }
         return dp * density
@@ -93,8 +103,8 @@ internal object KeyboardGeometry {
 
     fun visualInsetV(density: Float, spacing: String): Float {
         val dp = when (spacing) {
-            "compact" -> 4.5f
-            "spacious" -> 6.5f
+            "compact" -> 3.2f
+            "spacious" -> 5.5f
             else -> VISUAL_INSET_V_DP
         }
         return dp * density

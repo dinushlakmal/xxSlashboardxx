@@ -30,6 +30,16 @@ internal class ClipboardBoard(
 ) : LinearLayout(context) {
     private enum class Tab { RECENT, PINNED }
 
+    // Fixed High-Contrast Black & White palette independent of dynamic themes
+    private val cbBg = Color.parseColor("#121212")
+    private val cbCard = Color.parseColor("#1E1E1E")
+    private val cbCardStroke = Color.parseColor("#333333")
+    private val cbText = Color.WHITE
+    private val cbSecondaryText = Color.parseColor("#B0B0B0")
+    private val cbUtility = Color.parseColor("#252525")
+    private val cbTabBg = Color.parseColor("#1C1C1C")
+    private val cbTabActive = Color.parseColor("#383838")
+
     private var recent = emptyList<String>()
     private var pinned = emptyList<String>()
     private var tab = Tab.RECENT
@@ -39,7 +49,7 @@ internal class ClipboardBoard(
     private val empty = TextView(context).apply {
         gravity = Gravity.CENTER
         textSize = 15f
-        setTextColor(ColorUtils.setAlphaComponent(colors.ink, 170))
+        setTextColor(cbSecondaryText)
         setPadding(dp(24), dp(16), dp(24), dp(16))
     }
     private val list = RecyclerView(context).apply {
@@ -53,6 +63,7 @@ internal class ClipboardBoard(
 
     init {
         orientation = VERTICAL
+        setBackgroundColor(cbBg)
         addView(toolbar(), LayoutParams(LayoutParams.MATCH_PARENT, dp(44)))
         addView(tabs(), LayoutParams(LayoutParams.MATCH_PARENT, dp(40)).apply {
             topMargin = dp(4)
@@ -104,6 +115,7 @@ internal class ClipboardBoard(
     private fun toolbar() = LinearLayout(context).apply {
         orientation = HORIZONTAL
         gravity = Gravity.CENTER_VERTICAL
+        setBackgroundColor(cbBg)
         addView(
             toolbarIcon(org.slashboard.ime.R.drawable.ic_key_back, "Back") { onBack() },
             LayoutParams(dp(48), LayoutParams.MATCH_PARENT)
@@ -113,14 +125,14 @@ internal class ClipboardBoard(
             textSize = 16f
             typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
             gravity = Gravity.CENTER_VERTICAL or Gravity.START
-            setTextColor(colors.ink)
+            setTextColor(cbText)
         }, LayoutParams(0, LayoutParams.MATCH_PARENT, 1f))
         addView(clear, LayoutParams(dp(48), LayoutParams.MATCH_PARENT))
     }
 
     private fun tabs() = LinearLayout(context).apply {
         orientation = HORIZONTAL
-        background = pill(ColorUtils.setAlphaComponent(colors.ink, 18), dp(20).toFloat())
+        background = pill(cbTabBg, dp(20).toFloat())
         setPadding(dp(3), dp(3), dp(3), dp(3))
         addView(recentTab, LayoutParams(0, LayoutParams.MATCH_PARENT, 1f))
         addView(pinnedTab, LayoutParams(0, LayoutParams.MATCH_PARENT, 1f))
@@ -129,12 +141,13 @@ internal class ClipboardBoard(
     private fun bottomBar() = LinearLayout(context).apply {
         orientation = HORIZONTAL
         gravity = Gravity.CENTER_VERTICAL
+        setBackgroundColor(cbBg)
         addView(actionKey("ABC", "Return to letters") { onBack() }, LayoutParams(0, dp(48), 1f).apply {
             setMargins(dp(6), dp(4), dp(6), dp(4))
         })
         addView(View(context), LayoutParams(0, dp(48), 3f))
         addView(toolbarIcon(org.slashboard.ime.R.drawable.ic_key_hide, "Hide keyboard") { onHide() }.apply {
-            background = keySurface(colors.utility)
+            background = keySurface(cbUtility, cbCardStroke)
         }, LayoutParams(0, dp(48), 1f).apply { setMargins(dp(6), dp(4), dp(6), dp(4)) })
     }
 
@@ -142,11 +155,11 @@ internal class ClipboardBoard(
         text = label
         textSize = 16f
         gravity = Gravity.CENTER
-        setTextColor(colors.ink)
+        setTextColor(cbText)
         contentDescription = description
         isClickable = true
         isFocusable = true
-        background = keySurface(colors.utility)
+        background = keySurface(cbUtility, cbCardStroke)
         setOnClickListener { click() }
     }
 
@@ -161,13 +174,22 @@ internal class ClipboardBoard(
     }
 
     private fun styleTab(view: TextView) {
-        view.setTextColor(colors.ink)
-        view.background = if (view.isSelected) pill(colors.key, dp(16).toFloat()) else null
+        view.setTextColor(if (view.isSelected) cbText else cbSecondaryText)
+        view.background = if (view.isSelected) {
+            GradientDrawable().apply {
+                shape = GradientDrawable.RECTANGLE
+                cornerRadius = dp(16).toFloat()
+                setColor(cbTabActive)
+                setStroke(dp(1), Color.parseColor("#444444"))
+            }
+        } else {
+            null
+        }
     }
 
     private fun toolbarIcon(icon: Int, description: String, click: () -> Unit) = ImageButton(context).apply {
         setImageResource(icon)
-        setColorFilter(colors.ink)
+        setColorFilter(cbText)
         scaleType = android.widget.ImageView.ScaleType.CENTER_INSIDE
         setPadding(dp(10), dp(10), dp(10), dp(10))
         contentDescription = description
@@ -180,7 +202,7 @@ internal class ClipboardBoard(
             val row = LinearLayout(parent.context).apply {
                 orientation = HORIZONTAL
                 gravity = Gravity.CENTER_VERTICAL
-                background = keySurface(colors.key)
+                background = keySurface(cbCard, cbCardStroke)
                 layoutParams = RecyclerView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply {
                     bottomMargin = dp(8)
                 }
@@ -188,7 +210,7 @@ internal class ClipboardBoard(
             }
             val preview = TextView(parent.context).apply {
                 textSize = 15f
-                setTextColor(colors.ink)
+                setTextColor(cbText)
                 maxLines = 2
                 ellipsize = android.text.TextUtils.TruncateAt.END
                 setPadding(dp(16), dp(12), dp(8), dp(12))
@@ -213,7 +235,7 @@ internal class ClipboardBoard(
             holder.row.contentDescription = "Paste ${text.take(40)}"
             holder.pin.contentDescription = if (pinnedTab) "Remove pin" else "Pin clip"
             holder.pin.setColorFilter(
-                if (pinnedTab) ColorUtils.blendARGB(colors.ink, 0xFFFF9800.toInt(), 0.65f) else ColorUtils.setAlphaComponent(colors.ink, 140)
+                if (pinnedTab) Color.parseColor("#FFA726") else Color.parseColor("#888888")
             )
             holder.row.setOnClickListener { onPaste(text) }
             holder.pin.setOnClickListener {
@@ -247,16 +269,19 @@ internal class ClipboardBoard(
         val pin: ImageButton
     ) : RecyclerView.ViewHolder(row)
 
-    private fun keySurface(color: Int) = RippleDrawable(
-        ColorStateList.valueOf(ColorUtils.setAlphaComponent(colors.ink, 40)),
-        pill(color, dp(12).toFloat()),
+    private fun keySurface(color: Int, strokeColor: Int? = null) = RippleDrawable(
+        ColorStateList.valueOf(Color.parseColor("#33FFFFFF")),
+        pill(color, dp(12).toFloat(), strokeColor),
         pill(Color.WHITE, dp(12).toFloat())
     )
 
-    private fun pill(color: Int, radius: Float) = GradientDrawable().apply {
+    private fun pill(color: Int, radius: Float, strokeColor: Int? = null) = GradientDrawable().apply {
         shape = GradientDrawable.RECTANGLE
         cornerRadius = radius
         setColor(color)
+        if (strokeColor != null) {
+            setStroke(dp(1), strokeColor)
+        }
     }
 
     private fun dp(value: Int) = (value * resources.displayMetrics.density).toInt()

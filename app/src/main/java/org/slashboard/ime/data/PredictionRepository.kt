@@ -3,9 +3,11 @@ package org.slashboard.ime.data
 import android.content.Context
 import org.slashboard.ime.R
 import org.slashboard.ime.engine.SinhalaEngine
+import org.slashboard.ime.engine.SinhalaOrthographyHelper
+import org.slashboard.ime.engine.SinhalaPhoneticAutoAccent
 import kotlin.math.ln
 
-data class Candidate(val text: String, val score: Double)
+data class Candidate(val text: String, val score: Double, val isCorrection: Boolean = false)
 
 class PredictionRepository(private val context: Context, private val learning: LocalLearningStore) {
     @Volatile private var loaded = false
@@ -48,13 +50,14 @@ class PredictionRepository(private val context: Context, private val learning: L
         val earlier = preceding.dropLast(1).lastOrNull()
         val learned = learning.words()
         val learnedNext = previous?.let { learning.followers(it) }.orEmpty()
+        val learnedTrigramNext = if (earlier != null && previous != null) learning.trigramFollowers(earlier, previous) else emptyMap()
         val bundledNext = previous?.let { bigrams?.followers(it) }.orEmpty()
         val trigramNext = if (earlier != null && previous != null) trigrams["$earlier\t$previous"].orEmpty() else emptyList()
         val bundledCounts = HashMap<String, Int>(bundledNext.size)
         bundledNext.forEach { (word, count) -> bundledCounts[word] = maxOf(bundledCounts[word] ?: 0, count) }
         val trigramCounts = HashMap<String, Int>(trigramNext.size)
         trigramNext.forEach { (word, count) -> trigramCounts[word] = maxOf(trigramCounts[word] ?: 0, count) }
-        val hasContinuations = previous != null && (bundledNext.isNotEmpty() || learnedNext.isNotEmpty() || trigramNext.isNotEmpty())
+        val hasContinuations = previous != null && (bundledNext.isNotEmpty() || learnedNext.isNotEmpty() || trigramNext.isNotEmpty() || learnedTrigramNext.isNotEmpty())
         val ranked = ArrayList<Candidate>(max)
         val considered = HashSet<String>(max * 16)
 
@@ -65,6 +68,7 @@ class PredictionRepository(private val context: Context, private val learning: L
             val score = unigramWeight * ln(frequency.coerceAtLeast(1) + 1.0) +
                 learned.getOrDefault(word, 0) +
                 learnedNext.getOrDefault(word, 0) * 1.8 +
+                learnedTrigramNext.getOrDefault(word, 0) * 2.5 +
                 ln((bundledCounts[word] ?: 0) + 1.0) * 1.7 +
                 ln((trigramCounts[word] ?: 0) + 1.0) * 2.2
             val candidate = Candidate(word, score)
@@ -91,6 +95,18 @@ class PredictionRepository(private val context: Context, private val learning: L
             learned.forEach { (word, count) ->
                 if (SinhalaEngine.hasUnicodeScalarPrefix(word, prefix)) consider(word, count, 1.0)
             }
+            if (ranked.size < max) {
+                val variants = SinhalaOrthographyHelper.generateOrthographicVariants(prefix)
+                for (v in variants) {
+                    val vFirst = firstIndexAtOrAfter(v)
+                    val vLast = minOf(entries.size, vFirst + 512)
+                    for (i in vFirst until vLast) {
+                        val entry = entries[i]
+                        if (!SinhalaEngine.hasUnicodeScalarPrefix(entry.first, v)) break
+                        consider(entry.first, entry.second, 0.95)
+                    }
+                }
+            }
         }
 
         val continuationWeight = if (prefix.isEmpty() && hasContinuations) 0.20 else 1.0
@@ -103,6 +119,20 @@ class PredictionRepository(private val context: Context, private val learning: L
         }
         trigramNext.forEach { (word, count) ->
             if (matchesPrefix(word)) consider(word, unigramFrequency[word] ?: 0, continuationWeight)
+        }
+
+        if (prefix.isNotEmpty()) {
+            val correction = SinhalaOrthographyHelper.findCorrection(prefix) { unigramFrequency[it] }
+                ?: SinhalaPhoneticAutoAccent.findBestAccentCorrection(prefix, preceding) { unigramFrequency[it] }
+            if (correction != null && correction != prefix) {
+                val existingIndex = ranked.indexOfFirst { it.text == correction }
+                if (existingIndex >= 0) {
+                    ranked.removeAt(existingIndex)
+                } else if (ranked.size >= max) {
+                    ranked.removeAt(ranked.lastIndex)
+                }
+                ranked.add(0, Candidate(correction, 9999.0, isCorrection = true))
+            }
         }
         return ranked
     }

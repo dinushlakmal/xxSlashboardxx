@@ -1,0 +1,42 @@
+--- app/src/main/java/org/slashboard/ime/settings/SettingsActivity.kt
++++ app/src/main/java/org/slashboard/ime/settings/SettingsActivity.kt
+@@ -1026,6 +1026,16 @@
+     prefs: KeyboardPreferences,
+     onThemeChanged: (String) -> Unit = {},
+     onBack: () -> Unit
+ ) {
+     val context = LocalContext.current
+     var refresh by remember { mutableStateOf(0) }
++    val launcher = androidx.activity.compose.rememberLauncherForActivityResult(
++        androidx.activity.result.contract.ActivityResultContracts.GetContent()
++    ) { uri ->
++        if (uri != null) {
++            val id = org.slashboard.ime.settings.theme.CustomThemeManager.importTheme(context, uri)
++            if (id != null) {
++                prefs.theme = id
++                onThemeChanged(id)
++            }
++        }
++    }
+     val themeValues = remember {
+         listOf(
+@@ -1043,15 +1053,15 @@
+ 
+     BackHandler {
+         onBack()
+     }
++    val customThemes = remember(refresh) { org.slashboard.ime.settings.theme.CustomThemeManager.getThemes(context) }
+ 
+     Scaffold(
+         containerColor = Color.Transparent,
+         topBar = {
+             TopAppBar(
+                 title = { Text("Layouts", fontWeight = FontWeight.SemiBold) },
+                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent),
++                actions = {
++                    IconButton(onClick = { launcher.launch("*/*") }) {
++                        Icon(Icons.Default.Add, "Import Theme")
++                    }
++                },
+                 navigationIcon = {
+                     IconButton(onClick = onBack) {

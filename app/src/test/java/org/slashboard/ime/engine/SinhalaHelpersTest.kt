@@ -1,0 +1,79 @@
+package org.slashboard.ime.engine
+
+import org.junit.Assert.*
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.slashboard.ime.data.Candidate
+import org.slashboard.ime.data.PredictionRepository
+import androidx.test.core.app.ApplicationProvider
+
+@RunWith(RobolectricTestRunner::class)
+class SinhalaHelpersTest {
+
+    @Test
+    fun testPillamCorrectorMisplacedKombuwa() {
+        // Typing kombuwa (ෙ) followed by consonant (ක)
+        val correction = SinhalaPillamCorrector.handleCharacterInput("ෙ", "ක")
+        assertNotNull(correction)
+        assertEquals(1, correction?.deleteCount)
+        assertEquals("කෙ", correction?.replacement)
+    }
+
+    @Test
+    fun testPillamCorrectorDoubleKombuwa() {
+        // Typing ෙ followed by ෙ -> ෛ
+        val correction = SinhalaPillamCorrector.handleCharacterInput("කෙ", "ෙ")
+        assertNotNull(correction)
+        assertEquals(1, correction?.deleteCount)
+        assertEquals("ෛ", correction?.replacement)
+    }
+
+    @Test
+    fun testPillamCorrectorKombuwaPlusAelapilla() {
+        // Typing කෙ followed by ා -> කො
+        val correction = SinhalaPillamCorrector.handleCharacterInput("කෙ", "ා")
+        assertNotNull(correction)
+        assertEquals(1, correction?.deleteCount)
+        assertEquals("ො", correction?.replacement)
+    }
+
+    @Test
+    fun testPillamCorrectorFullTextNormalization() {
+        // Misordered kombuwa before consonant: "ෙක" should become "කෙ"
+        val corrected = SinhalaPillamCorrector.correctText("ෙකලස")
+        assertEquals("කෙලස", corrected)
+    }
+
+    @Test
+    fun testOrthographyHelperCommonErrors() {
+        // පැමිනියා -> පැමිණියා
+        val fix1 = SinhalaOrthographyHelper.findCorrection("පැමිනියා") { 10 }
+        assertEquals("පැමිණියා", fix1)
+
+        // කරුනාව -> කරුණාව
+        val fix2 = SinhalaOrthographyHelper.findCorrection("කරුනාව") { 10 }
+        assertEquals("කරුණාව", fix2)
+
+        // පිලිබඳ -> පිළිබඳ
+        val fix3 = SinhalaOrthographyHelper.findCorrection("පිලිබඳ") { 10 }
+        assertEquals("පිළිබඳ", fix3)
+
+        // Generate variants for unknown words containing na/la
+        val variants = SinhalaOrthographyHelper.generateOrthographicVariants("පැමින")
+        assertTrue(variants.contains("පැමිණ"))
+    }
+
+    @Test
+    fun testPredictionRepositoryInjectsCorrection() {
+        val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        val learning = org.slashboard.ime.data.LocalLearningStore(context)
+        val repo = PredictionRepository(context, learning)
+
+        val candidates = repo.candidates("පැමිනියා", emptyList(), 3)
+        assertTrue(candidates.isNotEmpty())
+        val first = candidates.first()
+        assertEquals("පැමිණියා", first.text)
+        assertTrue(first.isCorrection)
+    }
+}

@@ -26,8 +26,10 @@ internal object KeyboardLayoutFactory {
         sliver: Float
     ): KeyboardLayout {
         val specs = ArrayList<KeySpec>(48)
+        var currentY = 0f
         rows.forEachIndexed { rowIndex, row ->
-            val y = rowIndex * rowHeight
+            val currRowHeight = rowHeight * row.heightFactor
+            val y = currentY
             var x = row.startFraction * width
             row.keys.forEachIndexed { index, def ->
                 val cell = def.widthFraction * width
@@ -38,16 +40,16 @@ internal object KeyboardLayoutFactory {
                 if (row.expandEdges && index == 0) logicalLeft = 0f
                 if (row.expandEdges && index == row.keys.lastIndex) logicalRight = width
                 val topSliver = if (row.sliverTop) sliver else 0f
-                val logical = Bounds(logicalLeft, y - topSliver, logicalRight, y + rowHeight)
+                val logical = Bounds(logicalLeft, y - topSliver, logicalRight, y + currRowHeight)
                 val letter = width * KeyboardGeometry.LETTER
                 val scale = if (letter > 0f) (cell / letter).coerceIn(0.55f, 1f) else 1f
                 val ih = (insetH * scale).coerceAtMost(cell * 0.22f)
-                val iv = (insetV * scale.coerceAtLeast(0.75f)).coerceAtMost(rowHeight * 0.18f)
+                val iv = (insetV * scale.coerceAtLeast(0.75f) * row.heightFactor.coerceAtLeast(0.55f)).coerceAtMost(currRowHeight * 0.18f)
                 val visual = Bounds(
                     visualLeft + ih,
                     y + iv,
                     visualRight - ih,
-                    y + rowHeight - iv
+                    y + currRowHeight - iv
                 )
                 specs += KeySpec(
                     id = def.id,
@@ -66,6 +68,7 @@ internal object KeyboardLayoutFactory {
                 )
                 x += cell
             }
+            currentY += currRowHeight
         }
         val letterWidth = specs.filter { !it.utility && it.action == KeyCode.CHAR }
             .map { it.logical.width }
@@ -74,7 +77,7 @@ internal object KeyboardLayoutFactory {
             .takeIf { it.isFinite() && it > 0f }
             ?: width * KeyboardGeometry.LETTER
         stealSpaceHits(specs)
-        return KeyboardLayout(specs, width, rows.size * rowHeight, rowHeight, letterWidth, rows.size)
+        return KeyboardLayout(specs, width, currentY, rowHeight, letterWidth, rows.size)
     }
 
     /** Space is used far more than "." / emoji; give it the gutter and a sliver of each neighbour. */
@@ -123,11 +126,14 @@ internal object KeyboardLayoutFactory {
         enterLabel: String,
         spaceLabel: String,
         offerGlobe: Boolean = false,
-        isEnglish: Boolean = false
+        isEnglish: Boolean = false,
+        smartModifiers: Boolean = true,
+        recentEmojis: List<String> = emptyList()
     ): List<RowDef> = when (layer) {
-        KeyboardLayer.LETTERS -> letterRows(mode, shifted, caps, editor, topRow, emojiPicker, enterLabel, spaceLabel, offerGlobe, isEnglish)
+        KeyboardLayer.LETTERS -> letterRows(mode, shifted, caps, editor, topRow, emojiPicker, enterLabel, spaceLabel, offerGlobe, isEnglish, smartModifiers, recentEmojis)
         KeyboardLayer.NUMBERS -> symbolRows(KeyboardView.numbers, KeyboardLayer.SYMBOLS, "=\\<", enterLabel, spaceLabel, emojiPicker)
-        KeyboardLayer.SYMBOLS -> symbolRows(KeyboardView.symbols, KeyboardLayer.NUMBERS, "?123", enterLabel, spaceLabel, emojiPicker)
+        KeyboardLayer.SYMBOLS -> symbolRows(KeyboardView.symbols, KeyboardLayer.SINHALA_GLYPHS, "𑇡♈", enterLabel, spaceLabel, emojiPicker)
+        KeyboardLayer.SINHALA_GLYPHS -> symbolRows(KeyboardView.sinhalaGlyphs, KeyboardLayer.NUMBERS, "?123", enterLabel, spaceLabel, emojiPicker)
         else -> emptyList()
     }
 
@@ -141,32 +147,47 @@ internal object KeyboardLayoutFactory {
         enterLabel: String,
         spaceLabel: String,
         offerGlobe: Boolean,
-        isEnglish: Boolean
+        isEnglish: Boolean,
+        smartModifiers: Boolean = true,
+        recentEmojis: List<String> = emptyList()
     ): List<RowDef> {
         val rows = ArrayList<RowDef>(6)
-        val literal = editor != EditorLayout.TEXT || isEnglish
-        if (!literal && (topRow == "emoji" || topRow == "both")) {
+        val showTopRow = editor == EditorLayout.TEXT
+        if (showTopRow && (topRow == "emoji" || topRow == "both")) {
+            val defaultEmojis = listOf("😀", "😂", "❤️", "👍", "🙏", "🔥", "✨", "🎉", "🇱🇰", "😊")
+            val emojisToShow = if (recentEmojis.isNotEmpty()) {
+                (recentEmojis + defaultEmojis).distinct().take(10)
+            } else {
+                defaultEmojis
+            }
             rows += RowDef(
-                listOf("😀", "😂", "❤️", "👍", "🙏", "🔥", "✨", "🎉", "🇱🇰", "😊").map { charDef(it, it) },
+                emojisToShow.map { charDef(it, it) },
                 expandEdges = true,
-                sliverTop = true
+                sliverTop = true,
+                heightFactor = 0.62f
             )
         }
-        if (!literal && (topRow == "numbers" || topRow == "both")) {
-            rows += RowDef("1234567890".map { charDef(it.toString(), it.toString()) }, expandEdges = true, sliverTop = topRow == "numbers")
+        if (showTopRow && (topRow == "numbers" || topRow == "both")) {
+            rows += RowDef(
+                "1234567890".map { charDef(it.toString(), it.toString()) },
+                expandEdges = true,
+                sliverTop = topRow == "numbers",
+                heightFactor = 0.68f
+            )
         }
         val firstLetters = rows.isEmpty()
-        val q = KeyboardView.qwertyRows[0].map { letterDef(it, mode, false, shifted, caps, KeyboardGeometry.LETTER, isEnglish) }
-        val a = KeyboardView.qwertyRows[1].map { letterDef(it, mode, false, shifted, caps, KeyboardGeometry.LETTER, isEnglish) }
-        val z = KeyboardView.qwertyRows[2].map { letterDef(it, mode, false, shifted, caps, KeyboardGeometry.LETTER, isEnglish) }
+        val isWijesekara = false
+        val q = KeyboardView.qwertyRows[0].map { letterDef(it, mode, isWijesekara, shifted, caps, KeyboardGeometry.LETTER, isEnglish) }
+        val a = KeyboardView.qwertyRows[1].map { letterDef(it, mode, isWijesekara, shifted, caps, KeyboardGeometry.LETTER, isEnglish) }
+        val z = KeyboardView.qwertyRows[2].map { letterDef(it, mode, isWijesekara, shifted, caps, KeyboardGeometry.LETTER, isEnglish) }
         rows += RowDef(q, startFraction = 0f, expandEdges = true, sliverTop = firstLetters)
         rows += RowDef(a, startFraction = KeyboardGeometry.ROW2_OFFSET, expandEdges = true)
         rows += RowDef(
-            listOf(shiftDef(caps).copy(widthFraction = KeyboardGeometry.SHIFT)) +
+            listOf(shiftDef(shifted, caps).copy(widthFraction = KeyboardGeometry.SHIFT)) +
                 z +
                 listOf(deleteDef().copy(widthFraction = KeyboardGeometry.DELETE))
         )
-        rows += bottomRow(editor, emojiPicker, enterLabel, spaceLabel, offerGlobe)
+        rows += bottomRow(editor, emojiPicker, enterLabel, spaceLabel, offerGlobe, smartModifiers)
         return rows
     }
 
@@ -203,7 +224,7 @@ internal object KeyboardLayoutFactory {
         if (emojiPicker) {
             bottom += KeyDef("emoji", "", "", KeyCode.EMOJI, KeyboardGeometry.PUNCT, icon = org.slashboard.ime.R.drawable.ic_key_emoji, utility = true)
         }
-        bottom += spaceDef(1f - bottom.sumOf { it.widthFraction.toDouble() }.toFloat() - KeyboardGeometry.PUNCT - KeyboardGeometry.ENTER, spaceLabel)
+        bottom += spaceDef(1f - bottom.sumOf { it.widthFraction.toDouble() }.toFloat() - KeyboardGeometry.PERIOD - KeyboardGeometry.ENTER, spaceLabel)
         bottom += periodDef()
         bottom += enterDef(enterLabel)
         rows += RowDef(bottom, expandEdges = true)
@@ -215,25 +236,50 @@ internal object KeyboardLayoutFactory {
         emojiPicker: Boolean,
         enterLabel: String,
         spaceLabel: String,
-        offerGlobe: Boolean
+        offerGlobe: Boolean,
+        smartModifiers: Boolean = true
     ): RowDef {
-        val keys = ArrayList<KeyDef>(8)
+        val keys = ArrayList<KeyDef>(10)
         keys += KeyDef("?123", "?123", "", KeyCode.LAYER, KeyboardGeometry.SYMBOLS, utility = true, payload = KeyboardLayer.NUMBERS.name)
-        when (editor) {
-            EditorLayout.EMAIL -> keys += charDef("@", "@", KeyboardGeometry.PUNCT)
-            EditorLayout.URI -> keys += charDef("/", "/", KeyboardGeometry.PUNCT)
-            else -> Unit
+        
+        if (smartModifiers && editor == EditorLayout.EMAIL) {
+            // Smart Email keys
+            keys += charDef("@", "@", 0.075f)
+            keys += charDef(".", ".", 0.065f)
+        } else if (smartModifiers && editor == EditorLayout.URI) {
+            // Smart URL keys
+            keys += charDef("/", "/", 0.075f)
+            keys += charDef(".", ".", 0.065f)
+        } else {
+            when (editor) {
+                EditorLayout.EMAIL -> keys += charDef("@", "@", KeyboardGeometry.PUNCT)
+                EditorLayout.URI -> keys += charDef("/", "/", KeyboardGeometry.PUNCT)
+                else -> Unit
+            }
         }
-        if (emojiPicker && editor == EditorLayout.TEXT) {
-            keys += KeyDef("emoji", "", "", KeyCode.EMOJI, KeyboardGeometry.PUNCT, icon = org.slashboard.ime.R.drawable.ic_key_emoji, utility = true)
+        
+        if (editor == EditorLayout.TEXT) {
+            keys += charDef(",", ",", KeyboardGeometry.COMMA)
+            keys += KeyDef("globe", "", "", KeyCode.GLOBE, KeyboardGeometry.GLOBE, icon = org.slashboard.ime.R.drawable.ic_key_globe, utility = true)
         }
-        val trailing = ArrayList<KeyDef>(3)
-        if (editor == EditorLayout.TEXT || editor == EditorLayout.EMAIL || editor == EditorLayout.URI) {
-            trailing += periodDef()
+        
+        val trailing = ArrayList<KeyDef>(4)
+        if (smartModifiers && editor == EditorLayout.URI) {
+            // Quick domain shortcut in URL bar: .lk and .com
+            trailing += KeyDef(".lk", ".lk", ".lk", KeyCode.CHAR, 0.10f)
+            trailing += KeyDef(".com", ".com", ".com", KeyCode.CHAR, 0.11f)
+        } else if (smartModifiers && editor == EditorLayout.EMAIL) {
+            // Quick domain shortcut in Email field: .com
+            trailing += KeyDef(".com", ".com", ".com", KeyCode.CHAR, 0.12f)
+        } else {
+            if (editor == EditorLayout.TEXT || editor == EditorLayout.EMAIL || editor == EditorLayout.URI) {
+                trailing += periodDef()
+            }
         }
         trailing += enterDef(enterLabel)
+        
         val used = keys.sumOf { it.widthFraction.toDouble() } + trailing.sumOf { it.widthFraction.toDouble() }
-        keys += spaceDef((1.0 - used).toFloat().coerceAtLeast(0.30f), spaceLabel)
+        keys += spaceDef((1.0 - used).toFloat().coerceAtLeast(0.20f), spaceLabel)
         keys += trailing
         return RowDef(keys, expandEdges = true)
     }
@@ -250,9 +296,19 @@ internal object KeyboardLayoutFactory {
         val label = letterLabel(id, wijesekara, shifted, caps)
         val output = if (wijesekara) SinhalaEngine.slsCharacter(id, shifted || caps) else label
         val extras = KeyAlternates.extras(id, mode, KeyboardLayer.LETTERS, shifted || caps)
-        val hint = KeyAlternates.hint(id, mode, KeyboardLayer.LETTERS) ?: if (isEnglish) null else phoneticHint(id, mode, wijesekara, shifted, caps)
-        val flick = extras.firstOrNull()?.second
-        return KeyDef(id, label, output, KeyCode.CHAR, width, hint, extras, flick)
+        val numberHint = when (id) {
+            "q" -> "1"; "w" -> "2"; "e" -> "3"; "r" -> "4"; "t" -> "5"
+            "y" -> "6"; "u" -> "7"; "i" -> "8"; "o" -> "9"; "p" -> "0"
+            else -> null
+        }
+        val hint = if (isEnglish) numberHint else (KeyAlternates.hint(id, mode, KeyboardLayer.LETTERS) ?: phoneticHint(id, mode, wijesekara, shifted, caps) ?: numberHint)
+        val fullExtras = if (isEnglish && numberHint != null && extras.none { it.second == numberHint }) {
+            listOf(numberHint to numberHint) + extras
+        } else {
+            extras
+        }
+        val flick = fullExtras.firstOrNull()?.second
+        return KeyDef(id, label, output, KeyCode.CHAR, width, hint, fullExtras, flick)
     }
 
     private fun charDef(id: String, output: String, width: Float = KeyboardGeometry.LETTER): KeyDef {
@@ -268,9 +324,9 @@ internal object KeyboardLayoutFactory {
         )
     }
 
-    private fun shiftDef(caps: Boolean) = KeyDef(
+    private fun shiftDef(shifted: Boolean, caps: Boolean) = KeyDef(
         KeyRow.SHIFT, "", "", KeyCode.SHIFT, KeyboardGeometry.SHIFT,
-        icon = if (caps) org.slashboard.ime.R.drawable.ic_key_caps else org.slashboard.ime.R.drawable.ic_key_shift,
+        icon = if (caps || shifted) org.slashboard.ime.R.drawable.ic_key_caps else org.slashboard.ime.R.drawable.ic_key_shift,
         utility = true
     )
 
