@@ -171,6 +171,12 @@ fun ThemeCreatorScreen(
                     inputStream?.close()
                     outputStream.close()
                     bgImagePath = destFile.absolutePath
+                    if (backgroundHex.equals("transparent", ignoreCase = true)) {
+                        backgroundHex = if (dark) "#0F172A" else "#F8FAFC"
+                    }
+                    if (keyOpacity < 0.85f) {
+                        keyOpacity = 0.90f
+                    }
                 } catch (e: Exception) {
                     e.printStackTrace()
                 }
@@ -945,13 +951,18 @@ fun ThemeLiveKeyboardPreview(
     borderColorHex: String = "#38BDF8",
     onKeyTap: ((String) -> Unit)? = null
 ) {
+    val hasBgImage = remember(bgImagePath) { !bgImagePath.isNullOrEmpty() && java.io.File(bgImagePath).exists() }
     val bgColor = remember(backgroundHex) { parseHexColor(backgroundHex, Color(0xFF0F172A)) }
-    val isTransparentBg = backgroundHex.equals("transparent", ignoreCase = true) || bgColor == Color.Transparent
-    val effectiveKeyOpacity = remember(keyOpacity, isTransparentBg) {
-        if (isTransparentBg && keyOpacity >= 1.0f) 0.68f else keyOpacity
+    val isTransparentBg = (backgroundHex.equals("transparent", ignoreCase = true) || bgColor == Color.Transparent) && !hasBgImage
+    val effectiveKeyOpacity = remember(keyOpacity, isTransparentBg, hasBgImage) {
+        if (hasBgImage) (if (keyOpacity < 0.85f) 0.90f else keyOpacity)
+        else if (isTransparentBg && keyOpacity >= 1.0f) 0.68f
+        else keyOpacity
     }
-    val effectiveBorderWidth = remember(borderWidthDp, isTransparentBg) {
-        if (isTransparentBg && borderWidthDp == 0f) 1f else borderWidthDp
+    val effectiveBorderWidth = remember(borderWidthDp, isTransparentBg, hasBgImage) {
+        if (hasBgImage && borderWidthDp == 0f) 1f
+        else if (isTransparentBg && borderWidthDp == 0f) 1f
+        else borderWidthDp
     }
     val keyColor = remember(keyHex, effectiveKeyOpacity) { parseHexColor(keyHex, Color(0xFF1E293B)).copy(alpha = effectiveKeyOpacity) }
     val actionColor = remember(actionHex) { parseHexColor(actionHex, Color(0xFF0284C7)) }

@@ -200,7 +200,7 @@ class SlashboardInputMethodService : InputMethodService(), KeyboardActions {
     override fun onStartInput(attribute: EditorInfo?, restarting: Boolean) {
         super.onStartInput(attribute, restarting)
         clearLocalCompositionState()
-        restricted = attribute?.let { isRestrictedEditor(it) } ?: true
+        restricted = attribute?.let { isRestrictedEditor(it) || isPasswordOrSensitive(it) } ?: true
         lastSelectionEnd = attribute?.initialSelEnd ?: -1
         precedingDirty = true
     }
@@ -213,7 +213,7 @@ class SlashboardInputMethodService : InputMethodService(), KeyboardActions {
         if (::keyboard.isInitialized) {
             keyboard.reloadPreferences(prefs)
         }
-        restricted = info?.let { isRestrictedEditor(it) } ?: true
+        restricted = info?.let { isRestrictedEditor(it) || isPasswordOrSensitive(it) } ?: true
         editorLayout = editorLayout(info)
 
         // Layout and editor preparation (preserves user-chosen language across sessions)
@@ -233,7 +233,7 @@ class SlashboardInputMethodService : InputMethodService(), KeyboardActions {
             win.findViewById<View>(android.R.id.inputArea)?.setBackgroundColor(Color.TRANSPARENT)
         }
         keyboard.configure(prefs.mode, offerSystemSwitch(), enterLabel(info), editorLayout)
-        keyboard.learningEnabled = !restricted && editorLayout == EditorLayout.TEXT
+        keyboard.learningEnabled = !restricted && !isPasswordOrSensitive(info) && editorLayout == EditorLayout.TEXT
         checkOtp()
         if (prefs.clipboardHistory) captureClipboard()
         clipboardHistory?.let { keyboard.setClipboardItems(it.items(), it.pinnedItems()) }
@@ -324,9 +324,12 @@ class SlashboardInputMethodService : InputMethodService(), KeyboardActions {
         runCatching {
             val ic = currentInputConnection
             val selected = ic?.getSelectedText(0)?.toString()
+            val isSensitive = restricted || isPasswordOrSensitive(currentInputEditorInfo)
             if (!selected.isNullOrEmpty()) {
                 commitComposition()
-                undoRedoManager.recordDeletedText(selected)
+                if (!isSensitive) {
+                    undoRedoManager.recordDeletedText(selected)
+                }
                 ic.commitText("", 1)
                 precedingDirty = true
                 updateSuggestions()
@@ -709,9 +712,10 @@ class SlashboardInputMethodService : InputMethodService(), KeyboardActions {
 
     override fun onCommitPreviewDelete() {
         val ic = currentInputConnection
+        val isSensitive = restricted || isPasswordOrSensitive(currentInputEditorInfo)
         if (ic != null && deleteLength > 0) {
             val deleted = ic.getTextBeforeCursor(deleteLength, 0)?.toString().orEmpty()
-            if (deleted.isNotEmpty()) {
+            if (deleted.isNotEmpty() && !isSensitive) {
                 undoRedoManager.recordDeletedText(deleted)
             }
             ic.commitText("", 1)
@@ -797,9 +801,12 @@ class SlashboardInputMethodService : InputMethodService(), KeyboardActions {
     private fun deleteFromHost(word: Boolean) {
         val ic = currentInputConnection ?: return
         runCatching {
+            val isSensitive = restricted || isPasswordOrSensitive(currentInputEditorInfo)
             val selected = ic.getSelectedText(0)?.toString()
             if (!selected.isNullOrEmpty()) {
-                undoRedoManager.recordDeletedText(selected)
+                if (!isSensitive) {
+                    undoRedoManager.recordDeletedText(selected)
+                }
                 ic.commitText("", 1)
                 return@runCatching
             }
@@ -808,7 +815,9 @@ class SlashboardInputMethodService : InputMethodService(), KeyboardActions {
             if (word) {
                 val target = GraphemeDelete.lastWordSegment(before)
                 if (target.isNotEmpty()) {
-                    undoRedoManager.recordDeletedText(target)
+                    if (!isSensitive) {
+                        undoRedoManager.recordDeletedText(target)
+                    }
                     ic.deleteSurroundingText(target.length, 0)
                 } else {
                     ic.sendKeyEvent(KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DEL))
@@ -822,7 +831,9 @@ class SlashboardInputMethodService : InputMethodService(), KeyboardActions {
                 ic.sendKeyEvent(KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_DEL))
                 return@runCatching
             }
-            undoRedoManager.recordDeletedCluster(cluster)
+            if (!isSensitive) {
+                undoRedoManager.recordDeletedCluster(cluster)
+            }
             val reduced = GraphemeDelete.reduceSlashboard(cluster)
             if (reduced == null) {
                 ic.deleteSurroundingText(cluster.length, 0)
@@ -836,7 +847,7 @@ class SlashboardInputMethodService : InputMethodService(), KeyboardActions {
     }
 
     private fun updateSuggestions() {
-        if (!::keyboard.isInitialized || restricted || !prefs.suggestions) {
+        if (!::keyboard.isInitialized || restricted || isPasswordOrSensitive(currentInputEditorInfo) || !prefs.suggestions) {
             if (::keyboard.isInitialized) {
                 keyboard.setCandidates(emptyList())
             }
@@ -998,7 +1009,7 @@ class SlashboardInputMethodService : InputMethodService(), KeyboardActions {
     }
 
     private fun learn(word: String?) {
-        if (word.isNullOrBlank() || restricted) return
+        if (word.isNullOrBlank() || restricted || isPasswordOrSensitive(currentInputEditorInfo)) return
         val clean = word.trim()
         val earlier = previousEarlierCommittedWord
         val previous = previousCommittedWord
@@ -1011,7 +1022,7 @@ class SlashboardInputMethodService : InputMethodService(), KeyboardActions {
     }
 
     private fun learnEnglish(word: String?) {
-        if (word.isNullOrBlank() || restricted) return
+        if (word.isNullOrBlank() || restricted || isPasswordOrSensitive(currentInputEditorInfo)) return
         val clean = word.trim()
         val earlier = previousEarlierCommittedWord
         val previous = previousCommittedWord
@@ -1028,7 +1039,7 @@ class SlashboardInputMethodService : InputMethodService(), KeyboardActions {
     private fun captureClipboard() {
         runCatching {
             checkOtp()
-            if (!prefs.clipboardHistory || restricted || editorLayout != EditorLayout.TEXT) return
+            if (!prefs.clipboardHistory || restricted || isPasswordOrSensitive(currentInputEditorInfo) || editorLayout != EditorLayout.TEXT) return
             val manager = getSystemService(Context.CLIPBOARD_SERVICE) as? ClipboardManager ?: return
             val clip = manager.primaryClip ?: return
             if (clip.itemCount == 0) return
@@ -1058,7 +1069,7 @@ class SlashboardInputMethodService : InputMethodService(), KeyboardActions {
         runCatching {
             val manager = getSystemService(Context.CLIPBOARD_SERVICE) as? ClipboardManager ?: return
             manager.removePrimaryClipChangedListener(clipListener)
-            if (prefs.clipboardHistory && !restricted && editorLayout == EditorLayout.TEXT) {
+            if (prefs.clipboardHistory && !restricted && !isPasswordOrSensitive(currentInputEditorInfo) && editorLayout == EditorLayout.TEXT) {
                 manager.addPrimaryClipChangedListener(clipListener)
             }
         }
@@ -1118,14 +1129,55 @@ class SlashboardInputMethodService : InputMethodService(), KeyboardActions {
     }
 
     companion object {
-        fun isRestrictedEditor(info: EditorInfo): Boolean {
-            val cls = info.inputType and EditorInfo.TYPE_MASK_CLASS
-            val variation = info.inputType and EditorInfo.TYPE_MASK_VARIATION
-            if (cls == EditorInfo.TYPE_CLASS_NUMBER || cls == EditorInfo.TYPE_CLASS_PHONE || cls == EditorInfo.TYPE_CLASS_DATETIME) {
+        fun isBankingOrFinanceApp(pkg: String): Boolean {
+            return pkg.contains("bank") || pkg.contains("boc") || pkg.contains("peoplesbank") ||
+                   pkg.contains("combank") || pkg.contains("sampath") || pkg.contains("hnb") ||
+                   pkg.contains("seylan") || pkg.contains("nsb") || pkg.contains("ndb") ||
+                   pkg.contains("wallet") || pkg.contains("pay") || pkg.contains("finance") ||
+                   pkg.contains("money") || pkg.contains("koko") || pkg.contains("frimi") ||
+                   pkg.contains("vault") || pkg.contains("authenticator") || pkg.contains("keepass") ||
+                   pkg.contains("bitwarden") || pkg.contains("1password") || pkg.contains("lastpass") ||
+                   pkg.contains("dashlane") || pkg.contains("nordpass")
+        }
+
+        fun isPasswordOrSensitive(info: EditorInfo?): Boolean {
+            if (info == null) return false
+            val inputType = info.inputType
+            val cls = inputType and EditorInfo.TYPE_MASK_CLASS
+            val variation = inputType and EditorInfo.TYPE_MASK_VARIATION
+
+            // IME Flag No Personalized Learning
+            if ((info.imeOptions and EditorInfo.IME_FLAG_NO_PERSONALIZED_LEARNING) != 0) {
                 return true
             }
-            // Only actual password fields are restricted
-            return cls == EditorInfo.TYPE_CLASS_TEXT && (variation == 128 || variation == 144 || variation == 224)
+
+            val pkg = info.packageName?.lowercase().orEmpty()
+            if (isBankingOrFinanceApp(pkg)) {
+                return true
+            }
+
+            if (cls == EditorInfo.TYPE_CLASS_TEXT) {
+                if (variation == EditorInfo.TYPE_TEXT_VARIATION_PASSWORD ||
+                    variation == EditorInfo.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD ||
+                    variation == EditorInfo.TYPE_TEXT_VARIATION_WEB_PASSWORD ||
+                    variation == 128 || variation == 144 || variation == 224) {
+                    return true
+                }
+            }
+
+            if (cls == EditorInfo.TYPE_CLASS_NUMBER) {
+                if (variation == EditorInfo.TYPE_NUMBER_VARIATION_PASSWORD || variation == 16) {
+                    return true
+                }
+            }
+
+            return false
+        }
+
+        fun isRestrictedEditor(info: EditorInfo): Boolean {
+            if (isPasswordOrSensitive(info)) return true
+            val cls = info.inputType and EditorInfo.TYPE_MASK_CLASS
+            return cls == EditorInfo.TYPE_CLASS_NUMBER || cls == EditorInfo.TYPE_CLASS_PHONE || cls == EditorInfo.TYPE_CLASS_DATETIME
         }
 
         fun enterLabel(info: EditorInfo?): String {
@@ -1150,24 +1202,35 @@ class SlashboardInputMethodService : InputMethodService(), KeyboardActions {
                    pkg.contains("discord") || pkg.contains("line") || pkg.contains("wechat")
         }
 
-        fun isBankingOrFinanceApp(pkg: String): Boolean {
-            return pkg.contains("bank") || pkg.contains("boc") || pkg.contains("peoplesbank") ||
-                   pkg.contains("combank") || pkg.contains("sampath") || pkg.contains("hnb") ||
-                   pkg.contains("seylan") || pkg.contains("nsb") || pkg.contains("ndb") ||
-                   pkg.contains("wallet") || pkg.contains("pay") || pkg.contains("finance") ||
-                   pkg.contains("money") || pkg.contains("koko") || pkg.contains("frimi")
-        }
-
         fun editorLayout(info: EditorInfo?): EditorLayout {
             if (info == null) return EditorLayout.TEXT
             val cls = info.inputType and EditorInfo.TYPE_MASK_CLASS
             val variation = info.inputType and EditorInfo.TYPE_MASK_VARIATION
+            val flags = info.inputType and EditorInfo.TYPE_MASK_FLAGS
+
+            // Show PIN / numeric layout for all numeric fields and numeric PINs
+            if (cls == EditorInfo.TYPE_CLASS_NUMBER) {
+                val isSigned = (flags and EditorInfo.TYPE_NUMBER_FLAG_SIGNED) != 0
+                val isDecimal = (flags and EditorInfo.TYPE_NUMBER_FLAG_DECIMAL) != 0
+                return when {
+                    isSigned && isDecimal -> EditorLayout.SIGNED_DECIMAL
+                    isSigned -> EditorLayout.SIGNED_NUMBER
+                    isDecimal -> EditorLayout.DECIMAL
+                    else -> EditorLayout.NUMBER
+                }
+            }
+
             return when (cls) {
-                EditorInfo.TYPE_CLASS_NUMBER -> EditorLayout.TEXT
-                EditorInfo.TYPE_CLASS_PHONE -> EditorLayout.TEXT
-                EditorInfo.TYPE_CLASS_DATETIME -> EditorLayout.TEXT
+                EditorInfo.TYPE_CLASS_PHONE -> EditorLayout.PHONE
+                EditorInfo.TYPE_CLASS_DATETIME -> EditorLayout.DATETIME
                 EditorInfo.TYPE_CLASS_TEXT -> {
                     when (variation) {
+                        EditorInfo.TYPE_TEXT_VARIATION_EMAIL_ADDRESS,
+                        EditorInfo.TYPE_TEXT_VARIATION_WEB_EMAIL_ADDRESS -> EditorLayout.EMAIL
+                        EditorInfo.TYPE_TEXT_VARIATION_URI -> EditorLayout.URI
+                        EditorInfo.TYPE_TEXT_VARIATION_PASSWORD,
+                        EditorInfo.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD,
+                        EditorInfo.TYPE_TEXT_VARIATION_WEB_PASSWORD,
                         128, 144, 224 -> EditorLayout.ASCII
                         else -> EditorLayout.TEXT
                     }

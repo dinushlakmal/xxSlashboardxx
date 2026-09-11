@@ -65,7 +65,7 @@ object KeyboardPaletteResolver {
 
     fun resolve(context: Context, theme: String, highContrast: Boolean): KeyboardPalette {
         val dark = when (theme) {
-            "light", "cyberpunk", "lavender", "rose_gold", "cherry", "solarized_light", "mint", "peach", "silver", "material_light", "ios_style", "neumorphic", "cherry_blossom", "transparent_glass_light" -> false
+            "light", "cyberpunk", "lavender", "rose_gold", "cherry", "solarized_light", "mint", "peach", "silver", "material_light", "ios_style", "neumorphic", "cherry_blossom", "transparent_glass_light", "minimal_white", "pastel_dream", "nordic_clean" -> false
             "system" -> context.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_YES
             else -> true
         }
@@ -148,6 +148,11 @@ object KeyboardPaletteResolver {
             )
 
             // 15 Core Featured Themes (LiyoBoard Inspired & Polished)
+            "minimal_white" -> custom(bg="#FAFAFA", key="#FFFFFF", util="#F3F4F6", ink="#111827", action="#10B981", actText="#FFFFFF", sel="#E5E7EB", dark=false, hc=highContrast, keyStyle="rounded", keyRadiusDp=12f, borderWidthDp=0.5f, borderColor=Color.parseColor("#E5E7EB"))
+            "pastel_dream" -> custom(bg="#FDF4F5", key="#FFFFFF", util="#F8E8E9", ink="#4A4A4A", action="#F4A261", actText="#FFFFFF", sel="#EFC3CA", dark=false, hc=highContrast, keyStyle="rounded", keyRadiusDp=14f)
+            "nordic_clean" -> custom(bg="#F0F4F8", key="#FFFFFF", util="#E2E8F0", ink="#334155", action="#3B82F6", actText="#FFFFFF", sel="#CBD5E1", dark=false, hc=highContrast, keyStyle="rounded", keyRadiusDp=12f)
+            "pure_dark" -> custom(bg="#09090B", key="#18181B", util="#27272A", ink="#F4F4F5", action="#3B82F6", actText="#FFFFFF", sel="#3F3F46", dark=true, hc=highContrast, keyStyle="rounded", keyRadiusDp=12f, borderWidthDp=0.5f, borderColor=Color.parseColor("#27272A"))
+            
             "catppuccin_mocha" -> custom(bg="#1E1E2E", key="#313244", util="#181825", ink="#CDD6F4", action="#CBA6F7", actText="#11111B", sel="#45475A", dark=true, hc=highContrast, keyStyle="rounded", keyRadiusDp=12f)
             "dracula" -> custom(bg="#282A36", key="#44475A", util="#343746", ink="#F8F8F2", action="#BD93F9", actText="#282A36", sel="#6272A4", dark=true, hc=highContrast, keyStyle="rounded", keyRadiusDp=10f)
             "nord" -> custom(bg="#2E3440", key="#3B4252", util="#2E3440", ink="#ECEFF4", action="#88C0D0", actText="#2E3440", sel="#434C5E", dark=true, hc=highContrast, keyStyle="rounded", keyRadiusDp=10f)
@@ -210,7 +215,9 @@ object KeyboardPaletteResolver {
         keyOpacity: Float = 1.0f,
         keyStyle: String = "rounded",
         keyRadiusDp: Float? = null,
-        glowColor: Int? = null
+        glowColor: Int? = null,
+        borderWidthDp: Float = 0f,
+        borderColor: Int? = null
     ) = KeyboardPalette(
         background = Color.parseColor(bg),
         key = Color.parseColor(key),
@@ -225,7 +232,9 @@ object KeyboardPaletteResolver {
         keyOpacity = keyOpacity,
         keyStyle = keyStyle,
         keyRadiusDp = keyRadiusDp,
-        glowColor = glowColor
+        glowColor = glowColor,
+        borderWidthDp = borderWidthDp,
+        borderColor = borderColor
     )
 
     @RequiresApi(Build.VERSION_CODES.S)

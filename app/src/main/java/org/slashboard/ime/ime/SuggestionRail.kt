@@ -73,13 +73,13 @@ internal class SuggestionRail(
     private var values: List<String?> = listOf(null, null, null)
 
     init {
-        clipChildren = false
-        clipToPadding = false
+        clipChildren = true
+        clipToPadding = true
 
         // Chip Row for Word Suggestions
         chipRow.orientation = LinearLayout.HORIZONTAL
-        chipRow.clipChildren = false
-        chipRow.clipToPadding = false
+        chipRow.clipChildren = true
+        chipRow.clipToPadding = true
         chips.forEachIndexed { index, chip ->
             if (index > 0) chipRow.addView(divider())
             chipRow.addView(chip, LinearLayout.LayoutParams(0, LayoutParams.MATCH_PARENT, 1f))
@@ -92,14 +92,14 @@ internal class SuggestionRail(
         // Scrollable Toolbar Row with Equal Spacing & Circular Icons
         emptyRow.orientation = LinearLayout.HORIZONTAL
         emptyRow.gravity = Gravity.CENTER_VERTICAL
-        emptyRow.clipChildren = false
-        emptyRow.clipToPadding = false
+        emptyRow.clipChildren = true
+        emptyRow.clipToPadding = true
         emptyRow.setPadding(dp(4), 0, dp(4), 0)
 
         emptyScroll.isHorizontalScrollBarEnabled = false
         emptyScroll.overScrollMode = OVER_SCROLL_NEVER
-        emptyScroll.clipChildren = false
-        emptyScroll.clipToPadding = false
+        emptyScroll.clipChildren = true
+        emptyScroll.clipToPadding = true
         emptyScroll.isFillViewport = true
         emptyScroll.addView(emptyRow, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT))
 
@@ -146,8 +146,8 @@ internal class SuggestionRail(
         }
         view.visibility = VISIBLE
         val container = FrameLayout(context).apply {
-            clipChildren = false
-            clipToPadding = false
+            clipChildren = true
+            clipToPadding = true
         }
         val iconLp = FrameLayout.LayoutParams(dp(30), dp(30)).apply {
             gravity = Gravity.CENTER

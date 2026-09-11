@@ -168,6 +168,84 @@ fun SettingsScreen(prefs: KeyboardPreferences, onThemeChanged: (String) -> Unit 
     var showToolbarCustomization by remember { mutableStateOf(false) }
     var showTranslatorScreen by remember { mutableStateOf(false) }
     var showFontStudio by remember { mutableStateOf(false) }
+    
+    val scope = rememberCoroutineScope()
+    var isBackingUp by remember { mutableStateOf(false) }
+    var isRestoring by remember { mutableStateOf(false) }
+    var restoreSuccess by remember { mutableStateOf(false) }
+    val backupManager = remember { org.slashboard.ime.settings.BackupRestoreManager(context) }
+    
+    val exportLauncher = rememberLauncherForActivityResult(
+        object : androidx.activity.result.contract.ActivityResultContracts.CreateDocument("application/octet-stream") {
+            override fun createIntent(context: android.content.Context, input: String): Intent {
+                val intent = super.createIntent(context, input)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    val downloadUri = android.net.Uri.parse("content://com.android.externalstorage.documents/document/primary%3ADownload")
+                    intent.putExtra(android.provider.DocumentsContract.EXTRA_INITIAL_URI, downloadUri)
+                }
+                return intent
+            }
+        }
+    ) { uri ->
+        uri?.let {
+            scope.launch {
+                isBackingUp = true
+                val result = backupManager.exportData(it)
+                isBackingUp = false
+                if (result.isSuccess) {
+                    android.widget.Toast.makeText(context, "Backup Saved Successfully!", android.widget.Toast.LENGTH_LONG).show()
+                } else {
+                    android.widget.Toast.makeText(context, "Backup Failed!", android.widget.Toast.LENGTH_LONG).show()
+                }
+            }
+        }
+    }
+
+    val importLauncher = rememberLauncherForActivityResult(
+        object : androidx.activity.result.contract.ActivityResultContracts.OpenDocument() {
+            override fun createIntent(context: android.content.Context, input: Array<String>): Intent {
+                val intent = super.createIntent(context, input)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    val downloadUri = android.net.Uri.parse("content://com.android.externalstorage.documents/document/primary%3ADownload")
+                    intent.putExtra(android.provider.DocumentsContract.EXTRA_INITIAL_URI, downloadUri)
+                }
+                return intent
+            }
+        }
+    ) { uri ->
+        uri?.let {
+            scope.launch {
+                isRestoring = true
+                val result = backupManager.importData(it)
+                isRestoring = false
+                if (result.isSuccess) {
+                    restoreSuccess = true
+                } else {
+                    android.widget.Toast.makeText(context, "Restore Failed! Invalid file.", android.widget.Toast.LENGTH_LONG).show()
+                }
+            }
+        }
+    }
+
+    if (restoreSuccess) {
+        AlertDialog(
+            onDismissRequest = { 
+                restoreSuccess = false 
+                (context as? android.app.Activity)?.finish()
+            },
+            title = { Text("Restore Successful", fontWeight = FontWeight.Bold) },
+            text = { Text("Your data has been restored successfully. The settings screen will now close to apply changes.") },
+            confirmButton = {
+                Button(onClick = { 
+                    restoreSuccess = false
+                    (context as? android.app.Activity)?.finishAffinity()
+                    System.exit(0)
+                }) {
+                    Text("OK")
+                }
+            }
+        )
+    }
 
     DisposableEffect(prefs) {
         val listener = android.content.SharedPreferences.OnSharedPreferenceChangeListener { _, _ ->
@@ -291,7 +369,6 @@ fun SettingsScreen(prefs: KeyboardPreferences, onThemeChanged: (String) -> Unit 
     var showExitConfirmDialog by remember { mutableStateOf(false) }
     var isCheckingForUpdates by remember { mutableStateOf(false) }
     var manualUpdateInfo by remember { mutableStateOf<org.slashboard.ime.update.UpdateInfo?>(null) }
-    val scope = rememberCoroutineScope()
 
     // Intercept back button to show exit confirmation when on the root screen
     BackHandler(enabled = !showThemesPage && !showThemeCreator && !showToolbarCustomization && !showTranslatorScreen && !showFontStudio) {
@@ -439,50 +516,9 @@ fun SettingsScreen(prefs: KeyboardPreferences, onThemeChanged: (String) -> Unit 
     }
 
     manualUpdateInfo?.let { info ->
-        AlertDialog(
-            onDismissRequest = { manualUpdateInfo = null },
-            icon = {
-                Icon(
-                    Icons.Default.SystemUpdate,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(32.dp)
-                )
-            },
-            title = {
-                Text(
-                    "නව යාවත්කාලීන කිරීමක් (Update Available)",
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 18.sp
-                )
-            },
-            text = {
-                Column {
-                    Text("Version: ${info.latestVersion}", fontWeight = FontWeight.SemiBold)
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(info.releaseNotes, fontSize = 14.sp)
-                }
-            },
-            confirmButton = {
-                Button(
-                    onClick = {
-                        val updateManager = org.slashboard.ime.update.UpdateManager(context)
-                        updateManager.startDownloadAndInstall(info.downloadUrl)
-                        manualUpdateInfo = null
-                        android.widget.Toast.makeText(context, "බාගත කිරීම ආරම්භ විය (Downloading...)", android.widget.Toast.LENGTH_SHORT).show()
-                    }
-                ) {
-                    Text("යාවත්කාලීන කරන්න (Update)", fontWeight = FontWeight.Bold)
-                }
-            },
-            dismissButton = {
-                OutlinedButton(
-                    onClick = { manualUpdateInfo = null }
-                ) {
-                    Text("පසුවට (Later)")
-                }
-            },
-            shape = RoundedCornerShape(20.dp)
+        InAppUpdateDialog(
+            updateInfo = info,
+            onDismiss = { manualUpdateInfo = null }
         )
     }
 
@@ -1071,47 +1107,73 @@ fun SettingsScreen(prefs: KeyboardPreferences, onThemeChanged: (String) -> Unit 
             }
 
             item {
-                AccordionSection("About", Icons.Default.Info, expanded = expandedSection == "About", onExpandedChange = { expandedSection = if (it) "About" else null }) {
+                AccordionSection("Backup & Restore", Icons.Default.Backup, expanded = expandedSection == "Backup", onExpandedChange = { expandedSection = if (it) "Backup" else null }) {
                     Column(
                         modifier = Modifier.fillMaxWidth().padding(16.dp),
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         Text(
-                            text = "Made in ❤️ with Sri Lanka",
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 16.sp,
-                            textAlign = TextAlign.Center,
-                            color = MaterialTheme.colorScheme.primary
-                        )
-                        Text(
-                            text = "Developed by Dinush Lakmal\nEmail: dinushlakmal01@gmail.com",
+                            text = "Backup or restore all your settings, custom themes, learned words, and clipboard history to a '.slbrd' file.",
                             fontSize = 14.sp,
                             textAlign = TextAlign.Center,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(bottom = 8.dp)
                         )
-                        Spacer(modifier = Modifier.height(4.dp))
+                        
+                        Button(
+                            onClick = {
+                                if (!isBackingUp) {
+                                    val date = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault()).format(java.util.Date())
+                                    exportLauncher.launch("slashboard_backup_$date.slbrd")
+                                }
+                            },
+                            shape = RoundedCornerShape(12.dp),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            if (isBackingUp) {
+                                CircularProgressIndicator(modifier = Modifier.size(18.dp), color = MaterialTheme.colorScheme.onPrimary, strokeWidth = 2.dp)
+                            } else {
+                                Icon(Icons.Default.CloudUpload, contentDescription = null, modifier = Modifier.size(18.dp))
+                            }
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text("Export Backup (දත්ත සුරකින්න)", fontWeight = FontWeight.Bold)
+                        }
+
                         OutlinedButton(
                             onClick = {
-                                val intent = android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse("https://dinushlakmal.github.io/xxSlashboardxx/"))
-                                context.startActivity(intent)
+                                if (!isRestoring) {
+                                    importLauncher.launch(arrayOf("*/*"))
+                                }
                             },
-                            shape = RoundedCornerShape(12.dp)
+                            shape = RoundedCornerShape(12.dp),
+                            modifier = Modifier.fillMaxWidth()
                         ) {
-                            Icon(Icons.Default.Language, contentDescription = null, modifier = Modifier.size(18.dp))
+                            if (isRestoring) {
+                                CircularProgressIndicator(modifier = Modifier.size(18.dp), color = MaterialTheme.colorScheme.primary, strokeWidth = 2.dp)
+                            } else {
+                                Icon(Icons.Default.CloudDownload, contentDescription = null, modifier = Modifier.size(18.dp))
+                            }
                             Spacer(modifier = Modifier.width(8.dp))
-                            Text("නිල වෙබ් අඩවිය (Official Website)")
+                            Text("Import Backup (දත්ත ලබාගන්න)", fontWeight = FontWeight.SemiBold)
                         }
-                        HorizontalDivider(
-                            modifier = Modifier.fillMaxWidth(0.5f).padding(vertical = 4.dp),
-                            color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
-                        )
+                    }
+                }
+            }
+
+            item {
+                AccordionSection("Updates", Icons.Default.SystemUpdate, expanded = expandedSection == "Updates", onExpandedChange = { expandedSection = if (it) "Updates" else null }) {
+                    Column(
+                        modifier = Modifier.fillMaxWidth().padding(16.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
                         Surface(
                             shape = RoundedCornerShape(12.dp),
                             color = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
                         ) {
                             Text(
-                                text = "Version ${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})",
+                                text = "Current Version: ${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})",
                                 fontSize = 12.sp,
                                 fontWeight = FontWeight.SemiBold,
                                 color = MaterialTheme.colorScheme.primary,
@@ -1145,6 +1207,70 @@ fun SettingsScreen(prefs: KeyboardPreferences, onThemeChanged: (String) -> Unit 
                             Text("යාවත්කාලීන පරීක්ෂා කරන්න (Check Updates)", fontWeight = FontWeight.Bold)
                         }
 
+                        OutlinedButton(
+                            onClick = {
+                                val intent = android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse("https://github.com/dinushlakmal/xxSlashboardxx/releases/latest"))
+                                context.startActivity(intent)
+                            },
+                            shape = RoundedCornerShape(12.dp),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Icon(Icons.Default.Download, contentDescription = null, modifier = Modifier.size(18.dp))
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text("අතින් බාගත කරන්න (Manual Download)", fontWeight = FontWeight.SemiBold)
+                        }
+                    }
+                }
+            }
+
+            item {
+                AccordionSection("About", Icons.Default.Info, expanded = expandedSection == "About", onExpandedChange = { expandedSection = if (it) "About" else null }) {
+                    Column(
+                        modifier = Modifier.fillMaxWidth().padding(16.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Text(
+                            text = "Made in ❤️ with Sri Lanka",
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 16.sp,
+                            textAlign = TextAlign.Center,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                        Text(
+                            text = "Developed by Dinush Lakmal\nEmail: dinushlakmal01@gmail.com",
+                            fontSize = 14.sp,
+                            textAlign = TextAlign.Center,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        OutlinedButton(
+                            onClick = {
+                                val intent = android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse("https://dinushlakmal.github.io/xxSlashboardxx/"))
+                                context.startActivity(intent)
+                            },
+                            shape = RoundedCornerShape(12.dp)
+                        ) {
+                            Icon(Icons.Default.Language, contentDescription = null, modifier = Modifier.size(18.dp))
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text("නිල වෙබ් අඩවිය (Official Website)")
+                        }
+                        OutlinedButton(
+                            onClick = {
+                                val intent = android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse("https://www.facebook.com/profile.php?id=61593856756750"))
+                                context.startActivity(intent)
+                            },
+                            shape = RoundedCornerShape(12.dp)
+                        ) {
+                            Icon(Icons.Default.Facebook, contentDescription = null, modifier = Modifier.size(18.dp), tint = Color(0xFF1877F2))
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text("අපගේ Facebook පිටුව (Facebook Page)", color = Color(0xFF1877F2))
+                        }
+                        HorizontalDivider(
+                            modifier = Modifier.fillMaxWidth(0.5f).padding(vertical = 4.dp),
+                            color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
                         Button(
                             onClick = {
                                 if (prefs.confirmExit) {
@@ -1185,6 +1311,72 @@ fun SettingsScreen(prefs: KeyboardPreferences, onThemeChanged: (String) -> Unit 
             }
         }
     }
+}
+
+@Composable
+fun InAppUpdateDialog(
+    updateInfo: org.slashboard.ime.update.UpdateInfo,
+    onDismiss: () -> Unit
+) {
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    val downloader = remember { org.slashboard.ime.update.AppUpdateDownloader(context) }
+
+    var isDownloading by remember { mutableStateOf(false) }
+    var progress by remember { mutableStateOf(0) }
+
+    AlertDialog(
+        onDismissRequest = { if (!isDownloading) onDismiss() },
+        title = { Text(text = "නව යාවත්කාලීන කිරීමක් (Update: ${updateInfo.latestVersion})", fontWeight = FontWeight.Bold) },
+        text = {
+            Column(modifier = Modifier.fillMaxWidth()) {
+                if (!isDownloading) {
+                    Text(text = updateInfo.releaseNotes)
+                } else {
+                    Text(text = "Downloading update... $progress%")
+                    Spacer(modifier = Modifier.height(12.dp))
+                    LinearProgressIndicator(
+                        progress = { progress / 100f },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            }
+        },
+        confirmButton = {
+            if (!isDownloading) {
+                Button(onClick = {
+                    if (!downloader.hasInstallPermission()) {
+                        downloader.requestInstallPermission()
+                        android.widget.Toast.makeText(context, "කරුණාකර අවසර ලබා දී නැවත Update බොත්තම ඔබන්න", android.widget.Toast.LENGTH_LONG).show()
+                    } else {
+                        isDownloading = true
+                        scope.launch {
+                            downloader.downloadApk(
+                                downloadUrl = updateInfo.downloadUrl,
+                                onProgress = { progress = it },
+                                onComplete = { file ->
+                                    isDownloading = false
+                                    onDismiss()
+                                    downloader.promptInstall(file)
+                                },
+                                onError = {
+                                    isDownloading = false
+                                    android.widget.Toast.makeText(context, "බාගත කිරීම අසාර්ථකයි (Download failed)", android.widget.Toast.LENGTH_SHORT).show()
+                                }
+                            )
+                        }
+                    }
+                }) {
+                    Text("යාවත්කාලීන කරන්න (Update)")
+                }
+            }
+        },
+        dismissButton = {
+            if (!isDownloading) {
+                TextButton(onClick = onDismiss) { Text("පසුවට (Later)") }
+            }
+        }
+    )
 }
 
 @Composable
@@ -1763,15 +1955,22 @@ fun InteractiveKeyboardPreview(prefs: KeyboardPreferences, refresh: Int) {
 
     fun intToHex(c: Int): String = String.format("#%06X", 0xFFFFFF and c)
 
-    val isTransparent = prefs.transparentBackground || currentTheme.contains("transparent") || palette.background == android.graphics.Color.TRANSPARENT
-    val bgHex = remember(palette.background, isTransparent) {
-        if (isTransparent) "transparent" else intToHex(palette.background)
+    val hasBgImage = !palette.backgroundImagePath.isNullOrEmpty() && java.io.File(palette.backgroundImagePath).exists()
+    val isTransparent = (prefs.transparentBackground || currentTheme.contains("transparent") || palette.background == android.graphics.Color.TRANSPARENT) && !hasBgImage
+    val bgHex = remember(palette.background, isTransparent, hasBgImage, palette.dark) {
+        if (hasBgImage) {
+            if (palette.dark) "#121824" else "#F8FAFC"
+        } else if (isTransparent) "transparent" else intToHex(palette.background)
     }
-    val effectiveKeyOpacity = remember(palette.keyOpacity, isTransparent) {
-        if (isTransparent && palette.keyOpacity >= 1.0f) 0.68f else palette.keyOpacity
+    val effectiveKeyOpacity = remember(palette.keyOpacity, isTransparent, hasBgImage) {
+        if (hasBgImage) (if (palette.keyOpacity < 0.85f) 0.90f else palette.keyOpacity)
+        else if (isTransparent && palette.keyOpacity >= 1.0f) 0.68f
+        else palette.keyOpacity
     }
-    val effectiveBorderWidth = remember(palette.borderWidthDp, isTransparent) {
-        if (isTransparent && palette.borderWidthDp == 0f) 1f else palette.borderWidthDp
+    val effectiveBorderWidth = remember(palette.borderWidthDp, isTransparent, hasBgImage) {
+        if (hasBgImage && palette.borderWidthDp == 0f) 1f
+        else if (isTransparent && palette.borderWidthDp == 0f) 1f
+        else palette.borderWidthDp
     }
     val keyHex = remember(palette.key) { intToHex(palette.key) }
     val actionHex = remember(palette.action) { intToHex(palette.action) }
@@ -1958,6 +2157,15 @@ fun ThemeLayoutsScreen(
 
     val preInstalledThemes = remember {
         listOf(
+            ThemeEntry("dark", "Slashboard Slate Dark", "dark"),
+            ThemeEntry("light", "Slashboard Clean Light", "light"),
+            ThemeEntry("system", "Dynamic Material You", "dark"),
+            ThemeEntry("amoled_black", "AMOLED Pure Black", "dark"),
+            ThemeEntry("pure_dark", "Pure Dark (Clean)", "dark"),
+            ThemeEntry("material_light", "Material 3 Light", "light"),
+            ThemeEntry("minimal_white", "Minimal White (Clean)", "light"),
+            ThemeEntry("nordic_clean", "Nordic Clean", "light"),
+            ThemeEntry("pastel_dream", "Pastel Dream", "light"),
             ThemeEntry("transparent_glass", "Transparent Glass Dark", "transparent"),
             ThemeEntry("transparent_glass_light", "Transparent Glass Light", "transparent"),
             ThemeEntry("catppuccin_mocha", "Catppuccin Mocha", "dark"),
@@ -1969,15 +2177,11 @@ fun ThemeLayoutsScreen(
             ThemeEntry("sunset", "Sunset Flame", "vibrant"),
             ThemeEntry("emerald", "Emerald Forest", "vibrant"),
             ThemeEntry("gold", "Royal Gold", "vibrant"),
-            ThemeEntry("material_light", "Material 3 Light", "light"),
             ThemeEntry("ios_style", "iOS Silver", "light"),
             ThemeEntry("rose_gold", "Rose Gold", "light"),
             ThemeEntry("cherry_blossom", "Cherry Blossom", "light"),
             ThemeEntry("lavender", "Lavender Dream", "light"),
             ThemeEntry("mint", "Fresh Mint", "light"),
-            ThemeEntry("amoled_black", "AMOLED Pure Black", "dark"),
-            ThemeEntry("dark", "Slashboard Slate Dark", "dark"),
-            ThemeEntry("light", "Slashboard Clean Light", "light"),
             ThemeEntry("monokai", "Monokai Pro", "dark"),
             ThemeEntry("solarized_dark", "Solarized Dark", "dark"),
             ThemeEntry("solarized_light", "Solarized Light", "light"),
@@ -1992,8 +2196,7 @@ fun ThemeLayoutsScreen(
             ThemeEntry("aquamarine", "Aquamarine", "vibrant"),
             ThemeEntry("obsidian", "Obsidian Black", "dark"),
             ThemeEntry("forest_green", "Forest Green", "dark"),
-            ThemeEntry("cyberpunk", "Cyberpunk Yellow", "vibrant"),
-            ThemeEntry("system", "Dynamic Material You", "dark")
+            ThemeEntry("cyberpunk", "Cyberpunk Yellow", "vibrant")
         )
     }
 

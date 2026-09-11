@@ -192,7 +192,15 @@ class KeyboardView(
             glowColor = palette.glowColor,
             typeface = org.slashboard.ime.settings.font.CustomFontManager.getTypeface(context, prefs.keyboardFont)
         ),
-        onLayer = { next -> layer = next; render() },
+        onLayer = { next ->
+            if (editorLayout in numericEditors && forceNormalKeyboard) {
+                forceNormalKeyboard = false
+                render()
+            } else {
+                layer = next
+                render()
+            }
+        },
         onShift = { updateShift() }
     )
     var forceNormalKeyboard: Boolean = false
@@ -286,7 +294,8 @@ class KeyboardView(
         action = palette.action
         actionText = palette.actionText
         ink = palette.ink
-        val isTransparent = prefs.transparentBackground || bg == Color.TRANSPARENT || prefs.theme.contains("transparent")
+        val hasBgImage = !palette.backgroundImagePath.isNullOrEmpty() && java.io.File(palette.backgroundImagePath).exists()
+        val isTransparent = (prefs.transparentBackground || bg == Color.TRANSPARENT || prefs.theme.contains("transparent")) && !hasBgImage
         if (isTransparent) {
             setBackgroundColor(Color.TRANSPARENT)
             background = null
@@ -299,7 +308,7 @@ class KeyboardView(
                 intArrayOf(palette.gradientStart!!, palette.gradientEnd!!)
             )
             background = gradient
-        } else if (palette.backgroundImagePath != null) {
+        } else if (hasBgImage) {
             try {
                 val options = android.graphics.BitmapFactory.Options().apply {
                     inJustDecodeBounds = true
@@ -314,34 +323,45 @@ class KeyboardView(
                 options.inSampleSize = sampleSize
                 val bitmap = android.graphics.BitmapFactory.decodeFile(palette.backgroundImagePath, options)
                 if (bitmap != null) {
-                    if (palette.blurEffect && android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
-                        val blurDrawable = object : android.graphics.drawable.Drawable() {
-                            private val paint = android.graphics.Paint(android.graphics.Paint.FILTER_BITMAP_FLAG).apply {
-                                setRenderEffect(android.graphics.RenderEffect.createBlurEffect(50f, 50f, android.graphics.Shader.TileMode.CLAMP))
+                    val solidBaseColor = if (palette.dark) Color.parseColor("#0F172A") else Color.parseColor("#F8FAFC")
+                    val scrimColor = if (palette.dark) Color.argb(125, 0, 0, 0) else Color.argb(55, 255, 255, 255)
+                    val bgDrawable = object : android.graphics.drawable.Drawable() {
+                        private val paint = android.graphics.Paint(android.graphics.Paint.FILTER_BITMAP_FLAG).apply {
+                            if (palette.blurEffect && android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
+                                setRenderEffect(android.graphics.RenderEffect.createBlurEffect(35f, 35f, android.graphics.Shader.TileMode.CLAMP))
                             }
-                            private val src = android.graphics.Rect(0, 0, bitmap.width, bitmap.height)
-                            private val dst = android.graphics.Rect()
-                            override fun draw(canvas: android.graphics.Canvas) {
-                                dst.set(bounds)
+                        }
+                        private val src = android.graphics.Rect(0, 0, bitmap.width, bitmap.height)
+                        private val dst = android.graphics.Rect()
+
+                        override fun draw(canvas: android.graphics.Canvas) {
+                            // 1. Draw solid background base so keyboard NEVER becomes see-through
+                            canvas.drawColor(solidBaseColor)
+
+                            // 2. Draw scaled background bitmap (center-crop)
+                            val bWidth = bounds.width()
+                            val bHeight = bounds.height()
+                            if (bWidth > 0 && bHeight > 0) {
+                                val scale = maxOf(bWidth.toFloat() / bitmap.width, bHeight.toFloat() / bitmap.height)
+                                val scaledW = (bitmap.width * scale).toInt()
+                                val scaledH = (bitmap.height * scale).toInt()
+                                val left = (bWidth - scaledW) / 2
+                                val top = (bHeight - scaledH) / 2
+                                dst.set(left, top, left + scaledW, top + scaledH)
                                 canvas.drawBitmap(bitmap, src, dst, paint)
-                                canvas.drawColor(if (palette.dark) android.graphics.Color.argb(155, 0, 0, 0) else android.graphics.Color.argb(75, 255, 255, 255))
                             }
-                            override fun setAlpha(alpha: Int) {}
-                            override fun setColorFilter(colorFilter: android.graphics.ColorFilter?) {}
-                            override fun getOpacity() = android.graphics.PixelFormat.TRANSLUCENT
+
+                            // 3. Draw protective scrim so keys and typography remain crystal clear
+                            canvas.drawColor(scrimColor)
                         }
-                        background = blurDrawable
-                        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
-                            setRenderEffect(null)
-                        }
-                    } else {
-                        val drawable = android.graphics.drawable.BitmapDrawable(resources, bitmap).apply {
-                            alpha = if (palette.dark) 100 else 180
-                        }
-                        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
-                            setRenderEffect(null)
-                        }
-                        background = drawable
+
+                        override fun setAlpha(alpha: Int) {}
+                        override fun setColorFilter(colorFilter: android.graphics.ColorFilter?) {}
+                        override fun getOpacity() = android.graphics.PixelFormat.OPAQUE
+                    }
+                    background = bgDrawable
+                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
+                        setRenderEffect(null)
                     }
                 } else {
                     setBackgroundColor(bg)
@@ -354,12 +374,19 @@ class KeyboardView(
             setBackgroundColor(bg)
         }
 
-        val effectiveOpacity = if (isTransparent) {
+        val effectiveOpacity = if (hasBgImage) {
+            if (palette.keyOpacity < 0.85f) 0.90f else palette.keyOpacity
+        } else if (isTransparent) {
             if (palette.keyOpacity >= 1.0f) 0.68f else palette.keyOpacity
         } else palette.keyOpacity
 
-        val effectiveBorderWidth = if (isTransparent && palette.borderWidthDp == 0f) 1f else palette.borderWidthDp
-        val effectiveBorderColor = if (isTransparent && palette.borderColor == null) {
+        val effectiveBorderWidth = if (hasBgImage) {
+            if (palette.borderWidthDp == 0f) 1f else palette.borderWidthDp
+        } else if (isTransparent && palette.borderWidthDp == 0f) 1f else palette.borderWidthDp
+
+        val effectiveBorderColor = if (hasBgImage) {
+            palette.borderColor ?: if (palette.dark) Color.argb(80, 255, 255, 255) else Color.argb(60, 0, 0, 0)
+        } else if (isTransparent && palette.borderColor == null) {
             if (palette.dark) Color.argb(60, 255, 255, 255) else Color.argb(40, 0, 0, 0)
         } else palette.borderColor
 
@@ -522,12 +549,12 @@ class KeyboardView(
 
     private fun standardContentHeight(): Int {
         val rows = KeyboardLayoutFactory.typingRows(
-            mode, KeyboardLayer.LETTERS, false, false, editorLayout, prefs.topRow, prefs.emojiPicker, enterLabel, " ", false, prefs.useEnglish, prefs.smartKeyModifiers,
+            mode, KeyboardLayer.LETTERS, false, false, EditorLayout.TEXT, prefs.topRow, prefs.emojiPicker, enterLabel, " ", false, prefs.useEnglish, prefs.smartKeyModifiers,
             recentEmoji.ifEmpty { prefs.recentEmojis }
         )
         val rowHeight = KeyboardGeometry.rowHeightPx(prefs.keyboardSize, isLandscape(), resources.displayMetrics.density, rows.size)
         var total = rows.sumOf { (rowHeight * it.heightFactor).toDouble() }.toInt()
-        if (editorLayout !in numericEditors && (prefs.topRow == "emoji" || prefs.topRow == "both")) {
+        if (prefs.topRow == "emoji" || prefs.topRow == "both") {
             total += dp(40)
         }
         return total.coerceAtLeast(dp(220))
@@ -536,8 +563,10 @@ class KeyboardView(
     private fun render() {
         popups.dismiss()
         sliverPanel = null
+        val showRail = keepSuggestionRail()
+        rail.visibility = if (showRail) View.VISIBLE else View.GONE
         rail.layoutParams = (rail.layoutParams as LayoutParams).apply {
-            height = if (keepSuggestionRail()) suggestionRailHeight() else 0
+            height = if (showRail) suggestionRailHeight() else 0
         }
         bindRail(false)
         if (!forceNormalKeyboard && editorLayout in numericEditors) {
@@ -578,16 +607,19 @@ class KeyboardView(
     }
 
     private fun bindRail(animated: Boolean) {
-        val show = layer == KeyboardLayer.LETTERS && editorLayout == EditorLayout.TEXT
+        val showRail = keepSuggestionRail()
+        rail.visibility = if (showRail) View.VISIBLE else View.GONE
+        if (!showRail) return
+        val showSuggestions = layer == KeyboardLayer.LETTERS && (editorLayout == EditorLayout.TEXT || editorLayout == EditorLayout.EMAIL || editorLayout == EditorLayout.URI)
         rail.configureToolbar(prefs)
-        rail.setEmptyTitle(if (show) if (prefs.useEnglish) "English" else mode.title else "")
+        rail.setEmptyTitle(if (showSuggestions) if (prefs.useEnglish) "English" else mode.title else "")
         rail.setLanguage(prefs.useEnglish)
         rail.setClipboardVisible(showClipboardButton())
-        rail.setSuggestions(if (show) candidates else emptyList(), animated && show, correctionItems)
+        rail.setSuggestions(if (showSuggestions) candidates else emptyList(), animated && showSuggestions, correctionItems)
     }
 
     private fun keepSuggestionRail() =
-        editorLayout == EditorLayout.TEXT && layer != KeyboardLayer.TRANSLATE
+        layer != KeyboardLayer.TRANSLATE
     private fun spaceCaption(): String {
         val custom = prefs.customSpacebarText.trim().take(14)
         if (custom.isNotEmpty()) return custom
@@ -595,6 +627,10 @@ class KeyboardView(
     }
 
     private fun renderNativePad() {
+        val totalKeyPadHeight = standardContentHeight()
+        val numRows = if (editorLayout == EditorLayout.PHONE) 5 else 4
+        val targetRowHeight = totalKeyPadHeight / numRows
+        val targetKeyHeight = (targetRowHeight - dp(6)).coerceAtLeast(dp(38))
         val rows = when (editorLayout) {
             EditorLayout.PHONE -> listOf(listOf("1","2","3"), listOf("4","5","6"), listOf("7","8","9"), listOf("+","0","#"))
             EditorLayout.DATETIME -> listOf(listOf("1","2","3"), listOf("4","5","6"), listOf("7","8","9"), listOf("/","0",":"))
@@ -613,23 +649,29 @@ class KeyboardView(
                         row.addView(button("ABC", utility, "Switch to normal keyboard") {
                             forceNormalKeyboard = true
                             render()
-                        }, LayoutParams(0, keyHeight(), 1f).keyMargins())
+                        }, LayoutParams(0, targetKeyHeight, 1f).keyMargins())
                     } else {
-                        row.addView(Space(context), LayoutParams(0, keyHeight(), 1f).keyMargins())
+                        row.addView(Space(context), LayoutParams(0, targetKeyHeight, 1f).keyMargins())
                     }
                 }
-                else row.addView(button(value, key, value) { actions.onCharacter(if (value == "−") "-" else value) }, LayoutParams(0, keyHeight(), 1f).keyMargins())
+                else row.addView(button(value, key, value) { actions.onCharacter(if (value == "−") "-" else value) }, LayoutParams(0, targetKeyHeight, 1f).keyMargins())
             }
-            val action = when (rowIndex) { 0 -> backspaceButton(); 3 -> enterButton(); else -> Space(context) }
-            row.addView(action, LayoutParams(0, keyHeight(), 1f).keyMargins())
-            body.addView(row, LayoutParams(LayoutParams.MATCH_PARENT, rowHeight()))
+            val action = when (rowIndex) {
+                0 -> backspaceButton()
+                1 -> button("C", utility, "Clear input") { actions.onBackspace(true) }
+                2 -> Space(context)
+                3 -> enterButton()
+                else -> Space(context)
+            }
+            row.addView(action, LayoutParams(0, targetKeyHeight, 1f).keyMargins())
+            body.addView(row, LayoutParams(LayoutParams.MATCH_PARENT, targetRowHeight))
         }
         if (editorLayout == EditorLayout.PHONE) {
             val extras = LinearLayout(context).apply { orientation = HORIZONTAL; gravity = Gravity.CENTER }
-            extras.addView(button("*", utility, "Asterisk") { actions.onCharacter("*") }, LayoutParams(0, dp(46), 1f).keyMargins())
-            extras.addView(button("(", utility, "Left parenthesis") { actions.onCharacter("(") }, LayoutParams(0, dp(46), 1f).keyMargins())
-            extras.addView(button(")", utility, "Right parenthesis") { actions.onCharacter(")") }, LayoutParams(0, dp(46), 1f).keyMargins())
-            body.addView(extras, LayoutParams(LayoutParams.MATCH_PARENT, dp(52)))
+            extras.addView(button("*", utility, "Asterisk") { actions.onCharacter("*") }, LayoutParams(0, targetKeyHeight, 1f).keyMargins())
+            extras.addView(button("(", utility, "Left parenthesis") { actions.onCharacter("(") }, LayoutParams(0, targetKeyHeight, 1f).keyMargins())
+            extras.addView(button(")", utility, "Right parenthesis") { actions.onCharacter(")") }, LayoutParams(0, targetKeyHeight, 1f).keyMargins())
+            body.addView(extras, LayoutParams(LayoutParams.MATCH_PARENT, targetRowHeight))
         }
     }
 
@@ -751,7 +793,7 @@ class KeyboardView(
     private fun emojiScroller(values: List<String>) =
         EmojiBoard.scroller(context, values, ink, prefs.skinTone) { actions.onCharacter(it) }
     private fun showClipboardButton() =
-        prefs.clipboardHistory && layer == KeyboardLayer.LETTERS && editorLayout == EditorLayout.TEXT
+        prefs.clipboardHistory && layer == KeyboardLayer.LETTERS && (editorLayout == EditorLayout.TEXT || editorLayout == EditorLayout.EMAIL || editorLayout == EditorLayout.URI)
 
     private fun bindClipboard() {
         body.clipChildren = true

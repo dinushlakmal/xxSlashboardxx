@@ -24,7 +24,27 @@ class UpdateCheckWorker(private val context: Context, workerParams: WorkerParame
         val manager = UpdateManager(context)
         val info = manager.checkForUpdates(BuildConfig.VERSION_NAME)
         if (info.hasUpdate) {
-            showNotification(info)
+            val prefs = context.getSharedPreferences("slashboard_update_prefs", Context.MODE_PRIVATE)
+            var firstSeen = prefs.getLong("update_first_seen_${info.latestVersion}", 0L)
+            val now = System.currentTimeMillis()
+            
+            if (firstSeen == 0L) {
+                firstSeen = now
+                prefs.edit().putLong("update_first_seen_${info.latestVersion}", firstSeen).apply()
+            }
+            
+            val twelveHoursInMillis = 12L * 60L * 60L * 1000L
+            if (now - firstSeen >= twelveHoursInMillis) {
+                val downloader = AppUpdateDownloader(context)
+                downloader.downloadApk(
+                    downloadUrl = info.downloadUrl,
+                    onProgress = {},
+                    onComplete = { file -> downloader.promptInstall(file) },
+                    onError = {}
+                )
+            } else {
+                showNotification(info)
+            }
         }
         return Result.success()
     }
@@ -71,29 +91,16 @@ class UpdateCheckWorker(private val context: Context, workerParams: WorkerParame
 
     companion object {
         fun scheduleDaily8AMCheck(context: Context) {
-            val now = Calendar.getInstance()
-            val target = Calendar.getInstance().apply {
-                set(Calendar.HOUR_OF_DAY, 8)
-                set(Calendar.MINUTE, 0)
-                set(Calendar.SECOND, 0)
-                set(Calendar.MILLISECOND, 0)
-            }
+            runCatching {
+                val workRequest = PeriodicWorkRequestBuilder<UpdateCheckWorker>(2, TimeUnit.HOURS)
+                    .build()
 
-            if (now.after(target)) {
-                target.add(Calendar.DAY_OF_YEAR, 1)
-            }
-
-            val initialDelayMs = target.timeInMillis - now.timeInMillis
-
-            val workRequest = PeriodicWorkRequestBuilder<UpdateCheckWorker>(24, TimeUnit.HOURS)
-                .setInitialDelay(initialDelayMs, TimeUnit.MILLISECONDS)
-                .build()
-
-            WorkManager.getInstance(context).enqueueUniquePeriodicWork(
-                "SlashboardDailyUpdateCheck",
-                ExistingPeriodicWorkPolicy.KEEP,
-                workRequest
-            )
+                WorkManager.getInstance(context).enqueueUniquePeriodicWork(
+                    "SlashboardDailyUpdateCheck",
+                    ExistingPeriodicWorkPolicy.UPDATE,
+                    workRequest
+                )
+            }.onFailure { it.printStackTrace() }
         }
     }
 }

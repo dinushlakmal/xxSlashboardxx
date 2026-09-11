@@ -355,6 +355,15 @@ class EnglishPredictionEngine(
             "colombo" to 420, "kandy" to 400, "galle" to 380, "lanka" to 450, "sri" to 450, "ceylon" to 360,
             "kohomada" to 450, "mokada" to 420, "waren" to 400, "yako" to 400, "shape" to 450, "scene" to 440,
             "pissuda" to 420, "hari" to 460, "ow" to 440, "naa" to 420, "ah" to 450, "ane" to 440,
+            "ammatasiri" to 350, "ammo" to 400, "appata" to 350, "maru" to 450, "maxxa" to 400, "niyamai" to 450,
+            "supiri" to 450, "sira" to 420, "sirawatama" to 400, "wada" to 450, "pissu" to 420, "gindara" to 350,
+            "ammata" to 400, "hudu" to 350, "ayyoo" to 400, "paw" to 450, "ithim" to 400, "ithin" to 420,
+
+            // Modern Slang & Texting
+            "lol" to 500, "lmao" to 450, "omg" to 480, "wtf" to 400, "idk" to 480, "idc" to 450,
+            "tbh" to 450, "rn" to 480, "brb" to 420, "btw" to 450, "fr" to 450, "smh" to 400,
+            "imo" to 420, "af" to 400, "sus" to 400, "ngl" to 430, "wbu" to 450, "hbu" to 450,
+            "gm" to 480, "gn" to 480, "ty" to 480, "np" to 460, "yw" to 440, "pls" to 500, "plz" to 480,
 
             // Action Verbs
             "know" to 500, "think" to 490, "tell" to 480, "ask" to 470, "need" to 520, "feel" to 460,

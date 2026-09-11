@@ -8,6 +8,7 @@ import android.content.IntentFilter
 import android.net.Uri
 import android.os.Build
 import android.os.Environment
+import android.util.Log
 import androidx.core.content.FileProvider
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -59,9 +60,12 @@ class UpdateManager(private val context: Context) {
                 val currentVer = currentVersion.removePrefix("v").trim()
 
                 val isNewer = isNewerVersion(remoteVer, currentVer)
+                Log.d("UpdateCheck", "Remote Tag: $tagName | Download URL: $downloadUrl")
+                Log.d("UpdateCheck", "Current: $currentVer | Remote: $remoteVer | IsNewer: $isNewer")
                 return@withContext UpdateInfo(isNewer && downloadUrl.isNotEmpty(), tagName, downloadUrl, releaseNotes)
             }
         } catch (e: Exception) {
+            Log.e("UpdateCheck", "Error checking for updates", e)
             e.printStackTrace()
         }
         return@withContext UpdateInfo(false, "", "", "")
