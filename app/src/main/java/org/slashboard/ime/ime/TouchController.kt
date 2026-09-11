@@ -58,6 +58,7 @@ internal class TouchController(
         fun onEmoji()
         fun onGlobe()
         fun onHaptic()
+        fun onHapticLongPress()
         fun onCursorDelta(delta: Int)
         fun onCursorTick()
         fun onPreviewDelete(length: Int)
@@ -93,6 +94,7 @@ internal class TouchController(
     private var swipeClusters = 0
     private var lastCharId: String? = null
     private var lastCharAt = 0L
+    private var longPressAlreadyCommitted = false
     private val path = ArrayList<Pair<Float, Float>>(64)
     private var density = 1f
 
@@ -107,6 +109,7 @@ internal class TouchController(
         repeats = 0
         lastCursorSteps = 0
         swipeClusters = 0
+        longPressAlreadyCommitted = false
         hysteresis.reset()
         lastDecode = decode(x, y, board)
         selected = hysteresis.select(x, y, lastDecode.selected, board.letterWidth, centers())
@@ -125,7 +128,7 @@ internal class TouchController(
     }
 
     fun pointerMove(x: Float, y: Float, rawX: Float) {
-        if (state == PointerState.IDLE || state == PointerState.CANCELLED) return
+        if (state == PointerState.IDLE || state == PointerState.CANCELLED || longPressAlreadyCommitted) return
         val board = layout ?: return
         lastX = x; lastY = y
         record(x, y)
@@ -181,11 +184,12 @@ internal class TouchController(
         try {
             when (state) {
                 PointerState.LONG_PRESS -> {
-                    val picked = listener.onHidePicker()
-                    if (picked != null) listener.onCommit(picked) else key?.let { commit(it) }
+                    listener.onHidePicker()
+                    listener.onHidePreview()
+                    // The long-press symbol was already committed in openPicker(). Do not commit again!
                 }
                 PointerState.FLICK -> {
-                    if (key != null) {
+                    if (key != null && !longPressAlreadyCommitted) {
                         listener.onFlick(key, false)
                         key.flickOutput?.let(listener::onCommit)
                     }
@@ -195,18 +199,20 @@ internal class TouchController(
                     if (swipeClusters > 0) listener.onCommitPreviewDelete() else listener.onCancelPreviewDelete()
                 }
                 PointerState.PRESSED -> {
-                    if (key?.action == KeyCode.DELETE) {
-                        if (repeats == 0) {
-                            punishIfRecent()
-                            listener.onBackspace(false)
+                    if (!longPressAlreadyCommitted) {
+                        if (key?.action == KeyCode.DELETE) {
+                            if (repeats == 0) {
+                                punishIfRecent()
+                                listener.onBackspace(false)
+                            }
+                        } else {
+                            key?.let { commit(it) }
                         }
-                    } else {
-                        key?.let { commit(it) }
                     }
                 }
                 else -> Unit
             }
-            if (key?.action == KeyCode.CHAR && state == PointerState.PRESSED && learningEnabled && lastDecode.clearCenter) {
+            if (key?.action == KeyCode.CHAR && state == PointerState.PRESSED && !longPressAlreadyCommitted && learningEnabled && lastDecode.clearCenter) {
                 personalization?.learn(key, lastX, lastY, true)
                 lastCharId = key.id
                 lastCharAt = scheduler.now()
@@ -256,7 +262,13 @@ internal class TouchController(
         val key = selected ?: return
         if (key.extras.isEmpty()) return
         state = PointerState.LONG_PRESS
-        listener.onShowPicker(key)
+        listener.onHapticLongPress()
+        val symbolToCommit = key.extras.firstOrNull()?.second ?: key.hint
+        if (symbolToCommit != null) {
+            listener.onCommit(symbolToCommit)
+            longPressAlreadyCommitted = true
+            listener.onHidePreview()
+        }
     }
 
     private fun repeatDelete() {

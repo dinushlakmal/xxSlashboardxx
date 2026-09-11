@@ -14,14 +14,53 @@ class EnglishPredictionEngine(
 ) {
     private val unigramIndex = HashMap<String, Int>(4096)
     private val wordList = ArrayList<Pair<String, Int>>(4096)
+    private val wordsByFirstChar = HashMap<Char, ArrayList<Pair<String, Int>>>(32)
     private val phraseBigrams = HashMap<String, MutableList<Pair<String, Int>>>(1024)
     private val phraseTrigrams = HashMap<String, MutableList<Pair<String, Int>>>(512)
     private val typoCorrections = HashMap<String, String>(256)
+
+    private class TrieNode {
+        val children = HashMap<Char, TrieNode>(4)
+        var word: String? = null
+        var freq: Int = 0
+    }
+    private val trieRoot = TrieNode()
 
     init {
         loadVocabulary()
         loadPhrases()
         loadTypoCorrections()
+    }
+
+    private fun insertToTrie(word: String, freq: Int) {
+        var curr = trieRoot
+        for (i in 0 until word.length) {
+            val ch = word[i]
+            curr = curr.children.getOrPut(ch) { TrieNode() }
+        }
+        curr.word = word
+        curr.freq = maxOf(curr.freq, freq)
+    }
+
+    private fun searchPrefixInTrie(prefix: String, limit: Int = 50): List<Pair<String, Int>> {
+        var curr = trieRoot
+        for (i in 0 until prefix.length) {
+            curr = curr.children[prefix[i]] ?: return emptyList()
+        }
+        val results = ArrayList<Pair<String, Int>>(limit)
+        collectFromTrie(curr, results, limit)
+        return results
+    }
+
+    private fun collectFromTrie(node: TrieNode, results: MutableList<Pair<String, Int>>, limit: Int) {
+        if (node.word != null) {
+            results.add(node.word!! to node.freq)
+            if (results.size >= limit) return
+        }
+        for (child in node.children.values) {
+            collectFromTrie(child, results, limit)
+            if (results.size >= limit) return
+        }
     }
 
     fun candidates(
@@ -69,9 +108,9 @@ class EnglishPredictionEngine(
             val staticTriCount = staticTri.firstOrNull { it.first.equals(lowerWord, ignoreCase = true) }?.second ?: 0
 
             val score = unigramWeight * ln(frequency.coerceAtLeast(1) + 1.0) +
-                    learnedCount * 2.0 +
-                    learnedNextCount * 3.5 +
-                    learnedTriCount * 4.5 +
+                    (if (learnedCount > 0) learnedCount * 25.0 + 50.0 else 0.0) +
+                    (if (learnedNextCount > 0) learnedNextCount * 30.0 + 60.0 else 0.0) +
+                    (if (learnedTriCount > 0) learnedTriCount * 40.0 + 80.0 else 0.0) +
                     ln(staticNextCount + 1.0) * 2.8 +
                     ln(staticTriCount + 1.0) * 3.8 +
                     if (isCorrection) 8.0 else 0.0
@@ -135,8 +174,8 @@ class EnglishPredictionEngine(
 
         // 3. User learned words matching prefix
         learnedWords.forEach { (word, count) ->
-            if (word.startsWith(prefix, ignoreCase = true) && !word.equals(prefix, ignoreCase = true)) {
-                consider(word, count * 25, 2.0)
+            if (word.startsWith(prefix, ignoreCase = true)) {
+                consider(word, count * 35, 3.0)
             }
         }
 
@@ -154,11 +193,10 @@ class EnglishPredictionEngine(
             if (word.startsWith(prefix, ignoreCase = true)) consider(word, count, 1.8)
         }
 
-        // 5. Dictionary prefix matches
-        for ((word, freq) in wordList) {
-            if (word.startsWith(lowerPrefix)) {
-                consider(word, freq, 1.0)
-            }
+        // 5. Dictionary prefix matches (fast Trie query)
+        val trieMatches = searchPrefixInTrie(lowerPrefix, limit = 50)
+        for ((word, freq) in trieMatches) {
+            consider(word, freq, 2.5)
         }
 
         // 6. Fuzzy edit distance / Auto-correction if candidates are few
@@ -174,11 +212,6 @@ class EnglishPredictionEngine(
             }
         }
 
-        // Always ensure the typed prefix itself is available as an option if not present and non-empty
-        if (ranked.none { it.text.equals(prefix, ignoreCase = true) } && ranked.size >= max) {
-            // Keep the top correction/suggestions and leave room
-        }
-
         return ranked.take(max)
     }
 
@@ -188,12 +221,21 @@ class EnglishPredictionEngine(
     }
 
     private fun findFuzzyMatches(input: String): List<Triple<String, Int, Int>> {
-        val results = ArrayList<Triple<String, Int, Int>>()
+        val results = ArrayList<Triple<String, Int, Int>>(8)
         val inputLen = input.length
+        val firstChar = input[0]
 
-        for ((word, freq) in wordList) {
+        // Candidate pool: only words starting with firstChar or adjacent keyboard keys
+        val candidatesPool = ArrayList<Pair<String, Int>>(128)
+        wordsByFirstChar[firstChar]?.let { candidatesPool.addAll(it) }
+        val adjacent = getAdjacentChars(firstChar)
+        for (adj in adjacent) {
+            wordsByFirstChar[adj]?.let { candidatesPool.addAll(it) }
+        }
+
+        for (i in 0 until candidatesPool.size) {
+            val (word, freq) = candidatesPool[i]
             if (abs(word.length - inputLen) > 2) continue
-            if (word[0] != input[0] && !isAdjacentKey(word[0], input[0])) continue
 
             val dist = levenshteinDistance(input, word, maxLimit = 2)
             if (dist in 1..2) {
@@ -204,18 +246,36 @@ class EnglishPredictionEngine(
         return results.sortedBy { it.third * 1000 - it.second }
     }
 
-    private fun isAdjacentKey(c1: Char, c2: Char): Boolean {
-        val rows = listOf("qwertyuiop", "asdfghjkl", "zxcvbnm")
-        var r1 = -1; var c1Idx = -1
-        var r2 = -1; var c2Idx = -1
-        for (r in rows.indices) {
-            val idx1 = rows[r].indexOf(c1)
-            if (idx1 >= 0) { r1 = r; c1Idx = idx1 }
-            val idx2 = rows[r].indexOf(c2)
-            if (idx2 >= 0) { r2 = r; c2Idx = idx2 }
+    private fun getAdjacentChars(c: Char): List<Char> {
+        return when (c) {
+            'q' -> listOf('w', 'a', 's')
+            'w' -> listOf('q', 'e', 'a', 's', 'd')
+            'e' -> listOf('w', 'r', 's', 'd', 'f')
+            'r' -> listOf('e', 't', 'd', 'f', 'g')
+            't' -> listOf('r', 'y', 'f', 'g', 'h')
+            'y' -> listOf('t', 'u', 'g', 'h', 'j')
+            'u' -> listOf('y', 'i', 'h', 'j', 'k')
+            'i' -> listOf('u', 'o', 'j', 'k', 'l')
+            'o' -> listOf('i', 'p', 'k', 'l')
+            'p' -> listOf('o', 'l')
+            'a' -> listOf('q', 'w', 's', 'z')
+            's' -> listOf('a', 'w', 'e', 'd', 'x', 'z')
+            'd' -> listOf('s', 'e', 'r', 'f', 'c', 'x')
+            'f' -> listOf('d', 'r', 't', 'g', 'v', 'c')
+            'g' -> listOf('f', 't', 'y', 'h', 'b', 'v')
+            'h' -> listOf('g', 'y', 'u', 'j', 'n', 'b')
+            'j' -> listOf('h', 'u', 'i', 'k', 'm', 'n')
+            'k' -> listOf('j', 'i', 'o', 'l', 'm')
+            'l' -> listOf('k', 'o', 'p')
+            'z' -> listOf('a', 's', 'x')
+            'x' -> listOf('z', 's', 'd', 'c')
+            'c' -> listOf('x', 'd', 'f', 'v')
+            'v' -> listOf('c', 'f', 'g', 'b')
+            'b' -> listOf('v', 'g', 'h', 'n')
+            'n' -> listOf('b', 'h', 'j', 'm')
+            'm' -> listOf('n', 'j', 'k')
+            else -> emptyList()
         }
-        if (r1 < 0 || r2 < 0) return false
-        return abs(r1 - r2) <= 1 && abs(c1Idx - c2Idx) <= 1
     }
 
     private fun levenshteinDistance(s1: String, s2: String, maxLimit: Int): Int {
@@ -351,7 +411,12 @@ class EnglishPredictionEngine(
         for ((word, freq) in rawVocab) {
             val lower = word.lowercase(Locale.ENGLISH)
             unigramIndex[lower] = freq
-            wordList.add(lower to freq)
+            val entry = lower to freq
+            wordList.add(entry)
+            insertToTrie(lower, freq)
+            if (lower.isNotEmpty()) {
+                wordsByFirstChar.getOrPut(lower[0]) { ArrayList(64) }.add(entry)
+            }
         }
     }
 

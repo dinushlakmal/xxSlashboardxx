@@ -3,40 +3,47 @@ package org.slashboard.ime.data
 import android.content.Context
 import org.json.JSONObject
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.Executors
 
 class LocalLearningStore(context: Context) {
     private val prefs = context.getSharedPreferences("slashboard_learning", Context.MODE_PRIVATE)
     private val cache = ConcurrentHashMap<String, MutableMap<String, Int>>()
+    private val diskExecutor = Executors.newSingleThreadExecutor { runnable ->
+        Thread(runnable, "slashboard-learning-store").apply { isDaemon = true; priority = Thread.MIN_PRIORITY }
+    }
 
     fun record(word: String, previous: String?, earlier: String? = null) {
-        if (word.isBlank()) return
+        if (word.isBlank() || word.length < 2) return
         val wClean = word.trim()
         val words = getMap("words")
-        synchronized(words) {
+        val wordsSnapshot = synchronized(words) {
             words[wClean] = (words[wClean] ?: 0) + 1
-            trim(words, 1024)
-            write("words", words)
+            trim(words, 10000)
+            HashMap(words)
         }
+        writeAsync("words", wordsSnapshot)
 
         if (!previous.isNullOrBlank()) {
             val pClean = previous.trim()
             val bigramKey = "bigram:$pClean"
             val followers = getMap(bigramKey)
-            synchronized(followers) {
+            val followersSnapshot = synchronized(followers) {
                 followers[wClean] = (followers[wClean] ?: 0) + 1
-                trim(followers, 64)
-                write(bigramKey, followers)
+                trim(followers, 256)
+                HashMap(followers)
             }
+            writeAsync(bigramKey, followersSnapshot)
 
             if (!earlier.isNullOrBlank()) {
                 val eClean = earlier.trim()
                 val trigramKey = "trigram:$eClean\t$pClean"
                 val triFollowers = getMap(trigramKey)
-                synchronized(triFollowers) {
+                val triFollowersSnapshot = synchronized(triFollowers) {
                     triFollowers[wClean] = (triFollowers[wClean] ?: 0) + 1
-                    trim(triFollowers, 32)
-                    write(trigramKey, triFollowers)
+                    trim(triFollowers, 128)
+                    HashMap(triFollowers)
                 }
+                writeAsync(trigramKey, triFollowersSnapshot)
             }
         }
     }
@@ -55,7 +62,9 @@ class LocalLearningStore(context: Context) {
 
     fun clear() {
         cache.clear()
-        prefs.edit().clear().apply()
+        diskExecutor.execute {
+            prefs.edit().clear().apply()
+        }
     }
 
     private fun getMap(key: String): MutableMap<String, Int> {
@@ -76,9 +85,13 @@ class LocalLearningStore(context: Context) {
         return map
     }
 
-    private fun write(key: String, map: Map<String, Int>) {
-        val json = JSONObject(map)
-        prefs.edit().putString(key, json.toString()).apply()
+    private fun writeAsync(key: String, map: Map<String, Int>) {
+        diskExecutor.execute {
+            runCatching {
+                val json = JSONObject(map)
+                prefs.edit().putString(key, json.toString()).apply()
+            }
+        }
     }
 
     private fun trim(map: MutableMap<String, Int>, max: Int) {
@@ -88,4 +101,5 @@ class LocalLearningStore(context: Context) {
         }
     }
 }
+
 

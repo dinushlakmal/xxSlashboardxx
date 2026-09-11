@@ -9,40 +9,86 @@ enum class InputMode(val title: String) {
 /** Direct port of ios/Shared/SinhalaEngine.swift. Keep rule ordering significant. */
 object SinhalaEngine {
     private val consonants = listOf(
-        "chh" to "ඡ", "thh" to "ථ", "dhh" to "ධ", "zdh" to "ඳ", "zq" to "ඳ",
-        "ndh" to "ඳ", "nnd" to "ඬ", "nd" to "ඳ", "zd" to "ඬ", "zg" to "ඟ",
-        "ng" to "ඟ", "zj" to "ඦ", "zk" to "ඤ", "kn" to "ඤ", "ny" to "ඤ",
-        "zh" to "ඥ", "gn" to "ඥ", "mb" to "ඹ", "kh" to "ඛ", "gh" to "ඝ",
-        "ph" to "ඵ", "bh" to "භ", "jh" to "ඣ", "sh" to "ශ", "Sh" to "ෂ",
-        "Th" to "ඨ", "Dh" to "ඪ", "ch" to "ච", "th" to "ත", "dh" to "ද",
-        "q" to "ද", "k" to "ක", "g" to "ග", "c" to "ච", "j" to "ජ",
-        "t" to "ට", "d" to "ඩ", "n" to "න", "N" to "ණ", "p" to "ප",
-        "b" to "බ", "B" to "ඹ", "m" to "ම", "y" to "ය", "r" to "ර",
-        "l" to "ල", "L" to "ළ", "w" to "ව", "v" to "ව", "s" to "ස",
-        "S" to "ෂ", "h" to "හ", "f" to "ෆ", "K" to "ඛ", "G" to "ඝ",
-        "C" to "ඡ", "T" to "ඨ", "D" to "ඪ", "P" to "ඵ", "J" to "ඣ",
-        "Y" to "ය", "W" to "ව", "V" to "ව", "X" to "ඞ"
+        // 4-letter Sanyaka combos
+        "nndh" to "ඳ", "n~dh" to "ඳ",
+        // 3-letter combos
+        "jny" to "ඥ", "jNy" to "ඥ",
+        "nnd" to "ඬ", "n~d" to "ඬ",
+        "nng" to "ඟ", "n~g" to "ඟ",
+        "nnb" to "ඹ", "n~b" to "ඹ",
+        "nnj" to "ඦ", "n~j" to "ඦ",
+        "nny" to "ඤ", "n~y" to "ඤ",
+        "chh" to "ඡ", "Chh" to "ඡ",
+        "thh" to "ථ", "Thh" to "ථ",
+        "dhh" to "ධ", "Dhh" to "ධ",
+        "zdh" to "ඳ", "zq" to "ඳ",
+        "zD" to "ඬ", "zd" to "ඬ",
+        "zg" to "ඟ", "zb" to "ඹ", "zj" to "ඦ",
+        "zk" to "ඤ", "zK" to "ඤ", "zh" to "ඥ",
+        // 2-letter combos
+        "jN" to "ඥ",
+        "kh" to "ඛ", "Kh" to "ඛ", "KH" to "ඛ",
+        "gh" to "ඝ", "Gh" to "ඝ", "GH" to "ඝ",
+        "ch" to "ච", "Ch" to "ඡ", "CH" to "ඡ",
+        "jh" to "ඣ", "Jh" to "ඣ", "JH" to "ඣ",
+        "Th" to "ඨ", "Dh" to "ඪ", "TH" to "ඨ", "DH" to "ඪ",
+        "th" to "ත", "dh" to "ද",
+        "ph" to "ඵ", "Ph" to "ඵ", "PH" to "ඵ",
+        "bh" to "භ", "Bh" to "භ", "BH" to "භ",
+        "sh" to "ශ", "Sh" to "ෂ", "SH" to "ෂ",
+        "zh" to "ඥ", "ZH" to "ඥ", "Zh" to "ඥ",
+        // 1-letter consonants
+        "k" to "ක", "K" to "ඛ",
+        "g" to "ග", "G" to "ඝ",
+        "c" to "ච", "C" to "ඡ",
+        "j" to "ජ", "J" to "ඣ",
+        "t" to "ට", "T" to "ඨ",
+        "d" to "ඩ", "D" to "ඪ",
+        "n" to "න", "N" to "ණ",
+        "p" to "ප", "P" to "ඵ",
+        "b" to "බ", "B" to "ඹ",
+        "m" to "ම", "M" to "ඹ",
+        "y" to "ය", "Y" to "ය",
+        "r" to "ර",
+        "l" to "ල", "L" to "ළ",
+        "w" to "ව", "W" to "ව",
+        "v" to "ව", "V" to "ව",
+        "s" to "ස", "S" to "ෂ",
+        "h" to "හ",
+        "f" to "ෆ", "F" to "ෆ",
+        "q" to "ද", "Q" to "ද",
+        "z" to "ඤ", "Z" to "ඥ",
+        "X" to "ඞ"
     )
 
     private data class Vowel(val key: String, val independent: String, val sign: String?)
 
     private val vowels = listOf(
-        Vowel("ruu", "", "ෲ"), Vowel("aae", "ඈ", "ෑ"), Vowel("aee", "ඈ", "ෑ"),
-        Vowel("Aee", "ඈ", "ෑ"), Vowel("AEE", "ඈ", "ෑ"), Vowel("Aa", "ඈ", "ෑ"),
-        Vowel("AA", "ඈ", "ෑ"), Vowel("aA", "ඈ", "ෑ"), Vowel("Ae", "ඈ", "ෑ"),
-        Vowel("aE", "ඈ", "ෑ"), Vowel("AE", "ඈ", "ෑ"), Vowel("ae", "ඇ", "ැ"),
-        Vowel("aa", "ආ", "ා"), Vowel("ii", "ඊ", "ී"), Vowel("uu", "ඌ", "ූ"),
-        Vowel("UU", "ඌ", "ූ"), Vowel("Uu", "ඌ", "ූ"), Vowel("uU", "ඌ", "ූ"),
-        Vowel("ee", "ඒ", "ේ"), Vowel("EE", "ඒ", "ේ"), Vowel("Ee", "ඒ", "ේ"),
-        Vowel("ea", "ඒ", "ේ"), Vowel("ai", "ඓ", "ෛ"), Vowel("Ai", "ඓ", "ෛ"),
-        Vowel("oo", "ඕ", "ෝ"), Vowel("OO", "ඕ", "ෝ"), Vowel("Oo", "ඕ", "ෝ"),
-        Vowel("oO", "ඕ", "ෝ"), Vowel("oe", "ඕ", "ෝ"), Vowel("au", "ඖ", "ෞ"),
-        Vowel("Au", "ඖ", "ෞ"), Vowel("ou", "ඖ", "ෞ"), Vowel("Ou", "ඖ", "ෞ"),
-        Vowel("Ru", "ඎ", null), Vowel("ru", "", "ෘ"),
-        Vowel("A", "ඇ", "ැ"), Vowel("I", "ඊ", "ී"), Vowel("U", "ඌ", "ූ"),
-        Vowel("E", "ඒ", "ේ"), Vowel("O", "ඕ", "ෝ"),
-        Vowel("a", "අ", ""), Vowel("i", "ඉ", "ි"), Vowel("u", "උ", "ු"),
-        Vowel("e", "එ", "ෙ"), Vowel("o", "ඔ", "ො"), Vowel("R", "ඍ", null),
+        Vowel("ruu", "ෲ", "ෲ"),
+        Vowel("aae", "ඈ", "ෑ"), Vowel("aee", "ඈ", "ෑ"),
+        Vowel("Aee", "ඈ", "ෑ"), Vowel("AEE", "ඈ", "ෑ"),
+        Vowel("Aa", "ඈ", "ෑ"), Vowel("AA", "ඈ", "ෑ"), Vowel("aA", "ඈ", "ෑ"),
+        Vowel("Ae", "ඈ", "ෑ"), Vowel("aE", "ඈ", "ෑ"), Vowel("AE", "ඈ", "ෑ"),
+        Vowel("ae", "ඇ", "ැ"),
+        Vowel("aa", "ආ", "ා"),
+        Vowel("ii", "ඊ", "ී"),
+        Vowel("uu", "ඌ", "ූ"), Vowel("UU", "ඌ", "ූ"), Vowel("Uu", "ඌ", "ූ"), Vowel("uU", "ඌ", "ූ"),
+        Vowel("ee", "ඒ", "ේ"), Vowel("EE", "ඒ", "ේ"), Vowel("Ee", "ඒ", "ේ"), Vowel("ea", "ඒ", "ේ"),
+        Vowel("ai", "ඓ", "ෛ"), Vowel("Ai", "ඓ", "ෛ"),
+        Vowel("oo", "ඕ", "ෝ"), Vowel("OO", "ඕ", "ෝ"), Vowel("Oo", "ඕ", "ෝ"), Vowel("oO", "ඕ", "ෝ"), Vowel("oe", "ඕ", "ෝ"),
+        Vowel("au", "ඖ", "ෞ"), Vowel("Au", "ඖ", "ෞ"), Vowel("ou", "ඖ", "ෞ"), Vowel("Ou", "ඖ", "ෞ"),
+        Vowel("Ru", "ඎ", "ෲ"), Vowel("ru", "ඍ", "ෘ"),
+        Vowel("A", "ඇ", "ැ"),
+        Vowel("I", "ඊ", "ී"),
+        Vowel("U", "ඌ", "ූ"),
+        Vowel("E", "ඒ", "ේ"),
+        Vowel("O", "ඕ", "ෝ"),
+        Vowel("a", "අ", ""),
+        Vowel("i", "ඉ", "ි"),
+        Vowel("u", "උ", "ු"),
+        Vowel("e", "එ", "ෙ"),
+        Vowel("o", "ඔ", "ො"),
+        Vowel("R", "ඍ", "ෘ"),
         Vowel("x", "ං", "ං"), Vowel("M", "ං", "ං"), Vowel("zn", "ං", "ං"),
         Vowel("X", "ඞ", "ඞ")
     )
@@ -209,7 +255,6 @@ object SinhalaEngine {
         "tnx" to "ස්තූතියි",
         "np" to "අවුලක් නෑ",
         "gm" to "සුබ උදෑසනක්",
-        "gn" to "සුබ රාත්‍රියක්",
         "tc" to "පරිස්සමෙන්",
         "wc" to "සාදරයෙන් පිළිගන්නවා",
         "brb" to "දැන් එන්නම්",
@@ -249,17 +294,13 @@ object SinhalaEngine {
                 i += 2
                 continue
             }
-            if (ch == 'x' || ch == 'M') {
+            if (ch == 'x') {
                 out.append("ං")
                 i++
                 continue
             }
             if (ch == 'X') {
                 out.append("ඞ")
-                i++
-                continue
-            }
-            if (smart && ch == 'z' && listOf("zg", "zj", "zd", "zdh", "zq", "zk", "zh").none { source.startsWith(it, i) }) {
                 i++
                 continue
             }
@@ -273,6 +314,10 @@ object SinhalaEngine {
                 if (v != null) {
                     out.append(rawConsonantChar).append(v.sign ?: "")
                     i += v.key.length
+                } else if (i < source.length && (source[i] == '_' || source[i] == '\\')) {
+                    // Bandhanakshara / Touching letter (ක්‍)
+                    out.append(rawConsonantChar).append("්\u200D")
+                    i++
                 } else if (i < source.length && (source[i] == 'y' || source[i] == 'Y')) {
                     // Yansaya (ක්‍ය)
                     out.append(rawConsonantChar).append("්\u200Dය")
@@ -302,6 +347,10 @@ object SinhalaEngine {
                 } else if (i < source.length && source[i] == 'X') {
                     // ඞ (කඞ)
                     out.append(rawConsonantChar).append("ඞ")
+                    i++
+                } else if (i < source.length && source[i] == '-') {
+                    // Explicit hal consonant separator (e.g. k- -> ක්, kn- -> ක්න්)
+                    out.append(rawConsonantChar).append("්")
                     i++
                 } else {
                     // Hal consonant (ක්)

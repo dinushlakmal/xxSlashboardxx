@@ -76,4 +76,23 @@ class SinhalaHelpersTest {
         assertEquals("පැමිණියා", first.text)
         assertTrue(first.isCorrection)
     }
+
+    @Test
+    fun testPhoneticKnAndGnTransliteration() {
+        // k + n -> ක්න්
+        assertEquals("ක්න්", SinhalaEngine.transliterate("kn", InputMode.PHONETIC))
+        assertEquals("ක්න්", SinhalaEngine.transliterate("kn-", InputMode.PHONETIC))
+        assertEquals("ක්න්", SinhalaEngine.transliterate("k-n", InputMode.PHONETIC))
+        assertEquals("ක්න", SinhalaEngine.transliterate("kna", InputMode.PHONETIC))
+
+        // g + n -> ග්න්
+        assertEquals("ග්න්", SinhalaEngine.transliterate("gn", InputMode.PHONETIC))
+        assertEquals("ග්න", SinhalaEngine.transliterate("gna", InputMode.PHONETIC))
+        assertEquals("අග්නි", SinhalaEngine.transliterate("agni", InputMode.PHONETIC))
+        assertEquals("ලග්නය", SinhalaEngine.transliterate("lagnaya", InputMode.PHONETIC))
+
+        // Smart phonetic mode as well
+        assertEquals("ක්න්", SinhalaEngine.transliterate("kn", InputMode.SMART_PHONETIC))
+        assertEquals("ග්න්", SinhalaEngine.transliterate("gn", InputMode.SMART_PHONETIC))
+    }
 }

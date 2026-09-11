@@ -49,6 +49,7 @@ internal class SuggestionRail(
     private val undoBtn = createCircleIconButton(R.drawable.ic_key_undo, "Undo") { onToolbarAction?.invoke("undo") }
     private val redoBtn = createCircleIconButton(R.drawable.ic_key_redo, "Redo") { onToolbarAction?.invoke("redo") }
     private val astrologyBtn = createCircleIconButton(R.drawable.ic_key_astrology, "Sinhala & Astrology Glyphs") { onToolbarAction?.invoke("astrology") }
+    private val fontStudioBtn = createCircleIconButton(R.drawable.ic_key_font_studio, "Font Studio") { onToolbarAction?.invoke("font_studio") }
     private val translateBtn = createCircleIconButton(R.drawable.ic_key_translate, "Translator") { onToolbarAction?.invoke("translate") }
     private val fontBtn = createCircleIconButton(R.drawable.ic_key_font, "Convert to FM") { onToolbarAction?.invoke("fm") }
     private val otpBtn = createCircleIconButton(R.drawable.ic_key_otp, "Paste OTP") { onToolbarAction?.invoke("otp") }
@@ -157,7 +158,7 @@ internal class SuggestionRail(
 
     private fun populateDefaultEmptyRow() {
         emptyRow.removeAllViews()
-        val defaultViews = listOf(langToggle, undoBtn, redoBtn, astrologyBtn, fontBtn, translateBtn, emojiSwitch, clipboard, settings)
+        val defaultViews = listOf(langToggle, fontStudioBtn, undoBtn, redoBtn, astrologyBtn, fontBtn, translateBtn, emojiSwitch, clipboard, settings)
         for (view in defaultViews) {
             val container = wrapIconSlot(view)
             val lp = LinearLayout.LayoutParams(0, LayoutParams.MATCH_PARENT, 1f).apply {
@@ -176,6 +177,7 @@ internal class SuggestionRail(
 
         val toolViews = mapOf(
             "lang_toggle" to langToggle,
+            "font_studio" to fontStudioBtn,
             "emoji" to emojiSwitch,
             "voice" to voiceBtn,
             "undo" to undoBtn,

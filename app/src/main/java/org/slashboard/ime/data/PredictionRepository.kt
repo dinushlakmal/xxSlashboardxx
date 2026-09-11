@@ -61,14 +61,17 @@ class PredictionRepository(private val context: Context, private val learning: L
         val ranked = ArrayList<Candidate>(max)
         val considered = HashSet<String>(max * 16)
 
-        fun consider(word: String, frequency: Int, unigramWeight: Double) {
+        fun consider(word: String, frequency: Int, unigramWeight: Double, isUserLearned: Boolean = false) {
             if (word == prefix) return
             if (prefix.isEmpty() && word == previous) return
             if (!considered.add(word)) return
+            val userCount = learned[word] ?: 0
+            val userNextCount = learnedNext[word] ?: 0
+            val userTriCount = learnedTrigramNext[word] ?: 0
             val score = unigramWeight * ln(frequency.coerceAtLeast(1) + 1.0) +
-                learned.getOrDefault(word, 0) +
-                learnedNext.getOrDefault(word, 0) * 1.8 +
-                learnedTrigramNext.getOrDefault(word, 0) * 2.5 +
+                (if (userCount > 0 || isUserLearned) userCount.coerceAtLeast(1) * 35.0 + 80.0 else 0.0) +
+                (if (userNextCount > 0) userNextCount * 40.0 + 90.0 else 0.0) +
+                (if (userTriCount > 0) userTriCount * 50.0 + 100.0 else 0.0) +
                 ln((bundledCounts[word] ?: 0) + 1.0) * 1.7 +
                 ln((trigramCounts[word] ?: 0) + 1.0) * 2.2
             val candidate = Candidate(word, score)
@@ -79,21 +82,36 @@ class PredictionRepository(private val context: Context, private val learning: L
             if (ranked.size > max) ranked.removeAt(ranked.lastIndex)
         }
 
+        fun matchesPrefix(word: String) = prefix.isEmpty() || SinhalaEngine.hasUnicodeScalarPrefix(word, prefix) || word.startsWith(prefix)
+
         if (prefix.isEmpty()) {
             if (!hasContinuations) {
                 val pool = if (previous == null && starts.isNotEmpty()) starts else frequent
                 pool.take(maxOf(max * 8, 24)).forEach { consider(it.first, it.second, 1.0) }
             }
         } else {
+            // 1. High-priority user learned words matching prefix
+            learned.forEach { (word, count) ->
+                if (matchesPrefix(word)) {
+                    consider(word, count, 3.0, isUserLearned = true)
+                }
+            }
+
+            // 2. Next-word learned continuations
+            learnedNext.forEach { (word, count) ->
+                if (matchesPrefix(word)) consider(word, count, 2.5, isUserLearned = true)
+            }
+            learnedTrigramNext.forEach { (word, count) ->
+                if (matchesPrefix(word)) consider(word, count, 2.8, isUserLearned = true)
+            }
+
+            // 3. Dictionary entries
             val first = firstIndexAtOrAfter(prefix)
             val last = minOf(entries.size, first + 4_096)
             for (i in first until last) {
                 val entry = entries[i]
-                if (!SinhalaEngine.hasUnicodeScalarPrefix(entry.first, prefix)) break
+                if (!SinhalaEngine.hasUnicodeScalarPrefix(entry.first, prefix) && !entry.first.startsWith(prefix)) break
                 consider(entry.first, entry.second, 1.0)
-            }
-            learned.forEach { (word, count) ->
-                if (SinhalaEngine.hasUnicodeScalarPrefix(word, prefix)) consider(word, count, 1.0)
             }
             if (ranked.size < max) {
                 val variants = SinhalaOrthographyHelper.generateOrthographicVariants(prefix)
@@ -102,7 +120,7 @@ class PredictionRepository(private val context: Context, private val learning: L
                     val vLast = minOf(entries.size, vFirst + 512)
                     for (i in vFirst until vLast) {
                         val entry = entries[i]
-                        if (!SinhalaEngine.hasUnicodeScalarPrefix(entry.first, v)) break
+                        if (!SinhalaEngine.hasUnicodeScalarPrefix(entry.first, v) && !entry.first.startsWith(v)) break
                         consider(entry.first, entry.second, 0.95)
                     }
                 }
@@ -110,7 +128,6 @@ class PredictionRepository(private val context: Context, private val learning: L
         }
 
         val continuationWeight = if (prefix.isEmpty() && hasContinuations) 0.20 else 1.0
-        fun matchesPrefix(word: String) = prefix.isEmpty() || SinhalaEngine.hasUnicodeScalarPrefix(word, prefix)
         learnedNext.forEach { (word, count) ->
             if (matchesPrefix(word)) consider(word, unigramFrequency[word] ?: learned.getOrDefault(word, count), continuationWeight)
         }

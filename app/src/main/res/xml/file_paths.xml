@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <paths>
+    <external-files-path name="download_files" path="Download/" />
+    <!-- Keep the previous ones as well just in case they are used -->
     <files-path name="internal_files" path="." />
     <cache-path name="internal_cache" path="." />
     <external-path name="external_files" path="." />

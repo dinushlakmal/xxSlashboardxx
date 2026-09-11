@@ -2,9 +2,11 @@ package org.slashboard.ime.ime
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.res.ColorStateList
 import android.content.res.Configuration
 import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
+import android.graphics.drawable.RippleDrawable
 import android.graphics.drawable.StateListDrawable
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.BitmapFactory
@@ -29,7 +31,7 @@ import org.slashboard.ime.engine.SinhalaEngine
 import org.slashboard.ime.settings.KeyboardPreferences
 import kotlin.math.abs
 
-enum class KeyboardLayer { LETTERS, NUMBERS, SYMBOLS, SINHALA_GLYPHS, EMOJI, CLIPBOARD, VOICE, TRANSLATE }
+enum class KeyboardLayer { LETTERS, NUMBERS, SYMBOLS, SINHALA_GLYPHS, EMOJI, CLIPBOARD, VOICE, TRANSLATE, FONT_STUDIO }
 enum class EditorLayout { TEXT, ASCII, EMAIL, URI, NUMBER, SIGNED_NUMBER, DECIMAL, SIGNED_DECIMAL, PHONE, DATETIME }
 
 interface KeyboardActions {
@@ -56,7 +58,7 @@ interface KeyboardActions {
 class KeyboardView(
     context: Context,
     private val actions: KeyboardActions,
-    private val prefs: KeyboardPreferences,
+    private var prefs: KeyboardPreferences,
     emojiRepository: EmojiRepository? = null,
     clipboardHistoryStore: ClipboardHistoryStore? = null
 ) : LinearLayout(context) {
@@ -158,6 +160,7 @@ class KeyboardView(
                 } else {
                     prefs.useEnglish = !prefs.useEnglish
                     actions.onGlobe()
+                    android.widget.Toast.makeText(context, if (prefs.useEnglish) "English" else "සිංහල", android.widget.Toast.LENGTH_SHORT).show()
                     render()
                 }
             }
@@ -170,7 +173,25 @@ class KeyboardView(
             override fun onCommitPreviewDelete() = actions.onCommitPreviewDelete()
             override fun onCancelPreviewDelete() = actions.onCancelPreviewDelete()
         },
-        KeyboardColors(key, utility, ink, palette.action, palette.actionText, palette.dark, palette.highContrast, palette.keyRadiusDp, palette.keyOpacity),
+        KeyboardColors(
+            key = key,
+            utility = utility,
+            ink = ink,
+            action = palette.action,
+            actionText = palette.actionText,
+            dark = palette.dark,
+            highContrast = palette.highContrast,
+            keyRadiusDp = palette.keyRadiusDp,
+            keyOpacity = palette.keyOpacity,
+            spaceBarKey = palette.spaceKey,
+            spaceBarBorder = palette.spaceBorder,
+            keyStyle = palette.keyStyle,
+            animationType = palette.animationType,
+            borderWidthDp = palette.borderWidthDp,
+            borderColor = palette.borderColor,
+            glowColor = palette.glowColor,
+            typeface = org.slashboard.ime.settings.font.CustomFontManager.getTypeface(context, prefs.keyboardFont)
+        ),
         onLayer = { next -> layer = next; render() },
         onShift = { updateShift() }
     )
@@ -206,14 +227,24 @@ class KeyboardView(
         rail.onLangToggle = {
             prefs.useEnglish = !prefs.useEnglish
             actions.onGlobe()
+            android.widget.Toast.makeText(context, if (prefs.useEnglish) "English" else "සිංහල", android.widget.Toast.LENGTH_SHORT).show()
             render()
         }
         rail.onToolbarAction = {
-            if (it == "astrology") {
-                layer = KeyboardLayer.SINHALA_GLYPHS
-                render()
-            } else {
-                actions.onToolbarAction(it)
+            when (it) {
+                "astrology" -> {
+                    layer = KeyboardLayer.SINHALA_GLYPHS
+                    render()
+                }
+                "font_studio" -> {
+                    openFontStudio()
+                }
+                "translate" -> {
+                    openTranslator()
+                }
+                else -> {
+                    actions.onToolbarAction(it)
+                }
             }
         }
         rail.onEmojiSelected = { emoji ->
@@ -255,8 +286,20 @@ class KeyboardView(
         action = palette.action
         actionText = palette.actionText
         ink = palette.ink
-        setBackgroundColor(bg)
-                        if (palette.backgroundImagePath != null) {
+        val isTransparent = prefs.transparentBackground || bg == Color.TRANSPARENT || prefs.theme.contains("transparent")
+        if (isTransparent) {
+            setBackgroundColor(Color.TRANSPARENT)
+            background = null
+            body.setBackgroundColor(Color.TRANSPARENT)
+            homePad.setBackgroundColor(Color.TRANSPARENT)
+            rail.setBackgroundColor(Color.TRANSPARENT)
+        } else if (palette.gradientStart != null && palette.gradientEnd != null) {
+            val gradient = GradientDrawable(
+                GradientDrawable.Orientation.TOP_BOTTOM,
+                intArrayOf(palette.gradientStart!!, palette.gradientEnd!!)
+            )
+            background = gradient
+        } else if (palette.backgroundImagePath != null) {
             try {
                 val options = android.graphics.BitmapFactory.Options().apply {
                     inJustDecodeBounds = true
@@ -300,11 +343,26 @@ class KeyboardView(
                         }
                         background = drawable
                     }
+                } else {
+                    setBackgroundColor(bg)
                 }
-            } catch (e: Throwable) { e.printStackTrace() }
+            } catch (e: Throwable) {
+                e.printStackTrace()
+                setBackgroundColor(bg)
+            }
         } else {
-            background = null
+            setBackgroundColor(bg)
         }
+
+        val effectiveOpacity = if (isTransparent) {
+            if (palette.keyOpacity >= 1.0f) 0.68f else palette.keyOpacity
+        } else palette.keyOpacity
+
+        val effectiveBorderWidth = if (isTransparent && palette.borderWidthDp == 0f) 1f else palette.borderWidthDp
+        val effectiveBorderColor = if (isTransparent && palette.borderColor == null) {
+            if (palette.dark) Color.argb(60, 255, 255, 255) else Color.argb(40, 0, 0, 0)
+        } else palette.borderColor
+
         val colors = KeyboardColors(
             key = key,
             utility = utility,
@@ -314,9 +372,15 @@ class KeyboardView(
             dark = palette.dark,
             highContrast = palette.highContrast,
             keyRadiusDp = palette.keyRadiusDp,
-            keyOpacity = palette.keyOpacity,
+            keyOpacity = effectiveOpacity,
             spaceBarKey = palette.spaceKey,
-            spaceBarBorder = palette.spaceBorder
+            spaceBarBorder = palette.spaceBorder,
+            keyStyle = palette.keyStyle,
+            animationType = palette.animationType,
+            borderWidthDp = effectiveBorderWidth,
+            borderColor = effectiveBorderColor,
+            glowColor = palette.glowColor,
+            typeface = org.slashboard.ime.settings.font.CustomFontManager.getTypeface(context, prefs.keyboardFont)
         )
         panel.updateColors(colors)
         rail.updateInk(ink)
@@ -332,6 +396,18 @@ class KeyboardView(
         val width = if (prefs.oneHanded == "center") LayoutParams.MATCH_PARENT else (resources.displayMetrics.widthPixels * .82f).toInt()
         (body.layoutParams as LayoutParams).apply { this.width = width; gravity = when (prefs.oneHanded) { "left" -> Gravity.START; "right" -> Gravity.END; else -> Gravity.CENTER } }
         panel.learningEnabled = learningEnabled && editor == EditorLayout.TEXT
+        render()
+    }
+
+    fun reloadPreferences(newPrefs: KeyboardPreferences? = null) {
+        if (newPrefs != null) {
+            this.prefs = newPrefs
+        }
+        panel.updatePreferences(this.prefs)
+        applyTheme()
+        rail.configureToolbar(this.prefs)
+        val width = if (prefs.oneHanded == "center") LayoutParams.MATCH_PARENT else (resources.displayMetrics.widthPixels * .82f).toInt()
+        (body.layoutParams as LayoutParams).apply { this.width = width; gravity = when (prefs.oneHanded) { "left" -> Gravity.START; "right" -> Gravity.END; else -> Gravity.CENTER } }
         render()
     }
     fun setCandidates(values: List<String>, corrections: Set<String> = emptySet()) {
@@ -368,13 +444,92 @@ class KeyboardView(
 
     internal fun typingLayout(): KeyboardLayout? = if (usesTypingPanel()) panel.layout else null
 
+    private fun createSwipeableEmojiBar(emojis: List<String>): View {
+        val scroll = HorizontalScrollView(context).apply {
+            isHorizontalScrollBarEnabled = false
+            overScrollMode = OVER_SCROLL_NEVER
+            clipChildren = false
+            clipToPadding = false
+            setBackgroundColor(Color.TRANSPARENT)
+            setPadding(dp(4), dp(2), dp(4), dp(2))
+        }
+
+        val row = LinearLayout(context).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+            clipChildren = false
+            clipToPadding = false
+        }
+
+        // Fast shortcut to full emoji picker at the start of the bar
+        val moreBtn = iconButton(org.slashboard.ime.R.drawable.ic_key_emoji, utility, "More emojis") {
+            actions.onPressFeedback()
+            layer = KeyboardLayer.EMOJI
+            render()
+        }
+        val moreLp = LinearLayout.LayoutParams(dp(36), dp(36)).apply {
+            setMargins(dp(2), dp(2), dp(4), dp(2))
+        }
+        row.addView(moreBtn, moreLp)
+
+        val defaultPopular = listOf(
+            "😂", "❤️", "🙏", "👍", "😍", "🤣", "😊", "🔥", "🥺", "🥰",
+            "😭", "✨", "🎉", "👏", "😁", "😘", "😎", "😅", "🇱🇰", "💯",
+            "🙌", "💖", "🤝", "👌", "💪", "💐"
+        )
+        val combinedList = (emojis + defaultPopular).distinct().take(28)
+
+        combinedList.forEach { emoji ->
+            val item = TextView(context).apply {
+                text = emoji
+                textSize = 20f
+                gravity = Gravity.CENTER
+                includeFontPadding = false
+                isClickable = true
+                isFocusable = true
+                val radius = dp(8).toFloat()
+                val normalBg = GradientDrawable().apply {
+                    cornerRadius = radius
+                    setColor(key)
+                }
+                val ripple = RippleDrawable(
+                    ColorStateList.valueOf(ColorUtils.setAlphaComponent(ink, 40)),
+                    normalBg,
+                    null
+                )
+                background = ripple
+
+                setOnClickListener {
+                    actions.onPressFeedback()
+                    actions.onCharacter(emoji)
+                }
+                setOnLongClickListener {
+                    actions.onPressFeedback()
+                    layer = KeyboardLayer.EMOJI
+                    render()
+                    true
+                }
+            }
+            val lp = LinearLayout.LayoutParams(dp(40), dp(36)).apply {
+                setMargins(dp(2), dp(2), dp(2), dp(2))
+            }
+            row.addView(item, lp)
+        }
+
+        scroll.addView(row, ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT))
+        return scroll
+    }
+
     private fun standardContentHeight(): Int {
         val rows = KeyboardLayoutFactory.typingRows(
             mode, KeyboardLayer.LETTERS, false, false, editorLayout, prefs.topRow, prefs.emojiPicker, enterLabel, " ", false, prefs.useEnglish, prefs.smartKeyModifiers,
             recentEmoji.ifEmpty { prefs.recentEmojis }
         )
         val rowHeight = KeyboardGeometry.rowHeightPx(prefs.keyboardSize, isLandscape(), resources.displayMetrics.density, rows.size)
-        val total = rows.sumOf { (rowHeight * it.heightFactor).toDouble() }.toInt()
+        var total = rows.sumOf { (rowHeight * it.heightFactor).toDouble() }.toInt()
+        if (editorLayout !in numericEditors && (prefs.topRow == "emoji" || prefs.topRow == "both")) {
+            total += dp(40)
+        }
         return total.coerceAtLeast(dp(220))
     }
 
@@ -396,14 +551,19 @@ class KeyboardView(
             KeyboardLayer.CLIPBOARD -> bindClipboard()
             KeyboardLayer.VOICE -> bindVoice()
             KeyboardLayer.TRANSLATE -> bindTranslate()
+            KeyboardLayer.FONT_STUDIO -> bindFontStudio()
         }
     }
 
     private fun bindTyping() {
-        if (body.childCount != 1 || body.getChildAt(0) !== panel) {
-            body.removeAllViews()
-            body.addView(panel, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT))
+        body.removeAllViews()
+        val showTopRow = editorLayout !in numericEditors && layer == KeyboardLayer.LETTERS
+        if (showTopRow && (prefs.topRow == "emoji" || prefs.topRow == "both")) {
+            val emojiList = recentEmoji.ifEmpty { prefs.recentEmojis }
+            body.addView(createSwipeableEmojiBar(emojiList), LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT))
         }
+        body.addView(panel, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT))
+
         val spaceLabel = spaceCaption()
         val rows = KeyboardLayoutFactory.typingRows(
             mode, layer, shifted, capsLock, editorLayout, prefs.topRow, prefs.emojiPicker, enterLabel, spaceLabel, false, prefs.useEnglish, prefs.smartKeyModifiers,
@@ -431,7 +591,7 @@ class KeyboardView(
     private fun spaceCaption(): String {
         val custom = prefs.customSpacebarText.trim().take(14)
         if (custom.isNotEmpty()) return custom
-        return if (editorLayout != EditorLayout.TEXT) "English" else if (prefs.useEnglish) "Slashboard - English" else "Slashboard - ${mode.title}"
+        return if (prefs.useEnglish) "English" else "සිංහල"
     }
 
     private fun renderNativePad() {
@@ -674,6 +834,32 @@ class KeyboardView(
         board.animate().alpha(1f).setDuration(160).start()
     }
 
+    fun openFontStudio() {
+        layer = if (layer == KeyboardLayer.FONT_STUDIO) KeyboardLayer.LETTERS else KeyboardLayer.FONT_STUDIO
+        render()
+    }
+
+    private fun bindFontStudio() {
+        body.removeAllViews()
+        val board = FontBoard(
+            context = context,
+            colors = KeyboardColors(key, utility, ink, palette.action, palette.actionText, palette.dark, palette.highContrast, palette.keyRadiusDp, palette.keyOpacity),
+            prefs = prefs,
+            onFontSelected = { fontId ->
+                applyTheme()
+                bindRail(false)
+            },
+            onDismiss = {
+                layer = KeyboardLayer.LETTERS
+                render()
+            }
+        )
+        val height = standardContentHeight()
+        body.addView(board, LayoutParams(LayoutParams.MATCH_PARENT, height))
+        board.alpha = 0f
+        board.animate().alpha(1f).setDuration(160).start()
+    }
+
     fun openTranslator() {
         layer = KeyboardLayer.TRANSLATE
         render()
@@ -783,7 +969,7 @@ class KeyboardView(
         val vertical = KeyboardMetrics.marginPx(prefs.keySpacing, resources.displayMetrics.density, true)
         setMargins(horizontal, vertical, horizontal, vertical)
     }
-    private fun usesTypingPanel() = (forceNormalKeyboard || editorLayout !in numericEditors) && layer != KeyboardLayer.EMOJI && layer != KeyboardLayer.CLIPBOARD && layer != KeyboardLayer.VOICE && layer != KeyboardLayer.TRANSLATE
+    private fun usesTypingPanel() = (forceNormalKeyboard || editorLayout !in numericEditors) && layer != KeyboardLayer.EMOJI && layer != KeyboardLayer.CLIPBOARD && layer != KeyboardLayer.VOICE && layer != KeyboardLayer.TRANSLATE && layer != KeyboardLayer.FONT_STUDIO
     private fun suggestionKeySliver() = (KeyboardGeometry.SLIVER_DP * resources.displayMetrics.density).toInt()
     private fun isLandscape() = resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
     private fun inSuggestionSliver(y: Float): Boolean {

@@ -152,26 +152,12 @@ internal object KeyboardLayoutFactory {
         recentEmojis: List<String> = emptyList()
     ): List<RowDef> {
         val rows = ArrayList<RowDef>(6)
-        val showTopRow = editor == EditorLayout.TEXT
-        if (showTopRow && (topRow == "emoji" || topRow == "both")) {
-            val defaultEmojis = listOf("😀", "😂", "❤️", "👍", "🙏", "🔥", "✨", "🎉", "🇱🇰", "😊")
-            val emojisToShow = if (recentEmojis.isNotEmpty()) {
-                (recentEmojis + defaultEmojis).distinct().take(10)
-            } else {
-                defaultEmojis
-            }
-            rows += RowDef(
-                emojisToShow.map { charDef(it, it) },
-                expandEdges = true,
-                sliverTop = true,
-                heightFactor = 0.62f
-            )
-        }
+        val showTopRow = editor !in KeyboardView.numericEditors
         if (showTopRow && (topRow == "numbers" || topRow == "both")) {
             rows += RowDef(
-                "1234567890".map { charDef(it.toString(), it.toString()) },
+                "1234567890".map { numberKeyDef(it.toString()) },
                 expandEdges = true,
-                sliverTop = topRow == "numbers",
+                sliverTop = true,
                 heightFactor = 0.68f
             )
         }
@@ -296,19 +282,66 @@ internal object KeyboardLayoutFactory {
         val label = letterLabel(id, wijesekara, shifted, caps)
         val output = if (wijesekara) SinhalaEngine.slsCharacter(id, shifted || caps) else label
         val extras = KeyAlternates.extras(id, mode, KeyboardLayer.LETTERS, shifted || caps)
-        val numberHint = when (id) {
+        val symbolShortcut = when (id.lowercase()) {
             "q" -> "1"; "w" -> "2"; "e" -> "3"; "r" -> "4"; "t" -> "5"
             "y" -> "6"; "u" -> "7"; "i" -> "8"; "o" -> "9"; "p" -> "0"
+            "a" -> "@"; "s" -> "#"; "d" -> "$"; "f" -> "_"; "g" -> "&"
+            "h" -> "-"; "j" -> "+"; "k" -> "("; "l" -> ")"
+            "z" -> "*"; "x" -> "\""; "c" -> "'"; "v" -> ":"; "b" -> ";"
+            "n" -> "!"; "m" -> "?"
             else -> null
         }
-        val hint = if (isEnglish) numberHint else (KeyAlternates.hint(id, mode, KeyboardLayer.LETTERS) ?: phoneticHint(id, mode, wijesekara, shifted, caps) ?: numberHint)
-        val fullExtras = if (isEnglish && numberHint != null && extras.none { it.second == numberHint }) {
-            listOf(numberHint to numberHint) + extras
+        val sinhalaLetterHint = if (!isEnglish && !wijesekara) {
+            phoneticSinhalaPreview(id, shifted, caps)
+        } else null
+
+        // Visual hint on keycap: symbol in English layout, Sinhala letter in Sinhala phonetic layout
+        val hint = if (isEnglish) symbolShortcut else if (!wijesekara) sinhalaLetterHint else null
+
+        // Long-press extras: Available in BOTH English and Sinhala layouts
+        val fullExtras = if (symbolShortcut != null) {
+            val list = mutableListOf(symbolShortcut to symbolShortcut)
+            extras.forEach { if (it.second != symbolShortcut) list.add(it) }
+            list
         } else {
             extras
         }
-        val flick = fullExtras.firstOrNull()?.second
+        val flick = if (isEnglish) fullExtras.firstOrNull()?.second else null
         return KeyDef(id, label, output, KeyCode.CHAR, width, hint, fullExtras, flick)
+    }
+
+    private fun numberKeyDef(digit: String, width: Float = KeyboardGeometry.LETTER): KeyDef {
+        val symbolShortcut = when (digit) {
+            "1" -> "!"
+            "2" -> "@"
+            "3" -> "#"
+            "4" -> "$"
+            "5" -> "%"
+            "6" -> "^"
+            "7" -> "&"
+            "8" -> "*"
+            "9" -> "("
+            "0" -> ")"
+            else -> null
+        }
+        val baseExtras = KeyAlternates.extras(digit, InputMode.PHONETIC, KeyboardLayer.NUMBERS, false)
+        val fullExtras = if (symbolShortcut != null) {
+            val list = mutableListOf(symbolShortcut to symbolShortcut)
+            baseExtras.forEach { if (it.second != symbolShortcut) list.add(it) }
+            list
+        } else {
+            baseExtras
+        }
+        return KeyDef(
+            id = digit,
+            label = digit,
+            output = digit,
+            action = KeyCode.CHAR,
+            widthFraction = width,
+            hint = symbolShortcut,
+            extras = fullExtras,
+            flickOutput = symbolShortcut
+        )
     }
 
     private fun charDef(id: String, output: String, width: Float = KeyboardGeometry.LETTER): KeyDef {
@@ -359,12 +392,41 @@ internal object KeyboardLayoutFactory {
         else -> id
     }
 
+    fun phoneticSinhalaPreview(id: String, shifted: Boolean, caps: Boolean): String {
+        val isShift = shifted || caps
+        return when (id.lowercase()) {
+            "a" -> if (isShift) "ඇ" else "අ"
+            "b" -> if (isShift) "ඹ" else "බ"
+            "c" -> if (isShift) "ඡ" else "ච"
+            "d" -> if (isShift) "ඪ" else "ඩ"
+            "e" -> if (isShift) "ඒ" else "එ"
+            "f" -> "ෆ"
+            "g" -> if (isShift) "ඝ" else "ග"
+            "h" -> if (isShift) "ඃ" else "හ"
+            "i" -> if (isShift) "ඊ" else "ඉ"
+            "j" -> if (isShift) "ඣ" else "ජ"
+            "k" -> if (isShift) "ඛ" else "ක"
+            "l" -> if (isShift) "ළ" else "ල"
+            "m" -> if (isShift) "ඹ" else "ම"
+            "n" -> if (isShift) "ණ" else "න"
+            "o" -> if (isShift) "ඕ" else "ඔ"
+            "p" -> if (isShift) "ඵ" else "ප"
+            "q" -> "ද"
+            "r" -> if (isShift) "ඍ" else "ර"
+            "s" -> if (isShift) "ෂ" else "ස"
+            "t" -> if (isShift) "ඨ" else "ට"
+            "u" -> if (isShift) "ඌ" else "උ"
+            "v" -> "ව"
+            "w" -> "ව"
+            "x" -> "ං"
+            "y" -> "ය"
+            "z" -> if (isShift) "ඥ" else "ඤ"
+            else -> id
+        }
+    }
+
     fun phoneticHint(id: String, mode: InputMode, wijesekara: Boolean, shifted: Boolean, caps: Boolean): String? {
         if (wijesekara || id.length != 1) return null
-        val source = if (shifted || caps) id.uppercase() else id
-        val rendered = SinhalaEngine.transliterate(source, mode)
-        val hint = StringBuilder()
-        rendered.codePoints().forEach { cp -> if (cp in 0x0D80..0x0DFF && cp != 0x0DCA) hint.appendCodePoint(cp) }
-        return hint.toString().takeIf { it.isNotEmpty() }
+        return phoneticSinhalaPreview(id, shifted, caps)
     }
 }

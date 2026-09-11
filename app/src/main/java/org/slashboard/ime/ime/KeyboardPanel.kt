@@ -13,12 +13,13 @@ import android.view.HapticFeedbackConstants
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
+import org.slashboard.ime.engine.InputMode
 import org.slashboard.ime.settings.KeyboardPreferences
 
 @SuppressLint("ViewConstructor")
 internal class KeyboardPanel(
     context: Context,
-    private val prefs: KeyboardPreferences,
+    private var prefs: KeyboardPreferences,
     private val popups: KeyPopups,
     private val actions: KeyboardActions,
     private var colors: KeyboardColors,
@@ -129,6 +130,16 @@ internal class KeyboardPanel(
         colors = newColors
         caps.forEach { it.colors = newColors }
         invalidate()
+    }
+
+    fun updatePreferences(newPrefs: KeyboardPreferences) {
+        this.prefs = newPrefs
+        lastPlacedKeySpacing = null
+        lastPlacedRows = emptyList()
+        layout = null
+        controller.decoder = if (newPrefs.spatialDecoder) SpatialTouchDecoder() else RectangularTouchDecoder()
+        controller.longPressMs = newPrefs.longPressMs
+        personalization.thumbReachMode = newPrefs.thumbReachMode
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
@@ -261,7 +272,21 @@ internal class KeyboardPanel(
     }
 
     override fun onPreview(key: KeySpec) {
-        capFor(key)?.let { popups.showPreview(it, key.label.ifEmpty { key.output }, colors.key, colors.dark) }
+        val previewText = if (!cacheIsEnglish && key.action == KeyCode.CHAR) {
+            if (key.label.isNotEmpty() && key.label[0] >= '\u0D80') {
+                key.label
+            } else {
+                KeyboardLayoutFactory.phoneticSinhalaPreview(key.id, cacheShifted, cacheCapsLock)
+            }
+        } else {
+            key.label.ifEmpty { key.output }
+        }
+        val popupBg = if (colors.dark) {
+            androidx.core.graphics.ColorUtils.blendARGB(colors.key, android.graphics.Color.WHITE, 0.08f)
+        } else {
+            android.graphics.Color.WHITE
+        }
+        capFor(key)?.let { popups.showPreview(it, previewText, popupBg, colors.dark, colors.ink) }
     }
 
     override fun onHidePreview() = popups.hidePreview()
@@ -269,7 +294,7 @@ internal class KeyboardPanel(
     override fun onShowPicker(key: KeySpec) {
         val cap = capFor(key) ?: return
         pickerKey = cap
-        val choices = listOf(key.label.ifEmpty { key.output } to key.output) + key.extras
+        val choices = key.extras + listOf(key.label.ifEmpty { key.output } to key.output)
         popups.showPicker(cap, choices, colors.key, colors.dark)
     }
 
@@ -293,6 +318,12 @@ internal class KeyboardPanel(
     override fun onHaptic() {
         actions.onPressFeedback()
         val type = if (Build.VERSION.SDK_INT >= 27) android.view.HapticFeedbackConstants.KEYBOARD_PRESS else android.view.HapticFeedbackConstants.KEYBOARD_TAP
+        val flags = android.view.HapticFeedbackConstants.FLAG_IGNORE_VIEW_SETTING or android.view.HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING
+        if (prefs.haptics) performHapticFeedback(type, flags)
+    }
+
+    override fun onHapticLongPress() {
+        val type = android.view.HapticFeedbackConstants.LONG_PRESS
         val flags = android.view.HapticFeedbackConstants.FLAG_IGNORE_VIEW_SETTING or android.view.HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING
         if (prefs.haptics) performHapticFeedback(type, flags)
     }

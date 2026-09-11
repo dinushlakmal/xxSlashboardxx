@@ -68,14 +68,23 @@ class TranslitTest {
         assertEquals("ධ", SinhalaEngine.transliterate("dhha", InputMode.SMART_PHONETIC))
         assertEquals("ඵ", SinhalaEngine.transliterate("pha", InputMode.SMART_PHONETIC))
         assertEquals("භ", SinhalaEngine.transliterate("bha", InputMode.SMART_PHONETIC))
+        assertEquals("ඹ", SinhalaEngine.transliterate("Ba", InputMode.SMART_PHONETIC))
         assertEquals("ඟ", SinhalaEngine.transliterate("zga", InputMode.SMART_PHONETIC))
+        assertEquals("ඟ", SinhalaEngine.transliterate("nnga", InputMode.SMART_PHONETIC))
         assertEquals("ඦ", SinhalaEngine.transliterate("zja", InputMode.SMART_PHONETIC))
+        assertEquals("ඦ", SinhalaEngine.transliterate("nnja", InputMode.SMART_PHONETIC))
         assertEquals("ඬ", SinhalaEngine.transliterate("zda", InputMode.SMART_PHONETIC))
+        assertEquals("ඬ", SinhalaEngine.transliterate("nnda", InputMode.SMART_PHONETIC))
         assertEquals("ඳ", SinhalaEngine.transliterate("zdha", InputMode.SMART_PHONETIC))
+        assertEquals("ඳ", SinhalaEngine.transliterate("nndha", InputMode.SMART_PHONETIC))
         assertEquals("ඳ", SinhalaEngine.transliterate("zqa", InputMode.SMART_PHONETIC))
         assertEquals("ඤ", SinhalaEngine.transliterate("zka", InputMode.SMART_PHONETIC))
+        assertEquals("ඤ", SinhalaEngine.transliterate("nnya", InputMode.SMART_PHONETIC))
         assertEquals("ඥ", SinhalaEngine.transliterate("zha", InputMode.SMART_PHONETIC))
-        assertEquals("ඹ", SinhalaEngine.transliterate("Ba", InputMode.SMART_PHONETIC))
+        assertEquals("ඥ", SinhalaEngine.transliterate("jNa", InputMode.SMART_PHONETIC))
+        assertEquals("ග්න", SinhalaEngine.transliterate("gna", InputMode.SMART_PHONETIC))
+        assertEquals("ඹ", SinhalaEngine.transliterate("nnba", InputMode.SMART_PHONETIC))
+        assertEquals("ඹ", SinhalaEngine.transliterate("zba", InputMode.SMART_PHONETIC))
         assertEquals("ළු", SinhalaEngine.transliterate("Lu", InputMode.SMART_PHONETIC))
     }
 
@@ -85,6 +94,7 @@ class TranslitTest {
         assertEquals("ක", SinhalaEngine.transliterate("ka", InputMode.SMART_PHONETIC))
         assertEquals("කා", SinhalaEngine.transliterate("kaa", InputMode.SMART_PHONETIC))
         assertEquals("කැ", SinhalaEngine.transliterate("kA", InputMode.SMART_PHONETIC))
+        assertEquals("කැ", SinhalaEngine.transliterate("kae", InputMode.SMART_PHONETIC))
         assertEquals("කෑ", SinhalaEngine.transliterate("kAa", InputMode.SMART_PHONETIC))
         assertEquals("කෑ", SinhalaEngine.transliterate("kAA", InputMode.SMART_PHONETIC))
         assertEquals("කි", SinhalaEngine.transliterate("ki", InputMode.SMART_PHONETIC))
@@ -105,6 +115,12 @@ class TranslitTest {
         assertEquals("කඞ", SinhalaEngine.transliterate("kaX", InputMode.SMART_PHONETIC))
         assertEquals("ක්‍ය", SinhalaEngine.transliterate("kya", InputMode.SMART_PHONETIC))
         assertEquals("ක්‍ර", SinhalaEngine.transliterate("kra", InputMode.SMART_PHONETIC))
+        // Verify ng transliteration produces න්ග් not ඟ්
+        assertEquals("න්ග්", SinhalaEngine.transliterate("ng", InputMode.SMART_PHONETIC))
+        assertEquals("න්ග", SinhalaEngine.transliterate("nga", InputMode.SMART_PHONETIC))
+        assertEquals("ම්බ", SinhalaEngine.transliterate("mba", InputMode.SMART_PHONETIC))
+        assertEquals("න්ඩ", SinhalaEngine.transliterate("nda", InputMode.SMART_PHONETIC))
+        assertEquals("න්ද", SinhalaEngine.transliterate("ndha", InputMode.SMART_PHONETIC))
     }
 
     @Test

@@ -33,7 +33,7 @@ internal object KeyboardGeometry {
     const val KEY_AREA_EXTRA_TALL_DP = 276
     const val KEY_AREA_GIANT_DP = 292
     const val SLIVER_DP = 4
-    const val LONG_PRESS_MS = 400L
+    const val LONG_PRESS_MS = 200L
     const val DELETE_REPEAT_START_MS = 420L
     const val DELETE_REPEAT_MS = 80L
     const val DELETE_WORD_AFTER = 20

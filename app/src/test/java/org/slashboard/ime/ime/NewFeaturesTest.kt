@@ -261,9 +261,9 @@ class NewFeaturesTest {
         prefs.longPressMs = 250L
         assertEquals(250L, prefs.longPressMs)
 
-        // Clamped limits test (150ms - 500ms)
+        // Clamped limits test (120ms - 500ms)
         prefs.longPressMs = 100L
-        assertEquals(150L, prefs.longPressMs)
+        assertEquals(120L, prefs.longPressMs)
         prefs.longPressMs = 800L
         assertEquals(500L, prefs.longPressMs)
     }
@@ -363,5 +363,105 @@ class NewFeaturesTest {
         val (centerXLeft, centerYLeft) = store.center(key)
         assertTrue(centerXLeft < centerXOff)
         assertTrue(centerYLeft > centerYOff)
+    }
+
+    @Test
+    fun testTopRowConfigurations() {
+        // topRow = "numbers": Must add number row as first row (5 rows total)
+        val numberRows = KeyboardLayoutFactory.typingRows(
+            mode = InputMode.SMART_PHONETIC,
+            layer = KeyboardLayer.LETTERS,
+            shifted = false,
+            caps = false,
+            editor = EditorLayout.TEXT,
+            topRow = "numbers",
+            emojiPicker = true,
+            enterLabel = "↵",
+            spaceLabel = "Space",
+            offerGlobe = false,
+            isEnglish = true,
+            smartModifiers = true
+        )
+        assertEquals(5, numberRows.size)
+        val firstRowKeyIds = numberRows[0].keys.map { it.id }
+        assertEquals(listOf("1", "2", "3", "4", "5", "6", "7", "8", "9", "0"), firstRowKeyIds)
+        assertEquals("!", numberRows[0].keys[0].hint)
+        assertEquals("@", numberRows[0].keys[1].hint)
+        assertEquals("!", numberRows[0].keys[0].flickOutput)
+
+        // topRow = "both": Must also include number row in layout (5 rows total)
+        val bothRows = KeyboardLayoutFactory.typingRows(
+            mode = InputMode.SMART_PHONETIC,
+            layer = KeyboardLayer.LETTERS,
+            shifted = false,
+            caps = false,
+            editor = EditorLayout.TEXT,
+            topRow = "both",
+            emojiPicker = true,
+            enterLabel = "↵",
+            spaceLabel = "Space",
+            offerGlobe = false,
+            isEnglish = true,
+            smartModifiers = true
+        )
+        assertEquals(5, bothRows.size)
+        assertEquals(listOf("1", "2", "3", "4", "5", "6", "7", "8", "9", "0"), bothRows[0].keys.map { it.id })
+
+        // topRow = "none" and "emoji": Layout should only have standard 4 rows
+        val noneRows = KeyboardLayoutFactory.typingRows(
+            mode = InputMode.SMART_PHONETIC,
+            layer = KeyboardLayer.LETTERS,
+            shifted = false,
+            caps = false,
+            editor = EditorLayout.TEXT,
+            topRow = "none",
+            emojiPicker = true,
+            enterLabel = "↵",
+            spaceLabel = "Space",
+            offerGlobe = false,
+            isEnglish = true,
+            smartModifiers = true
+        )
+        assertEquals(4, noneRows.size)
+
+        val emojiRows = KeyboardLayoutFactory.typingRows(
+            mode = InputMode.SMART_PHONETIC,
+            layer = KeyboardLayer.LETTERS,
+            shifted = false,
+            caps = false,
+            editor = EditorLayout.TEXT,
+            topRow = "emoji",
+            emojiPicker = true,
+            enterLabel = "↵",
+            spaceLabel = "Space",
+            offerGlobe = false,
+            isEnglish = true,
+            smartModifiers = true
+        )
+        assertEquals(4, emojiRows.size)
+    }
+
+    @Test
+    fun testTransparentGlassThemes() {
+        val context = androidx.test.core.app.ApplicationProvider.getApplicationContext<android.content.Context>()
+        
+        // Test transparent glass dark
+        val glassDark = KeyboardPaletteResolver.resolve(context, "transparent_glass", false)
+        assertEquals(android.graphics.Color.TRANSPARENT, glassDark.background)
+        assertTrue(glassDark.dark)
+        assertEquals(0.70f, glassDark.keyOpacity, 0.01f)
+        assertEquals(1f, glassDark.borderWidthDp, 0.01f)
+        assertNotNull(glassDark.borderColor)
+
+        // Test transparent glass light
+        val glassLight = KeyboardPaletteResolver.resolve(context, "transparent_glass_light", false)
+        assertEquals(android.graphics.Color.TRANSPARENT, glassLight.background)
+        assertFalse(glassLight.dark)
+        assertEquals(0.70f, glassLight.keyOpacity, 0.01f)
+        assertEquals(1f, glassLight.borderWidthDp, 0.01f)
+
+        // Test alias "transparent"
+        val transparentAlias = KeyboardPaletteResolver.resolve(context, "transparent", false)
+        assertEquals(android.graphics.Color.TRANSPARENT, transparentAlias.background)
     }
 }

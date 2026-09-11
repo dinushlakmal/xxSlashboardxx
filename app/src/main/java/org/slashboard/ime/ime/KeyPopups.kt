@@ -34,9 +34,8 @@ internal class KeyPopups(private val context: Context) {
         preview.setBackgroundDrawable(clear)
         picker.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         previewLabel.gravity = Gravity.CENTER
-        previewLabel.textSize = KeyboardGeometry.PREVIEW_TEXT_SP
-        previewLabel.includeFontPadding = false
-        if (Build.VERSION.SDK_INT >= 28) previewLabel.isFallbackLineSpacing = false
+        previewLabel.textSize = 28f
+        previewLabel.includeFontPadding = true
         preview.contentView = previewLabel
         preview.isClippingEnabled = false
         preview.isTouchable = false
@@ -53,26 +52,34 @@ internal class KeyPopups(private val context: Context) {
         PopupWindowCompat.setWindowLayoutType(picker, WindowManager.LayoutParams.TYPE_APPLICATION_SUB_PANEL)
     }
 
-    fun showPreview(key: View, text: String, fill: Int, dark: Boolean) {
+    fun showPreview(key: View, text: String, fill: Int, dark: Boolean, textColor: Int? = null) {
         runCatching {
             if (!key.isShown || !key.isAttachedToWindow || key.windowToken == null || text.isBlank()) return
             hidePicker()
             darkTheme = dark
             panelColor = fill
-            labelColor = if (dark) Color.WHITE else Color.rgb(25, 28, 33)
+            val ink = textColor ?: if (dark) Color.WHITE else Color.rgb(25, 28, 33)
+            labelColor = ink
             previewLabel.text = text
-            previewLabel.setTextColor(labelColor)
-            previewLabel.background = panel(fill, dp(14).toFloat())
-            val width = maxOf(key.width + dp(4), dp(52))
+            previewLabel.setTextColor(ink)
+            previewLabel.includeFontPadding = true
+            
+            val bg = GradientDrawable().apply {
+                cornerRadius = dp(12).toFloat()
+                setColor(fill)
+                setStroke(dp(1), ColorUtils.setAlphaComponent(ink, if (dark) 45 else 30))
+            }
+            previewLabel.background = bg
+            val width = maxOf(key.width + dp(8), dp(54))
             val height = dp(KeyboardGeometry.PREVIEW_HEIGHT_DP)
             preview.width = width
             preview.height = height
-            previewLabel.textSize = KeyboardGeometry.PREVIEW_TEXT_SP
+            previewLabel.textSize = if (KeyTypography.isSinhala(text)) 26f else 28f
             val loc = IntArray(2)
             key.getLocationInWindow(loc)
             val screen = key.rootView?.width ?: Int.MAX_VALUE
             val x = (loc[0] - (width - key.width) / 2).coerceIn(dp(4), maxOf(dp(4), screen - width - dp(4)))
-            val y = loc[1] - height + dp(8)
+            val y = loc[1] - height + dp(6)
             if (preview.isShowing) preview.update(x, y, width, height) else preview.showAtLocation(key, Gravity.NO_GRAVITY, x, y)
         }
     }
@@ -85,7 +92,7 @@ internal class KeyPopups(private val context: Context) {
 
     fun showPicker(key: View, values: List<Pair<String, String>>, fill: Int, dark: Boolean) {
         runCatching {
-            if (!key.isShown || !key.isAttachedToWindow || key.windowToken == null || values.size < 2) return
+            if (!key.isShown || !key.isAttachedToWindow || key.windowToken == null || values.isEmpty()) return
             hidePreview()
             darkTheme = dark
             panelColor = fill

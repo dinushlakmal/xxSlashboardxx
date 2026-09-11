@@ -26,23 +26,47 @@ internal data class KeyboardColors(
     val keyRadiusDp: Float? = null,
     val keyOpacity: Float = 1.0f,
     val spaceBarKey: Int? = null,
-    val spaceBarBorder: Int? = null
+    val spaceBarBorder: Int? = null,
+    val keyStyle: String = "rounded",
+    val animationType: String = "scale",
+    val borderWidthDp: Float = 0f,
+    val borderColor: Int? = null,
+    val glowColor: Int? = null,
+    val typeface: Typeface? = null
 )
 
 internal class KeyCap(context: Context) : View(context) {
+    private var density: Float = resources.displayMetrics.density
+
     var spec: KeySpec? = null
         set(value) {
             if (value?.action != KeyCode.SPACE) cancelSpaceCaption()
+            val oldLabel = field?.label
+            val oldFlick = field?.flickOutput
             field = value
             tag = value?.id
             contentDescription = value?.let { description(it) }
             isClickable = value != null
+            if (oldLabel != value?.label || oldFlick != value?.flickOutput) {
+                invalidateTextMetrics()
+            }
             invalidate()
         }
     var colors: KeyboardColors = KeyboardColors(0, 0, 0, 0, 0, false, false, null, 1.0f)
-        set(value) { field = value; invalidate() }
+        set(value) { 
+            field = value
+            labelPaint.typeface = value.typeface ?: Typeface.DEFAULT
+            invalidateTextMetrics()
+            invalidate() 
+        }
     var flickActive = false
-        set(value) { field = value; invalidate() }
+        set(value) { 
+            if (field != value) {
+                field = value
+                invalidateTextMetrics()
+                invalidate()
+            }
+        }
 
     private val fill = Paint(Paint.ANTI_ALIAS_FLAG)
     private val labelPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply { textAlign = Paint.Align.CENTER; typeface = Typeface.DEFAULT }
@@ -57,6 +81,24 @@ internal class KeyCap(context: Context) : View(context) {
 
     private var highlightAlpha = 0f
     private var highlightAnimator: ValueAnimator? = null
+
+    // Cached layout and text measurements
+    private var cachedText: String? = null
+    private var cachedTextWidth: Int = -1
+    private var cachedTextHeight: Int = -1
+    private var cachedTextSize: Float = 0f
+    private var cachedBaseline: Float = 0f
+
+    private fun invalidateTextMetrics() {
+        cachedText = null
+        cachedTextWidth = -1
+    }
+
+    override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
+        super.onSizeChanged(w, h, oldw, oldh)
+        density = resources.displayMetrics.density
+        invalidateTextMetrics()
+    }
 
     init {
         importantForAccessibility = IMPORTANT_FOR_ACCESSIBILITY_YES
@@ -84,27 +126,82 @@ internal class KeyCap(context: Context) : View(context) {
         val finalBase = ColorUtils.setAlphaComponent(base, baseAlpha)
         fill.color = if (currentHighlight > 0f) ColorUtils.blendARGB(finalBase, if (colors.dark) 0xFFFFFFFF.toInt() else 0xFF000000.toInt(), 0.18f * currentHighlight) else finalBase
         
-        val radius: Float
+        // Calculate key radius based on the 8 key styles
+        val radius: Float = when (colors.keyStyle) {
+            "sharp" -> 0f
+            "circle" -> minOf(width, height) / 2f
+            "pill" -> height / 2f
+            "minimal" -> colors.keyRadiusDp?.let { dp(it) } ?: dp(4f)
+            "material" -> colors.keyRadiusDp?.let { dp(it) } ?: dp(12f)
+            "ios" -> colors.keyRadiusDp?.let { dp(it) } ?: dp(5f)
+            "neumorphic" -> colors.keyRadiusDp?.let { dp(it) } ?: dp(14f)
+            else -> { // rounded / default
+                if (isSpace) {
+                    colors.keyRadiusDp?.let { dp(it) } ?: dp(8f)
+                } else if (isReducedBottomKey) {
+                    colors.keyRadiusDp?.let { dp(it) } ?: dp(8f)
+                } else {
+                    colors.keyRadiusDp?.let { dp(it) } ?: when (key.action) {
+                        KeyCode.LAYER, KeyCode.ENTER, KeyCode.SHIFT -> height / 2f
+                        else -> dp(KeyboardGeometry.LETTER_RADIUS_DP)
+                    }
+                }
+            }
+        }
+
         if (isSpace) {
             val vInset = dp(7.5f)
             val hInset = dp(4f)
             rect.set(hInset, vInset, width.toFloat() - hInset, height.toFloat() - vInset)
-            radius = colors.keyRadiusDp?.let { dp(it) } ?: dp(8f)
         } else if (isReducedBottomKey) {
             val vInset = dp(5.5f)
             val hInset = dp(1.5f)
             rect.set(hInset, vInset, width.toFloat() - hInset, height.toFloat() - vInset)
-            radius = colors.keyRadiusDp?.let { dp(it) } ?: dp(8f)
         } else {
             rect.set(0f, 0f, width.toFloat(), height.toFloat())
-            radius = colors.keyRadiusDp?.let { dp(it) } ?: when (key.action) {
-                KeyCode.LAYER, KeyCode.ENTER, KeyCode.SHIFT -> height / 2f
-                else -> dp(KeyboardGeometry.LETTER_RADIUS_DP)
-            }
         }
+
+        // Key Style Specific Rendering
+        if (colors.keyStyle == "minimal") {
+            fill.color = ColorUtils.setAlphaComponent(fill.color, (fill.alpha * 0.65f).toInt())
+        }
+
+        // Draw Glow if active / pressed or configured
+        if (colors.glowColor != null || (pressed && colors.animationType == "glow")) {
+            val glow = colors.glowColor ?: drawInk
+            fill.style = Paint.Style.STROKE
+            fill.strokeWidth = dp(2.5f)
+            fill.color = ColorUtils.setAlphaComponent(glow, if (pressed) 220 else 90)
+            canvas.drawRoundRect(rect, radius, radius, fill)
+            fill.style = Paint.Style.FILL
+            fill.color = if (currentHighlight > 0f) ColorUtils.blendARGB(finalBase, if (colors.dark) 0xFFFFFFFF.toInt() else 0xFF000000.toInt(), 0.18f * currentHighlight) else finalBase
+        }
+
         canvas.drawRoundRect(rect, radius, radius, fill)
 
-        if (colors.highContrast) {
+        // Draw iOS / Material bottom shadow accent
+        if (colors.keyStyle == "ios" && !pressed) {
+            fill.style = Paint.Style.STROKE
+            fill.strokeWidth = dp(1f)
+            fill.color = if (colors.dark) 0x33000000 else 0x22000000
+            canvas.drawLine(rect.left + radius, rect.bottom, rect.right - radius, rect.bottom, fill)
+            fill.style = Paint.Style.FILL
+        } else if (colors.keyStyle == "neumorphic") {
+            fill.style = Paint.Style.STROKE
+            fill.strokeWidth = dp(1.2f)
+            fill.color = if (colors.dark) 0x22FFFFFF else 0x33FFFFFF
+            canvas.drawRoundRect(rect, radius, radius, fill)
+            fill.style = Paint.Style.FILL
+        }
+
+        // Border rendering
+        if (colors.borderWidthDp > 0f && colors.borderColor != null) {
+            fill.style = Paint.Style.STROKE
+            fill.strokeWidth = dp(colors.borderWidthDp)
+            fill.color = colors.borderColor!!
+            canvas.drawRoundRect(rect, radius, radius, fill)
+            fill.style = Paint.Style.FILL
+        } else if (colors.highContrast) {
             fill.style = Paint.Style.STROKE
             fill.strokeWidth = dp(2)
             fill.color = if (isSpace && colors.spaceBarBorder != null) colors.spaceBarBorder!! else drawInk
@@ -135,29 +232,45 @@ internal class KeyCap(context: Context) : View(context) {
         }
         if (key.action == KeyCode.SPACE && key.label.isNotEmpty()) {
             drawSpaceCaption(canvas, key.label, drawInk)
+            labelPaint.typeface = colors.typeface ?: Typeface.DEFAULT
             return
         }
         val text = if (flickActive && key.flickOutput != null) key.flickOutput else key.label
+        val hint = key.hint
+        val hasHint = !hint.isNullOrEmpty() && !flickActive
         if (text.isNotEmpty()) {
             val function = key.utility || text.length > 2 && !KeyTypography.isSinhala(text)
             labelPaint.color = drawInk
-            var textSize = if (function) KeyTypography.functionPx(resources) else KeyTypography.mainPx(resources, text)
-            val maxWidth = width - dp(4)
-            if (maxWidth > 0) {
-                while (textSize > dp(11) && labelPaint.apply { this.textSize = textSize }.measureText(text) > maxWidth) {
-                    textSize *= 0.92f
+            labelPaint.typeface = colors.typeface ?: Typeface.DEFAULT
+
+            // Use cached text measurement if valid to avoid re-measuring in onDraw loop
+            if (cachedText != text || cachedTextWidth != width || cachedTextHeight != height) {
+                var textSize = if (function) KeyTypography.functionPx(resources) else KeyTypography.mainPx(resources, text)
+                val maxWidth = width - dp(4)
+                if (maxWidth > 0) {
+                    labelPaint.textSize = textSize
+                    while (textSize > dp(11) && labelPaint.measureText(text) > maxWidth) {
+                        textSize *= 0.92f
+                        labelPaint.textSize = textSize
+                    }
                 }
+                cachedTextSize = textSize
+                labelPaint.textSize = textSize
+                val fm = labelPaint.fontMetrics
+                val centerY = if (hasHint && !function) height / 2f + dp(2f) else height / 2f
+                cachedBaseline = if (KeyTypography.isSinhala(text)) KeyTypography.sinhalaBaseline(centerY, fm) else KeyTypography.baseline(centerY, fm)
+                cachedText = text
+                cachedTextWidth = width
+                cachedTextHeight = height
             }
-            labelPaint.textSize = textSize
-            val fm = labelPaint.fontMetrics
-            val baseline = if (KeyTypography.isSinhala(text)) KeyTypography.sinhalaBaseline(height / 2f, fm) else KeyTypography.baseline(height / 2f, fm)
-            canvas.drawText(text, width / 2f, baseline, labelPaint)
+
+            labelPaint.textSize = cachedTextSize
+            canvas.drawText(text, width / 2f, cachedBaseline, labelPaint)
         }
-        val hint = key.hint
-        if (!hint.isNullOrEmpty() && !flickActive) {
-            hintPaint.color = ColorUtils.setAlphaComponent(drawInk, 150)
+        if (hasHint) {
+            hintPaint.color = ColorUtils.setAlphaComponent(drawInk, if (colors.dark) 140 else 125)
             hintPaint.textSize = KeyTypography.hintPx(resources)
-            canvas.drawText(hint, width - dp(4), dp(13), hintPaint)
+            canvas.drawText(hint!!, width - dp(4.5f), dp(12.5f), hintPaint)
         }
     }
 
@@ -242,7 +355,7 @@ internal class KeyCap(context: Context) : View(context) {
         val textSize = fitSpaceSize(text, 13f * density)
         labelPaint.textSize = textSize
         labelPaint.color = ColorUtils.setAlphaComponent(ink, if (colors.dark) 190 else 160)
-        labelPaint.typeface = Typeface.create(Typeface.DEFAULT, Typeface.NORMAL)
+        labelPaint.typeface = colors.typeface ?: Typeface.DEFAULT
         val fm = labelPaint.fontMetrics
         val centerX = width / 2f
         val centerY = height / 2f
@@ -283,6 +396,6 @@ internal class KeyCap(context: Context) : View(context) {
         spaceAnimator = null
     }
 
-    private fun dp(value: Int) = value * resources.displayMetrics.density
-    private fun dp(value: Float) = value * resources.displayMetrics.density
+    private fun dp(value: Int) = value * density
+    private fun dp(value: Float) = value * density
 }

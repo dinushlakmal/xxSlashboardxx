@@ -4,6 +4,7 @@ import android.Manifest
 import android.app.Activity
 import android.content.ComponentName
 import android.content.Intent
+import kotlinx.coroutines.launch
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
@@ -166,6 +167,7 @@ fun SettingsScreen(prefs: KeyboardPreferences, onThemeChanged: (String) -> Unit 
     var themeIdToEdit by remember { mutableStateOf<String?>(null) }
     var showToolbarCustomization by remember { mutableStateOf(false) }
     var showTranslatorScreen by remember { mutableStateOf(false) }
+    var showFontStudio by remember { mutableStateOf(false) }
 
     DisposableEffect(prefs) {
         val listener = android.content.SharedPreferences.OnSharedPreferenceChangeListener { _, _ ->
@@ -226,12 +228,14 @@ fun SettingsScreen(prefs: KeyboardPreferences, onThemeChanged: (String) -> Unit 
             themeIdToEdit = themeIdToEdit,
             onThemeCreated = {
                 onThemeChanged(it)
+                refresh++
                 showThemeCreator = false
                 themeIdToEdit = null
             },
             onBack = {
                 showThemeCreator = false
                 themeIdToEdit = null
+                refresh++
             }
         )
         return
@@ -240,6 +244,7 @@ fun SettingsScreen(prefs: KeyboardPreferences, onThemeChanged: (String) -> Unit 
     if (showThemesPage) {
         ThemeLayoutsScreen(
             prefs = prefs,
+            externalRefresh = refresh,
             onThemeChanged = {
                 onThemeChanged(it)
                 refresh++
@@ -271,11 +276,25 @@ fun SettingsScreen(prefs: KeyboardPreferences, onThemeChanged: (String) -> Unit 
         return
     }
 
+    if (showFontStudio) {
+        org.slashboard.ime.settings.font.FontStudioScreen(
+            prefs = prefs,
+            onBack = {
+                showFontStudio = false
+                refresh++
+            }
+        )
+        return
+    }
+
     var expandedSection by remember { mutableStateOf<String?>("Setup") }
     var showExitConfirmDialog by remember { mutableStateOf(false) }
+    var isCheckingForUpdates by remember { mutableStateOf(false) }
+    var manualUpdateInfo by remember { mutableStateOf<org.slashboard.ime.update.UpdateInfo?>(null) }
+    val scope = rememberCoroutineScope()
 
     // Intercept back button to show exit confirmation when on the root screen
-    BackHandler(enabled = !showThemesPage && !showThemeCreator && !showToolbarCustomization && !showTranslatorScreen) {
+    BackHandler(enabled = !showThemesPage && !showThemeCreator && !showToolbarCustomization && !showTranslatorScreen && !showFontStudio) {
         if (prefs.confirmExit) {
             showExitConfirmDialog = true
         } else {
@@ -415,6 +434,54 @@ fun SettingsScreen(prefs: KeyboardPreferences, onThemeChanged: (String) -> Unit 
                 }
             },
             containerColor = Color(0xFF1E2430),
+            shape = RoundedCornerShape(20.dp)
+        )
+    }
+
+    manualUpdateInfo?.let { info ->
+        AlertDialog(
+            onDismissRequest = { manualUpdateInfo = null },
+            icon = {
+                Icon(
+                    Icons.Default.SystemUpdate,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(32.dp)
+                )
+            },
+            title = {
+                Text(
+                    "නව යාවත්කාලීන කිරීමක් (Update Available)",
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 18.sp
+                )
+            },
+            text = {
+                Column {
+                    Text("Version: ${info.latestVersion}", fontWeight = FontWeight.SemiBold)
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(info.releaseNotes, fontSize = 14.sp)
+                }
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        val updateManager = org.slashboard.ime.update.UpdateManager(context)
+                        updateManager.startDownloadAndInstall(info.downloadUrl)
+                        manualUpdateInfo = null
+                        android.widget.Toast.makeText(context, "බාගත කිරීම ආරම්භ විය (Downloading...)", android.widget.Toast.LENGTH_SHORT).show()
+                    }
+                ) {
+                    Text("යාවත්කාලීන කරන්න (Update)", fontWeight = FontWeight.Bold)
+                }
+            },
+            dismissButton = {
+                OutlinedButton(
+                    onClick = { manualUpdateInfo = null }
+                ) {
+                    Text("පසුවට (Later)")
+                }
+            },
             shape = RoundedCornerShape(20.dp)
         )
     }
@@ -759,10 +826,16 @@ fun SettingsScreen(prefs: KeyboardPreferences, onThemeChanged: (String) -> Unit 
             item {
                 AccordionSection("Themes & Appearance", Icons.Default.Palette, expanded = expandedSection == "Appearance" || expandedSection == "Themes & Appearance", onExpandedChange = { expandedSection = if (it) "Themes & Appearance" else null }) {
                     SettingsActionRow(
-                        title = "Layouts",
-                        summary = "Browse and preview theme designs",
+                        title = "Layouts & Themes",
+                        summary = "15+ Themes, gradients, custom wallpapers & styles",
                         icon = Icons.Default.Palette,
                         onClick = { showThemesPage = true }
+                    )
+                    SettingsActionRow(
+                        title = "Font Studio (500+ Fonts)",
+                        summary = "30 categories, live preview, copy styled text & import .TTF",
+                        icon = Icons.Default.FontDownload,
+                        onClick = { showFontStudio = true }
                     )
                     SettingsActionRow(
                         title = "Top Bar Icons",
@@ -800,15 +873,29 @@ fun SettingsScreen(prefs: KeyboardPreferences, onThemeChanged: (String) -> Unit 
                         checked = prefs.highContrast,
                         onCheckedChange = { prefs.highContrast = it; refresh++ }
                     )
+                    SettingsToggleRow(
+                        title = "Transparent Keyboard Background",
+                        summary = "Enable transparent keyboard background instead of solid color",
+                        icon = Icons.Default.Opacity,
+                        checked = prefs.transparentBackground,
+                        onCheckedChange = { prefs.transparentBackground = it; refresh++ }
+                    )
                     SettingsSliderRow(
                         title = stringResource(R.string.long_press_delay),
                         summary = stringResource(R.string.long_press_delay_summary),
                         value = prefs.longPressMs.toFloat(),
-                        valueRange = 150f..500f,
-                        steps = 7,
+                        valueRange = 120f..500f,
+                        steps = 0,
                         icon = Icons.Default.Timer,
                         valueLabel = "${prefs.longPressMs}ms",
-                        onValueChange = { prefs.longPressMs = it.toLong(); refresh++ }
+                        onValueChange = { prefs.longPressMs = kotlin.math.round(it / 10f).toLong() * 10L },
+                        presets = listOf(
+                            "150ms" to 150f,
+                            "200ms" to 200f,
+                            "280ms" to 280f,
+                            "350ms" to 350f,
+                            "450ms" to 450f
+                        )
                     )
                     SettingsChoiceRow(
                         title = stringResource(R.string.thumb_reach_title),
@@ -1003,6 +1090,18 @@ fun SettingsScreen(prefs: KeyboardPreferences, onThemeChanged: (String) -> Unit 
                             textAlign = TextAlign.Center,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        OutlinedButton(
+                            onClick = {
+                                val intent = android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse("https://dinushlakmal.github.io/xxSlashboardxx/"))
+                                context.startActivity(intent)
+                            },
+                            shape = RoundedCornerShape(12.dp)
+                        ) {
+                            Icon(Icons.Default.Language, contentDescription = null, modifier = Modifier.size(18.dp))
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text("නිල වෙබ් අඩවිය (Official Website)")
+                        }
                         HorizontalDivider(
                             modifier = Modifier.fillMaxWidth(0.5f).padding(vertical = 4.dp),
                             color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
@@ -1020,6 +1119,32 @@ fun SettingsScreen(prefs: KeyboardPreferences, onThemeChanged: (String) -> Unit 
                             )
                         }
                         Spacer(modifier = Modifier.height(4.dp))
+                        Button(
+                            onClick = {
+                                if (isCheckingForUpdates) return@Button
+                                isCheckingForUpdates = true
+                                scope.launch {
+                                    val info = org.slashboard.ime.update.UpdateManager(context).checkForUpdates(BuildConfig.VERSION_NAME)
+                                    isCheckingForUpdates = false
+                                    if (info.hasUpdate) {
+                                        manualUpdateInfo = info
+                                    } else {
+                                        android.widget.Toast.makeText(context, "යෙදුම යාවත්කාලීනයි (Up to date)", android.widget.Toast.LENGTH_SHORT).show()
+                                    }
+                                }
+                            },
+                            shape = RoundedCornerShape(12.dp),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            if (isCheckingForUpdates) {
+                                CircularProgressIndicator(modifier = Modifier.size(18.dp), color = MaterialTheme.colorScheme.onPrimary, strokeWidth = 2.dp)
+                            } else {
+                                Icon(Icons.Default.SystemUpdate, contentDescription = null, modifier = Modifier.size(18.dp))
+                            }
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text("යාවත්කාලීන පරීක්ෂා කරන්න (Check Updates)", fontWeight = FontWeight.Bold)
+                        }
+
                         Button(
                             onClick = {
                                 if (prefs.confirmExit) {
@@ -1532,47 +1657,95 @@ fun SettingsSliderRow(
     steps: Int = 0,
     icon: androidx.compose.ui.graphics.vector.ImageVector,
     valueLabel: String,
-    onValueChange: (Float) -> Unit
+    onValueChange: (Float) -> Unit,
+    presets: List<Pair<String, Float>> = emptyList()
 ) {
-    Row(
+    var localValue by remember(value) { mutableFloatStateOf(value) }
+
+    Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 20.dp, vertical = 10.dp),
-        verticalAlignment = Alignment.CenterVertically
+            .padding(horizontal = 20.dp, vertical = 10.dp)
     ) {
-        Icon(
-            imageVector = icon,
-            contentDescription = null,
-            tint = MaterialTheme.colorScheme.secondary,
-            modifier = Modifier.size(24.dp)
-        )
-        Spacer(modifier = Modifier.width(16.dp))
-        Column(modifier = Modifier.weight(1f)) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(text = title, style = MaterialTheme.typography.bodyLarge)
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.secondary,
+                modifier = Modifier.size(24.dp)
+            )
+            Spacer(modifier = Modifier.width(16.dp))
+            Column(modifier = Modifier.weight(1f)) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(text = title, style = MaterialTheme.typography.bodyLarge)
+                    Text(
+                        text = "${localValue.toInt()}ms",
+                        style = MaterialTheme.typography.labelMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
                 Text(
-                    text = valueLabel,
-                    style = MaterialTheme.typography.labelMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.primary
+                    text = summary,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
-            Text(
-                text = summary,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            Slider(
-                value = value,
-                onValueChange = onValueChange,
-                valueRange = valueRange,
-                steps = steps,
-                modifier = Modifier.fillMaxWidth().padding(top = 2.dp)
-            )
+        }
+
+        Slider(
+            value = localValue,
+            onValueChange = { newVal ->
+                localValue = newVal
+                onValueChange(newVal)
+            },
+            valueRange = valueRange,
+            steps = steps,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 4.dp)
+        )
+
+        if (presets.isNotEmpty()) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 4.dp),
+                horizontalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                presets.forEach { (label, presetVal) ->
+                    val isSelected = kotlin.math.abs(localValue - presetVal) < 15f
+                    Surface(
+                        onClick = {
+                            localValue = presetVal
+                            onValueChange(presetVal)
+                        },
+                        shape = RoundedCornerShape(12.dp),
+                        color = if (isSelected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                        contentColor = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Box(
+                            modifier = Modifier.padding(vertical = 6.dp, horizontal = 2.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = label,
+                                style = MaterialTheme.typography.labelSmall,
+                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                                maxLines = 1
+                            )
+                        }
+                    }
+                }
+            }
         }
     }
 }
@@ -1582,66 +1755,173 @@ private fun intColor(c: Int): Color = Color(c.toLong() and 0xFFFFFFFFL)
 @Composable
 fun InteractiveKeyboardPreview(prefs: KeyboardPreferences, refresh: Int) {
     var testText by remember { mutableStateOf("") }
-    val lastRefresh = remember { java.util.concurrent.atomic.AtomicInteger(refresh) }
-    Column(modifier = Modifier.fillMaxWidth()) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 14.dp, vertical = 8.dp)
-                .clip(RoundedCornerShape(12.dp))
-        ) {
-            androidx.compose.ui.viewinterop.AndroidView(
-                factory = { ctx ->
-                    val dummyActions = object : org.slashboard.ime.ime.KeyboardActions {
-                        override fun onCharacter(value: String) { testText += value }
-                        override fun onBackspace(word: Boolean) { 
-                            if (testText.isNotEmpty()) testText = testText.dropLast(1)
-                        }
-                        override fun onSpace() { testText += " " }
-                        override fun onEnter() { testText += "\n" }
-                        override fun onCandidate(value: String) {}
-                        override fun onGlobe() {}
-                        override fun onModeRequested(mode: org.slashboard.ime.engine.InputMode) {}
-                        override fun onHide() {}
-                        override fun onCursorDelta(delta: Int) {}
-                        override fun onPressFeedback() {
-                            KeySoundPlayer.getInstance(ctx).playIfEnabled(prefs)
-                        }
-                    }
-                    val kv = org.slashboard.ime.ime.KeyboardView(ctx, dummyActions, prefs)
-                    kv.configure(org.slashboard.ime.engine.InputMode.SMART_PHONETIC, false, "↵")
-                    kv
-                },
-                update = { view: org.slashboard.ime.ime.KeyboardView ->
-                    if (lastRefresh.get() != refresh) {
-                        lastRefresh.set(refresh)
-                        view.applyTheme()
-                        view.configure(org.slashboard.ime.engine.InputMode.SMART_PHONETIC, false, "↵")
-                    }
-                },
-                modifier = Modifier.fillMaxWidth()
-            )
-        }
+    val context = LocalContext.current
+    val currentTheme = prefs.theme
+    val palette = remember(currentTheme, prefs.highContrast, prefs.transparentBackground, refresh) {
+        KeyboardPaletteResolver.resolve(context, currentTheme, prefs.highContrast)
+    }
 
-        OutlinedTextField(
-            value = testText,
-            onValueChange = { testText = it },
-            label = { Text("Tap on the preview above to test") },
-            placeholder = { Text("Type here using the preview keyboard...") },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 14.dp, vertical = 6.dp),
-            singleLine = true,
-            readOnly = true,
-            shape = RoundedCornerShape(20.dp)
-        )
+    fun intToHex(c: Int): String = String.format("#%06X", 0xFFFFFF and c)
+
+    val isTransparent = prefs.transparentBackground || currentTheme.contains("transparent") || palette.background == android.graphics.Color.TRANSPARENT
+    val bgHex = remember(palette.background, isTransparent) {
+        if (isTransparent) "transparent" else intToHex(palette.background)
+    }
+    val effectiveKeyOpacity = remember(palette.keyOpacity, isTransparent) {
+        if (isTransparent && palette.keyOpacity >= 1.0f) 0.68f else palette.keyOpacity
+    }
+    val effectiveBorderWidth = remember(palette.borderWidthDp, isTransparent) {
+        if (isTransparent && palette.borderWidthDp == 0f) 1f else palette.borderWidthDp
+    }
+    val keyHex = remember(palette.key) { intToHex(palette.key) }
+    val actionHex = remember(palette.action) { intToHex(palette.action) }
+    val utilHex = remember(palette.utility) { intToHex(palette.utility) }
+    val textHex = remember(palette.dark) { if (palette.dark) "#FFFFFF" else "#0F172A" }
+    val inkHex = remember(palette.ink) { intToHex(palette.ink) }
+    val spaceHex = remember(palette.spaceKey, palette.key) { intToHex(palette.spaceKey ?: palette.key) }
+    val spaceBorderHex = remember(palette.spaceBorder, palette.ink) { intToHex(palette.spaceBorder ?: palette.ink) }
+    val gradStartHex = remember(palette.gradientStart, bgHex) { palette.gradientStart?.let { intToHex(it) } ?: bgHex }
+    val gradEndHex = remember(palette.gradientEnd, bgHex) { palette.gradientEnd?.let { intToHex(it) } ?: bgHex }
+    val borderColorHex = remember(palette.borderColor, inkHex, isTransparent, palette.dark) {
+        if (isTransparent && palette.borderColor == null) {
+            if (palette.dark) "#55FFFFFF" else "#33000000"
+        } else {
+            palette.borderColor?.let { intToHex(it) } ?: inkHex
+        }
+    }
+
+    Surface(
+        shape = RoundedCornerShape(14.dp),
+        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 14.dp, vertical = 4.dp)
+    ) {
+        Column(
+            modifier = Modifier.padding(horizontal = 8.dp, vertical = 6.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    Icon(
+                        Icons.Default.Visibility,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(15.dp)
+                    )
+                    Text(
+                        "Live Keyboard Preview (සජීවී පෙරදසුන)",
+                        style = MaterialTheme.typography.labelMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary,
+                        fontSize = 11.5.sp
+                    )
+                }
+
+                Surface(
+                    shape = RoundedCornerShape(6.dp),
+                    color = if (isTransparent) MaterialTheme.colorScheme.tertiaryContainer else MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.85f)
+                ) {
+                    Text(
+                        text = if (isTransparent) "Glass Mode (පාරදෘශ්‍ය)" else "Real-Time",
+                        fontSize = 9.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = if (isTransparent) MaterialTheme.colorScheme.onTertiaryContainer else MaterialTheme.colorScheme.onPrimaryContainer,
+                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                    )
+                }
+            }
+
+            // Compact Live Keyboard Preview - instant visual rendering for every style change
+            org.slashboard.ime.settings.theme.ThemeLiveKeyboardPreview(
+                backgroundHex = bgHex,
+                keyHex = keyHex,
+                actionHex = actionHex,
+                utilityHex = utilHex,
+                textHex = textHex,
+                inkHex = inkHex,
+                spaceKeyHex = spaceHex,
+                spaceBorderHex = spaceBorderHex,
+                dark = palette.dark,
+                blurEffect = palette.blurEffect,
+                keyOpacity = effectiveKeyOpacity,
+                keyRadiusDp = palette.keyRadiusDp ?: 6f,
+                bgImagePath = palette.backgroundImagePath,
+                keyStyle = palette.keyStyle,
+                enableGradient = palette.gradientStart != null && palette.gradientEnd != null,
+                gradientStartHex = gradStartHex,
+                gradientEndHex = gradEndHex,
+                borderWidthDp = effectiveBorderWidth,
+                borderColorHex = borderColorHex,
+                onKeyTap = { k ->
+                    if (k == "⌫") {
+                        if (testText.isNotEmpty()) testText = testText.dropLast(1)
+                    } else if (k == "\n") {
+                        testText += " "
+                    } else {
+                        testText += k
+                    }
+                }
+            )
+
+            // Live text strip for testing key taps
+            Surface(
+                shape = RoundedCornerShape(8.dp),
+                color = MaterialTheme.colorScheme.surface.copy(alpha = 0.8f),
+                modifier = Modifier.fillMaxWidth().padding(top = 2.dp)
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 8.dp, vertical = 4.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(
+                        text = if (testText.isEmpty()) "Tap keys above to test live preview..." else testText,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = if (testText.isEmpty()) MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                                else MaterialTheme.colorScheme.onSurface,
+                        maxLines = 1,
+                        fontSize = 11.sp,
+                        modifier = Modifier.weight(1f)
+                    )
+                    if (testText.isNotEmpty()) {
+                        Text(
+                            text = "Clear",
+                            fontSize = 10.5.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier
+                                .clickable { testText = "" }
+                                .padding(horizontal = 4.dp, vertical = 2.dp)
+                        )
+                    }
+                }
+            }
+        }
     }
 }
+
+data class ThemeEntry(
+    val id: String,
+    val name: String,
+    val category: String, // "dark", "light", "vibrant", "custom"
+    val isCustom: Boolean = false
+)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ThemeLayoutsScreen(
     prefs: KeyboardPreferences,
+    externalRefresh: Int = 0,
     onThemeChanged: (String) -> Unit = {},
     onBack: () -> Unit,
     onCreateTheme: () -> Unit = {},
@@ -1649,47 +1929,120 @@ fun ThemeLayoutsScreen(
     onDeleteTheme: (String) -> Unit = {}
 ) {
     val context = LocalContext.current
-    var refresh by remember { mutableStateOf(0) }
-    val launcher = androidx.activity.compose.rememberLauncherForActivityResult(
-        androidx.activity.result.contract.ActivityResultContracts.GetContent()
+    var localRefresh by remember { mutableStateOf(0) }
+    val refresh = externalRefresh + localRefresh
+    var searchQuery by remember { mutableStateOf("") }
+    var selectedCategoryIndex by remember { mutableStateOf(0) } // 0: All, 1: Dark, 2: Light, 3: Vibrant, 4: Custom
+    var themeToDelete by remember { mutableStateOf<String?>(null) }
+    var snackbarMessage by remember { mutableStateOf<String?>(null) }
+
+    val importLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.GetContent()
     ) { uri ->
         if (uri != null) {
             val id = org.slashboard.ime.settings.theme.CustomThemeManager.importTheme(context, uri)
             if (id != null) {
                 prefs.theme = id
                 onThemeChanged(id)
-                refresh++
+                localRefresh++
+                snackbarMessage = "Theme imported successfully!"
+            } else {
+                snackbarMessage = "Could not import theme. Invalid file."
             }
         }
     }
-    val customThemes = remember(refresh) { org.slashboard.ime.settings.theme.CustomThemeManager.getThemes(context) }
-    var selectedTabIndex by remember { mutableStateOf(0) }
-    val baseThemes = remember { listOf(
-        "system", "light", "dark", "ocean_blue", "forest_green", "sunset",
-        "cyberpunk", "dracula", "nord", "monokai", "lavender", "rose_gold",
-        "midnight", "neon_green", "cherry", "coffee", "deep_space", "mint",
-        "crimson", "solarized_dark", "solarized_light", "matcha", "coral",
-        "peach", "royal_purple", "gold", "silver", "emerald", "ruby",
-        "sapphire", "amethyst", "aquamarine", "obsidian"
-    ) }
-    val currentThemes = if (selectedTabIndex == 0) baseThemes else customThemes.map { it.id }
+
+    val customThemes = remember(refresh) { 
+        org.slashboard.ime.settings.theme.CustomThemeManager.getThemes(context) 
+    }
+
+    val preInstalledThemes = remember {
+        listOf(
+            ThemeEntry("transparent_glass", "Transparent Glass Dark", "transparent"),
+            ThemeEntry("transparent_glass_light", "Transparent Glass Light", "transparent"),
+            ThemeEntry("catppuccin_mocha", "Catppuccin Mocha", "dark"),
+            ThemeEntry("dracula", "Dracula Purple", "dark"),
+            ThemeEntry("tokyo_night", "Tokyo Night", "dark"),
+            ThemeEntry("nord", "Nordic Frost", "dark"),
+            ThemeEntry("ocean_wave", "Ocean Wave", "vibrant"),
+            ThemeEntry("neon_cyberpunk", "Neon Cyberpunk", "vibrant"),
+            ThemeEntry("sunset", "Sunset Flame", "vibrant"),
+            ThemeEntry("emerald", "Emerald Forest", "vibrant"),
+            ThemeEntry("gold", "Royal Gold", "vibrant"),
+            ThemeEntry("material_light", "Material 3 Light", "light"),
+            ThemeEntry("ios_style", "iOS Silver", "light"),
+            ThemeEntry("rose_gold", "Rose Gold", "light"),
+            ThemeEntry("cherry_blossom", "Cherry Blossom", "light"),
+            ThemeEntry("lavender", "Lavender Dream", "light"),
+            ThemeEntry("mint", "Fresh Mint", "light"),
+            ThemeEntry("amoled_black", "AMOLED Pure Black", "dark"),
+            ThemeEntry("dark", "Slashboard Slate Dark", "dark"),
+            ThemeEntry("light", "Slashboard Clean Light", "light"),
+            ThemeEntry("monokai", "Monokai Pro", "dark"),
+            ThemeEntry("solarized_dark", "Solarized Dark", "dark"),
+            ThemeEntry("solarized_light", "Solarized Light", "light"),
+            ThemeEntry("gruvbox_dark", "Gruvbox Retro", "dark"),
+            ThemeEntry("rose_pine", "Rosé Pine", "dark"),
+            ThemeEntry("deep_space", "Deep Space", "dark"),
+            ThemeEntry("coffee", "Espresso Coffee", "dark"),
+            ThemeEntry("crimson", "Crimson Red", "dark"),
+            ThemeEntry("royal_purple", "Royal Amethyst", "vibrant"),
+            ThemeEntry("sapphire", "Deep Sapphire", "vibrant"),
+            ThemeEntry("ruby", "Ruby Wine", "vibrant"),
+            ThemeEntry("aquamarine", "Aquamarine", "vibrant"),
+            ThemeEntry("obsidian", "Obsidian Black", "dark"),
+            ThemeEntry("forest_green", "Forest Green", "dark"),
+            ThemeEntry("cyberpunk", "Cyberpunk Yellow", "vibrant"),
+            ThemeEntry("system", "Dynamic Material You", "dark")
+        )
+    }
+
+    val allThemeEntries = remember(customThemes, preInstalledThemes) {
+        val customEntries = customThemes.map { 
+            ThemeEntry(
+                id = it.id,
+                name = it.name,
+                category = if (it.dark) "dark" else "light",
+                isCustom = true
+            )
+        }
+        customEntries + preInstalledThemes
+    }
+
+    val filteredThemes = remember(allThemeEntries, selectedCategoryIndex, searchQuery) {
+        allThemeEntries.filter { item ->
+            val matchesCategory = when (selectedCategoryIndex) {
+                0 -> true // All
+                1 -> item.category == "dark"
+                2 -> item.category == "light"
+                3 -> item.category == "transparent" || item.id.contains("transparent")
+                4 -> item.category == "vibrant"
+                5 -> item.isCustom
+                else -> true
+            }
+            val matchesSearch = if (searchQuery.isBlank()) true else {
+                item.name.contains(searchQuery, ignoreCase = true) || item.id.contains(searchQuery, ignoreCase = true)
+            }
+            matchesCategory && matchesSearch
+        }
+    }
 
     BackHandler {
         onBack()
     }
 
     Scaffold(
-        containerColor = Color.Transparent,
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             TopAppBar(
-                title = { Text("Layouts", fontWeight = FontWeight.SemiBold) },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent),
+                title = { Text("Theme Store & Layouts", fontWeight = FontWeight.Bold) },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surface),
                 actions = {
                     IconButton(onClick = onCreateTheme) {
-                        Icon(Icons.Default.Edit, "Create Theme")
+                        Icon(Icons.Default.AddCircle, contentDescription = "Create Custom Theme", tint = MaterialTheme.colorScheme.primary)
                     }
-                    IconButton(onClick = { launcher.launch("*/*") }) {
-                        Icon(Icons.Default.Add, "Import Theme")
+                    IconButton(onClick = { importLauncher.launch("*/*") }) {
+                        Icon(Icons.Default.FileOpen, contentDescription = "Import Theme File")
                     }
                 },
                 navigationIcon = {
@@ -1701,6 +2054,15 @@ fun ThemeLayoutsScreen(
                     }
                 }
             )
+        },
+        floatingActionButton = {
+            ExtendedFloatingActionButton(
+                onClick = onCreateTheme,
+                icon = { Icon(Icons.Default.Palette, contentDescription = null) },
+                text = { Text("Create Theme (තීම් එකක් හදන්න)", fontWeight = FontWeight.Bold) },
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary
+            )
         }
     ) { padding ->
         Column(
@@ -1708,66 +2070,218 @@ fun ThemeLayoutsScreen(
                 .fillMaxSize()
                 .padding(padding)
         ) {
+            // Live Interactive Preview Header at top
             InteractiveKeyboardPreview(prefs = prefs, refresh = refresh)
 
-            androidx.compose.material3.TabRow(
-                selectedTabIndex = selectedTabIndex,
-                containerColor = Color.Transparent,
-                divider = {}
+            // Transparent Background Toggle & Stats
+            Surface(
+                color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f),
+                shape = RoundedCornerShape(12.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 14.dp, vertical = 2.dp)
             ) {
-                androidx.compose.material3.Tab(
-                    selected = selectedTabIndex == 0,
-                    onClick = { selectedTabIndex = 0 },
-                    text = { Text("Pre-installed") }
-                )
-                androidx.compose.material3.Tab(
-                    selected = selectedTabIndex == 1,
-                    onClick = { selectedTabIndex = 1 },
-                    text = { Text("Custom") }
-                )
-            }
-
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(2),
-                contentPadding = PaddingValues(
-                    start = 14.dp,
-                    end = 14.dp,
-                    top = 6.dp,
-                    bottom = 24.dp
-                ),
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
-                modifier = Modifier.fillMaxSize()
-            ) {
-                items(currentThemes) { themeValue ->
-                    val palette = remember(themeValue, prefs.highContrast, refresh) {
-                        KeyboardPaletteResolver.resolve(context, themeValue, prefs.highContrast)
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 12.dp, vertical = 6.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Icon(Icons.Default.Opacity, contentDescription = null, modifier = Modifier.size(18.dp))
+                        Text(
+                            text = "Transparent Background",
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.Medium
+                        )
                     }
-                    val isSelected = prefs.theme == themeValue
-
-                    MiniKeyboardPreview(
-                        palette = palette,
-                        isSelected = isSelected,
-                        onClick = {
-                            prefs.theme = themeValue
-                            onThemeChanged(themeValue)
-                            refresh++
-                        },
-                        onEdit = { onEditTheme(themeValue) },
-                        onDelete = if (themeValue.startsWith("custom_")) { { onDeleteTheme(themeValue) } } else null
+                    Switch(
+                        checked = prefs.transparentBackground,
+                        onCheckedChange = {
+                            prefs.transparentBackground = it
+                            localRefresh++
+                        }
                     )
                 }
             }
+
+            // Search Bar
+            OutlinedTextField(
+                value = searchQuery,
+                onValueChange = { searchQuery = it },
+                placeholder = { Text("Search themes (තීම් සොයන්න)...") },
+                leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
+                trailingIcon = if (searchQuery.isNotEmpty()) {
+                    {
+                        IconButton(onClick = { searchQuery = "" }) {
+                            Icon(Icons.Default.Clear, contentDescription = "Clear")
+                        }
+                    }
+                } else null,
+                singleLine = true,
+                shape = RoundedCornerShape(14.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 14.dp, vertical = 6.dp)
+            )
+
+            // Category Filter Tabs
+            val categories = listOf(
+                "All (${allThemeEntries.size})" to Icons.Default.AllInclusive,
+                "Dark" to Icons.Default.DarkMode,
+                "Light" to Icons.Default.LightMode,
+                "Glass" to Icons.Default.Opacity,
+                "Vibrant" to Icons.Default.FlashOn,
+                "Custom (${customThemes.size})" to Icons.Default.Person
+            )
+
+            ScrollableTabRow(
+                selectedTabIndex = selectedCategoryIndex,
+                containerColor = MaterialTheme.colorScheme.surface,
+                edgePadding = 14.dp,
+                divider = { HorizontalDivider() }
+            ) {
+                categories.forEachIndexed { index, (title, icon) ->
+                    Tab(
+                        selected = selectedCategoryIndex == index,
+                        onClick = { selectedCategoryIndex = index },
+                        text = {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(4.dp)
+                            ) {
+                                Icon(icon, contentDescription = null, modifier = Modifier.size(14.dp))
+                                Text(title, fontSize = 12.sp, fontWeight = if (selectedCategoryIndex == index) FontWeight.Bold else FontWeight.Normal)
+                            }
+                        }
+                    )
+                }
+            }
+
+            if (filteredThemes.isEmpty()) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Icon(Icons.Default.Palette, contentDescription = null, modifier = Modifier.size(48.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f))
+                        Text("No themes found", style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        if (selectedCategoryIndex == 4) {
+                            Button(onClick = onCreateTheme, modifier = Modifier.padding(top = 8.dp)) {
+                                Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.padding(end = 4.dp))
+                                Text("Create Your First Theme")
+                            }
+                        }
+                    }
+                }
+            } else {
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(2),
+                    contentPadding = PaddingValues(
+                        start = 14.dp,
+                        end = 14.dp,
+                        top = 10.dp,
+                        bottom = 80.dp
+                    ),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    items(filteredThemes, key = { it.id }) { themeEntry ->
+                        val themeValue = themeEntry.id
+                        val palette = remember(themeValue, prefs.highContrast, refresh) {
+                            KeyboardPaletteResolver.resolve(context, themeValue, prefs.highContrast)
+                        }
+                        val isSelected = prefs.theme == themeValue
+
+                        MiniKeyboardPreview(
+                            palette = palette,
+                            themeName = themeEntry.name,
+                            isSelected = isSelected,
+                            isCustom = themeEntry.isCustom,
+                            onClick = {
+                                prefs.theme = themeValue
+                                onThemeChanged(themeValue)
+                                localRefresh++
+                            },
+                            onEdit = { onEditTheme(themeValue) },
+                            onShare = {
+                                if (themeEntry.isCustom) {
+                                    org.slashboard.ime.settings.theme.CustomThemeManager.shareThemeText(context, themeValue)
+                                } else {
+                                    // Duplicate into custom and share
+                                    val newId = org.slashboard.ime.settings.theme.CustomThemeManager.duplicateTheme(context, themeValue)
+                                    if (newId != null) {
+                                        org.slashboard.ime.settings.theme.CustomThemeManager.shareThemeText(context, newId)
+                                    }
+                                }
+                            },
+                            onDuplicate = {
+                                val newId = org.slashboard.ime.settings.theme.CustomThemeManager.duplicateTheme(context, themeValue)
+                                if (newId != null) {
+                                    prefs.theme = newId
+                                    onThemeChanged(newId)
+                                    localRefresh++
+                                    snackbarMessage = "Theme duplicated into Custom Themes!"
+                                }
+                            },
+                            onDelete = if (themeEntry.isCustom) {
+                                { themeToDelete = themeValue }
+                            } else null
+                        )
+                    }
+                }
+            }
         }
+    }
+
+    // Delete Confirmation Dialog
+    if (themeToDelete != null) {
+        val targetId = themeToDelete!!
+        AlertDialog(
+            onDismissRequest = { themeToDelete = null },
+            title = { Text("Delete Custom Theme?") },
+            text = { Text("Are you sure you want to delete this custom theme? This action cannot be undone.") },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        onDeleteTheme(targetId)
+                        themeToDelete = null
+                        localRefresh++
+                    },
+                    colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error)
+                ) {
+                    Text("Delete (මකන්න)", fontWeight = FontWeight.Bold)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { themeToDelete = null }) {
+                    Text("Cancel")
+                }
+            }
+        )
     }
 }
 
 @Composable
 fun MiniKeyboardPreview(
     palette: KeyboardPalette,
+    themeName: String,
     isSelected: Boolean,
+    isCustom: Boolean = false,
     onClick: () -> Unit,
     onEdit: (() -> Unit)? = null,
+    onShare: (() -> Unit)? = null,
+    onDuplicate: (() -> Unit)? = null,
     onDelete: (() -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
@@ -1812,7 +2326,6 @@ fun MiniKeyboardPreview(
         elevation = CardDefaults.cardElevation(defaultElevation = animatedElevation),
         modifier = modifier
             .fillMaxWidth()
-            .aspectRatio(1.35f)
             .scale(animatedScale)
             .clickable(
                 interactionSource = interactionSource,
@@ -1820,172 +2333,199 @@ fun MiniKeyboardPreview(
                 onClick = onClick
             )
     ) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(8.dp)
-                .drawBehind {
-                    val keyColor = Color(palette.key.toLong() and 0xFFFFFFFFL)
-                    val utilColor = Color(palette.utility.toLong() and 0xFFFFFFFFL)
-                    val actionColor = Color(palette.action.toLong() and 0xFFFFFFFFL)
-                    val actionTextColor = Color(palette.actionText.toLong() and 0xFFFFFFFFL)
-                    val inkColor = Color(palette.ink.toLong() and 0xFFFFFFFFL)
+        Column(modifier = Modifier.fillMaxWidth()) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .aspectRatio(1.4f)
+                    .padding(6.dp)
+                    .drawBehind {
+                        val keyColor = Color(palette.key.toLong() and 0xFFFFFFFFL)
+                        val utilColor = Color(palette.utility.toLong() and 0xFFFFFFFFL)
+                        val actionColor = Color(palette.action.toLong() and 0xFFFFFFFFL)
+                        val actionTextColor = Color(palette.actionText.toLong() and 0xFFFFFFFFL)
+                        val inkColor = Color(palette.ink.toLong() and 0xFFFFFFFFL)
 
-                    val spacing = 2.dp.toPx()
-                    val radius = CornerRadius(3.dp.toPx())
-                    val dotRadius = 1.5.dp.toPx()
+                        val spacing = 2.dp.toPx()
+                        val radius = CornerRadius(3.dp.toPx())
+                        val dotRadius = 1.5.dp.toPx()
 
-                    val contentWidth = size.width
-                    if (contentWidth <= 0f || size.height <= 0f) return@drawBehind
-                    
-                    // Vertical arrangement computation
-                    val rowHeight = 14.dp.toPx()
-                    val barHeight = 4.dp.toPx()
-                    // Total height needed for content = barHeight + 4 * rowHeight
-                    val totalContentHeight = barHeight + (4 * rowHeight)
-                    val availableVerticalSpace = size.height - totalContentHeight
-                    val rowSpacing = (availableVerticalSpace / 4f).coerceAtLeast(0f)
+                        val contentWidth = size.width
+                        if (contentWidth <= 0f || size.height <= 0f) return@drawBehind
+                        
+                        // Vertical arrangement computation
+                        val rowHeight = 13.dp.toPx()
+                        val barHeight = 4.dp.toPx()
+                        val totalContentHeight = barHeight + (4 * rowHeight)
+                        val availableVerticalSpace = size.height - totalContentHeight
+                        val rowSpacing = (availableVerticalSpace / 4f).coerceAtLeast(0f)
 
-                    var currentY = 0f
+                        var currentY = 0f
 
-                    // Suggestion bar indicator (3 items: 1f, 1.5f, 1f weight)
-                    val barSpacing = 4.dp.toPx()
-                    val barPad = 4.dp.toPx()
-                    val barAvailableWidth = contentWidth - 2 * barPad - 2 * barSpacing
-                    val barUnit = (barAvailableWidth / 3.5f).coerceAtLeast(0f)
-                    
-                    var barX = barPad
-                    // Item 1
-                    drawRoundRect(color = inkColor.copy(alpha = 0.25f), topLeft = Offset(barX, currentY + 0.5.dp.toPx()), size = Size(barUnit, 3.dp.toPx()), cornerRadius = CornerRadius(1.5.dp.toPx()))
-                    barX += barUnit + barSpacing
-                    // Item 2
-                    drawRoundRect(color = inkColor.copy(alpha = 0.45f), topLeft = Offset(barX, currentY), size = Size(1.5f * barUnit, 4.dp.toPx()), cornerRadius = CornerRadius(2.dp.toPx()))
-                    barX += 1.5f * barUnit + barSpacing
-                    // Item 3
-                    drawRoundRect(color = inkColor.copy(alpha = 0.25f), topLeft = Offset(barX, currentY + 0.5.dp.toPx()), size = Size(barUnit, 3.dp.toPx()), cornerRadius = CornerRadius(1.5.dp.toPx()))
-                    
-                    currentY += barHeight + rowSpacing
+                        // Suggestion bar indicator (3 items: 1f, 1.5f, 1f weight)
+                        val barSpacing = 4.dp.toPx()
+                        val barPad = 4.dp.toPx()
+                        val barAvailableWidth = contentWidth - 2 * barPad - 2 * barSpacing
+                        val barUnit = (barAvailableWidth / 3.5f).coerceAtLeast(0f)
+                        
+                        var barX = barPad
+                        drawRoundRect(color = inkColor.copy(alpha = 0.25f), topLeft = Offset(barX, currentY + 0.5.dp.toPx()), size = Size(barUnit, 3.dp.toPx()), cornerRadius = CornerRadius(1.5.dp.toPx()))
+                        barX += barUnit + barSpacing
+                        drawRoundRect(color = inkColor.copy(alpha = 0.45f), topLeft = Offset(barX, currentY), size = Size(1.5f * barUnit, 4.dp.toPx()), cornerRadius = CornerRadius(2.dp.toPx()))
+                        barX += 1.5f * barUnit + barSpacing
+                        drawRoundRect(color = inkColor.copy(alpha = 0.25f), topLeft = Offset(barX, currentY + 0.5.dp.toPx()), size = Size(barUnit, 3.dp.toPx()), cornerRadius = CornerRadius(1.5.dp.toPx()))
+                        
+                        currentY += barHeight + rowSpacing
 
-                    // Row 1: 10 keys
-                    val keyWidthR1 = ((contentWidth - 9 * spacing) / 10f).coerceAtLeast(0f)
-                    for (i in 0 until 10) {
-                        val kX = i * (keyWidthR1 + spacing)
-                        drawRoundRect(color = keyColor, topLeft = Offset(kX, currentY), size = Size(keyWidthR1, rowHeight), cornerRadius = radius)
-                        drawCircle(color = inkColor.copy(alpha = 0.7f), radius = dotRadius, center = Offset(kX + keyWidthR1 / 2f, currentY + rowHeight / 2f))
-                    }
-
-                    currentY += rowHeight + rowSpacing
-
-                    // Row 2: 9 keys
-                    val r2Padding = 4.dp.toPx()
-                    val r2Width = contentWidth - 2 * r2Padding
-                    val keyWidthR2 = ((r2Width - 8 * spacing) / 9f).coerceAtLeast(0f)
-                    for (i in 0 until 9) {
-                        val kX = r2Padding + i * (keyWidthR2 + spacing)
-                        drawRoundRect(color = keyColor, topLeft = Offset(kX, currentY), size = Size(keyWidthR2, rowHeight), cornerRadius = radius)
-                        drawCircle(color = inkColor.copy(alpha = 0.7f), radius = dotRadius, center = Offset(kX + keyWidthR2 / 2f, currentY + rowHeight / 2f))
-                    }
-
-                    currentY += rowHeight + rowSpacing
-
-                    // Row 3: Shift (1.4f), 7 keys (1f), Backspace (1.4f)
-                    val totalWeightR3 = 1.4f + 7f + 1.4f
-                    val availableWidthR3 = contentWidth - 8 * spacing
-                    val unitWidthR3 = (availableWidthR3 / totalWeightR3).coerceAtLeast(0f)
-
-                    // Shift
-                    val shiftWidth = (1.4f * unitWidthR3).coerceAtLeast(0f)
-                    drawRoundRect(color = utilColor, topLeft = Offset(0f, currentY), size = Size(shiftWidth, rowHeight), cornerRadius = radius)
-                    // Draw little arrow for shift
-                    val shiftCenter = Offset(shiftWidth / 2f, currentY + rowHeight / 2f)
-                    drawLine(color = inkColor, start = Offset(shiftCenter.x, shiftCenter.y + 2.dp.toPx()), end = Offset(shiftCenter.x, shiftCenter.y - 3.dp.toPx()), strokeWidth = 1.5.dp.toPx(), cap = StrokeCap.Round)
-                    drawLine(color = inkColor, start = Offset(shiftCenter.x - 2.dp.toPx(), shiftCenter.y - 1.dp.toPx()), end = Offset(shiftCenter.x, shiftCenter.y - 3.dp.toPx()), strokeWidth = 1.5.dp.toPx(), cap = StrokeCap.Round)
-                    drawLine(color = inkColor, start = Offset(shiftCenter.x + 2.dp.toPx(), shiftCenter.y - 1.dp.toPx()), end = Offset(shiftCenter.x, shiftCenter.y - 3.dp.toPx()), strokeWidth = 1.5.dp.toPx(), cap = StrokeCap.Round)
-
-                    var currentX = shiftWidth + spacing
-                    // 7 Keys
-                    for (i in 0 until 7) {
-                        drawRoundRect(color = keyColor, topLeft = Offset(currentX, currentY), size = Size(unitWidthR3, rowHeight), cornerRadius = radius)
-                        drawCircle(color = inkColor.copy(alpha = 0.7f), radius = dotRadius, center = Offset(currentX + unitWidthR3 / 2f, currentY + rowHeight / 2f))
-                        currentX += unitWidthR3 + spacing
-                    }
-
-                    // Backspace
-                    val backspaceWidth = (1.4f * unitWidthR3).coerceAtLeast(0f)
-                    drawRoundRect(color = utilColor, topLeft = Offset(currentX, currentY), size = Size(backspaceWidth, rowHeight), cornerRadius = radius)
-                    val bsCenter = Offset(currentX + backspaceWidth / 2f, currentY + rowHeight / 2f)
-                    drawLine(color = inkColor, start = Offset(bsCenter.x + 2.dp.toPx(), bsCenter.y), end = Offset(bsCenter.x - 3.dp.toPx(), bsCenter.y), strokeWidth = 1.5.dp.toPx(), cap = StrokeCap.Round)
-                    drawLine(color = inkColor, start = Offset(bsCenter.x - 1.dp.toPx(), bsCenter.y - 2.dp.toPx()), end = Offset(bsCenter.x - 3.dp.toPx(), bsCenter.y), strokeWidth = 1.5.dp.toPx(), cap = StrokeCap.Round)
-                    drawLine(color = inkColor, start = Offset(bsCenter.x - 1.dp.toPx(), bsCenter.y + 2.dp.toPx()), end = Offset(bsCenter.x - 3.dp.toPx(), bsCenter.y), strokeWidth = 1.5.dp.toPx(), cap = StrokeCap.Round)
-                    drawLine(color = inkColor, start = Offset(bsCenter.x, bsCenter.y - 2.dp.toPx()), end = Offset(bsCenter.x + 2.dp.toPx(), bsCenter.y + 2.dp.toPx()), strokeWidth = 1.5.dp.toPx(), cap = StrokeCap.Round)
-                    drawLine(color = inkColor, start = Offset(bsCenter.x, bsCenter.y + 2.dp.toPx()), end = Offset(bsCenter.x + 2.dp.toPx(), bsCenter.y - 2.dp.toPx()), strokeWidth = 1.5.dp.toPx(), cap = StrokeCap.Round)
-
-                    currentY += rowHeight + rowSpacing
-
-                    // Row 4: 123 (1.4f), Space (4.6f), Enter (1.8f)
-                    val totalWeightR4 = 1.4f + 4.6f + 1.8f
-                    val availableWidthR4 = contentWidth - 2 * spacing
-                    val unitWidthR4 = (availableWidthR4 / totalWeightR4).coerceAtLeast(0f)
-
-                    currentX = 0f
-                    // 123
-                    val symWidth = 1.4f * unitWidthR4
-                    drawRoundRect(color = utilColor, topLeft = Offset(currentX, currentY), size = Size(symWidth, rowHeight), cornerRadius = radius)
-                    drawRoundRect(color = inkColor.copy(alpha = 0.7f), topLeft = Offset(currentX + symWidth / 2f - 4.dp.toPx(), currentY + rowHeight / 2f - 1.dp.toPx()), size = Size(8.dp.toPx(), 2.dp.toPx()), cornerRadius = CornerRadius(1.dp.toPx()))
-                    currentX += symWidth + spacing
-
-                    // Space
-                    val spaceWidth = 4.6f * unitWidthR4
-                    drawRoundRect(color = keyColor, topLeft = Offset(currentX, currentY), size = Size(spaceWidth, rowHeight), cornerRadius = radius)
-                    drawRoundRect(color = inkColor.copy(alpha = 0.4f), topLeft = Offset(currentX + spaceWidth / 2f - 11.dp.toPx(), currentY + rowHeight / 2f - 1.dp.toPx()), size = Size(22.dp.toPx(), 2.dp.toPx()), cornerRadius = CornerRadius(1.dp.toPx()))
-                    currentX += spaceWidth + spacing
-
-                    // Enter
-                    val enterWidth = 1.8f * unitWidthR4
-                    drawRoundRect(color = actionColor, topLeft = Offset(currentX, currentY), size = Size(enterWidth, rowHeight), cornerRadius = radius)
-                    val enterCenter = Offset(currentX + enterWidth / 2f, currentY + rowHeight / 2f)
-                    drawLine(color = actionTextColor, start = Offset(enterCenter.x + 2.dp.toPx(), enterCenter.y - 2.dp.toPx()), end = Offset(enterCenter.x + 2.dp.toPx(), enterCenter.y + 1.dp.toPx()), strokeWidth = 1.5.dp.toPx(), cap = StrokeCap.Round)
-                    drawLine(color = actionTextColor, start = Offset(enterCenter.x + 2.dp.toPx(), enterCenter.y + 1.dp.toPx()), end = Offset(enterCenter.x - 2.dp.toPx(), enterCenter.y + 1.dp.toPx()), strokeWidth = 1.5.dp.toPx(), cap = StrokeCap.Round)
-                    drawLine(color = actionTextColor, start = Offset(enterCenter.x, enterCenter.y - 1.dp.toPx()), end = Offset(enterCenter.x - 2.dp.toPx(), enterCenter.y + 1.dp.toPx()), strokeWidth = 1.5.dp.toPx(), cap = StrokeCap.Round)
-                    drawLine(color = actionTextColor, start = Offset(enterCenter.x, enterCenter.y + 3.dp.toPx()), end = Offset(enterCenter.x - 2.dp.toPx(), enterCenter.y + 1.dp.toPx()), strokeWidth = 1.5.dp.toPx(), cap = StrokeCap.Round)
-                }
-        ) {
-            // Edit/Delete buttons
-            if (onEdit != null || onDelete != null) {
-                Row(
-                    modifier = Modifier.align(Alignment.BottomEnd).padding(2.dp).background(Color.Black.copy(alpha=0.5f), RoundedCornerShape(12.dp)),
-                    horizontalArrangement = Arrangement.End
-                ) {
-                    if (onEdit != null) {
-                        IconButton(onClick = onEdit, modifier = Modifier.size(28.dp)) {
-                            Icon(Icons.Default.Edit, contentDescription = "Edit", tint = Color.White, modifier = Modifier.size(16.dp))
+                        // Row 1: 10 keys
+                        val keyWidthR1 = ((contentWidth - 9 * spacing) / 10f).coerceAtLeast(0f)
+                        for (i in 0 until 10) {
+                            val kX = i * (keyWidthR1 + spacing)
+                            drawRoundRect(color = keyColor, topLeft = Offset(kX, currentY), size = Size(keyWidthR1, rowHeight), cornerRadius = radius)
+                            drawCircle(color = inkColor.copy(alpha = 0.7f), radius = dotRadius, center = Offset(kX + keyWidthR1 / 2f, currentY + rowHeight / 2f))
                         }
+
+                        currentY += rowHeight + rowSpacing
+
+                        // Row 2: 9 keys
+                        val r2Padding = 4.dp.toPx()
+                        val r2Width = contentWidth - 2 * r2Padding
+                        val keyWidthR2 = ((r2Width - 8 * spacing) / 9f).coerceAtLeast(0f)
+                        for (i in 0 until 9) {
+                            val kX = r2Padding + i * (keyWidthR2 + spacing)
+                            drawRoundRect(color = keyColor, topLeft = Offset(kX, currentY), size = Size(keyWidthR2, rowHeight), cornerRadius = radius)
+                            drawCircle(color = inkColor.copy(alpha = 0.7f), radius = dotRadius, center = Offset(kX + keyWidthR2 / 2f, currentY + rowHeight / 2f))
+                        }
+
+                        currentY += rowHeight + rowSpacing
+
+                        // Row 3: Shift (1.4f), 7 keys (1f), Backspace (1.4f)
+                        val totalWeightR3 = 1.4f + 7f + 1.4f
+                        val availableWidthR3 = contentWidth - 8 * spacing
+                        val unitWidthR3 = (availableWidthR3 / totalWeightR3).coerceAtLeast(0f)
+
+                        // Shift
+                        val shiftWidth = (1.4f * unitWidthR3).coerceAtLeast(0f)
+                        drawRoundRect(color = utilColor, topLeft = Offset(0f, currentY), size = Size(shiftWidth, rowHeight), cornerRadius = radius)
+                        val shiftCenter = Offset(shiftWidth / 2f, currentY + rowHeight / 2f)
+                        drawLine(color = inkColor, start = Offset(shiftCenter.x, shiftCenter.y + 2.dp.toPx()), end = Offset(shiftCenter.x, shiftCenter.y - 3.dp.toPx()), strokeWidth = 1.5.dp.toPx(), cap = StrokeCap.Round)
+                        drawLine(color = inkColor, start = Offset(shiftCenter.x - 2.dp.toPx(), shiftCenter.y - 1.dp.toPx()), end = Offset(shiftCenter.x, shiftCenter.y - 3.dp.toPx()), strokeWidth = 1.5.dp.toPx(), cap = StrokeCap.Round)
+                        drawLine(color = inkColor, start = Offset(shiftCenter.x + 2.dp.toPx(), shiftCenter.y - 1.dp.toPx()), end = Offset(shiftCenter.x, shiftCenter.y - 3.dp.toPx()), strokeWidth = 1.5.dp.toPx(), cap = StrokeCap.Round)
+
+                        var currentX = shiftWidth + spacing
+                        for (i in 0 until 7) {
+                            drawRoundRect(color = keyColor, topLeft = Offset(currentX, currentY), size = Size(unitWidthR3, rowHeight), cornerRadius = radius)
+                            drawCircle(color = inkColor.copy(alpha = 0.7f), radius = dotRadius, center = Offset(currentX + unitWidthR3 / 2f, currentY + rowHeight / 2f))
+                            currentX += unitWidthR3 + spacing
+                        }
+
+                        // Backspace
+                        val backspaceWidth = (1.4f * unitWidthR3).coerceAtLeast(0f)
+                        drawRoundRect(color = utilColor, topLeft = Offset(currentX, currentY), size = Size(backspaceWidth, rowHeight), cornerRadius = radius)
+                        val bsCenter = Offset(currentX + backspaceWidth / 2f, currentY + rowHeight / 2f)
+                        drawLine(color = inkColor, start = Offset(bsCenter.x + 2.dp.toPx(), bsCenter.y), end = Offset(bsCenter.x - 3.dp.toPx(), bsCenter.y), strokeWidth = 1.5.dp.toPx(), cap = StrokeCap.Round)
+                        drawLine(color = inkColor, start = Offset(bsCenter.x - 1.dp.toPx(), bsCenter.y - 2.dp.toPx()), end = Offset(bsCenter.x - 3.dp.toPx(), bsCenter.y), strokeWidth = 1.5.dp.toPx(), cap = StrokeCap.Round)
+                        drawLine(color = inkColor, start = Offset(bsCenter.x - 1.dp.toPx(), bsCenter.y + 2.dp.toPx()), end = Offset(bsCenter.x - 3.dp.toPx(), bsCenter.y), strokeWidth = 1.5.dp.toPx(), cap = StrokeCap.Round)
+
+                        currentY += rowHeight + rowSpacing
+
+                        // Row 4: 123 (1.4f), Space (4.6f), Enter (1.8f)
+                        val totalWeightR4 = 1.4f + 4.6f + 1.8f
+                        val availableWidthR4 = contentWidth - 2 * spacing
+                        val unitWidthR4 = (availableWidthR4 / totalWeightR4).coerceAtLeast(0f)
+
+                        currentX = 0f
+                        val symWidth = 1.4f * unitWidthR4
+                        drawRoundRect(color = utilColor, topLeft = Offset(currentX, currentY), size = Size(symWidth, rowHeight), cornerRadius = radius)
+                        currentX += symWidth + spacing
+
+                        val spaceWidth = 4.6f * unitWidthR4
+                        drawRoundRect(color = keyColor, topLeft = Offset(currentX, currentY), size = Size(spaceWidth, rowHeight), cornerRadius = radius)
+                        drawRoundRect(color = inkColor.copy(alpha = 0.4f), topLeft = Offset(currentX + spaceWidth / 2f - 11.dp.toPx(), currentY + rowHeight / 2f - 1.dp.toPx()), size = Size(22.dp.toPx(), 2.dp.toPx()), cornerRadius = CornerRadius(1.dp.toPx()))
+                        currentX += spaceWidth + spacing
+
+                        val enterWidth = 1.8f * unitWidthR4
+                        drawRoundRect(color = actionColor, topLeft = Offset(currentX, currentY), size = Size(enterWidth, rowHeight), cornerRadius = radius)
+                        val enterCenter = Offset(currentX + enterWidth / 2f, currentY + rowHeight / 2f)
+                        drawLine(color = actionTextColor, start = Offset(enterCenter.x + 2.dp.toPx(), enterCenter.y - 2.dp.toPx()), end = Offset(enterCenter.x + 2.dp.toPx(), enterCenter.y + 1.dp.toPx()), strokeWidth = 1.5.dp.toPx(), cap = StrokeCap.Round)
+                        drawLine(color = actionTextColor, start = Offset(enterCenter.x + 2.dp.toPx(), enterCenter.y + 1.dp.toPx()), end = Offset(enterCenter.x - 2.dp.toPx(), enterCenter.y + 1.dp.toPx()), strokeWidth = 1.5.dp.toPx(), cap = StrokeCap.Round)
+                        drawLine(color = actionTextColor, start = Offset(enterCenter.x, enterCenter.y - 1.dp.toPx()), end = Offset(enterCenter.x - 2.dp.toPx(), enterCenter.y + 1.dp.toPx()), strokeWidth = 1.5.dp.toPx(), cap = StrokeCap.Round)
                     }
-                    if (onDelete != null) {
-                        IconButton(onClick = onDelete, modifier = Modifier.size(28.dp)) {
-                            Icon(Icons.Default.Delete, contentDescription = "Delete", tint = Color.White, modifier = Modifier.size(16.dp))
+            ) {
+                // Selection indicator badge
+                if (isSelected) {
+                    Surface(
+                        shape = CircleShape,
+                        color = MaterialTheme.colorScheme.primary,
+                        shadowElevation = 3.dp,
+                        modifier = Modifier
+                            .size(22.dp)
+                            .align(Alignment.TopEnd)
+                            .padding(2.dp)
+                    ) {
+                        Box(contentAlignment = Alignment.Center) {
+                            Icon(
+                                imageVector = Icons.Default.Check,
+                                contentDescription = "Selected",
+                                tint = MaterialTheme.colorScheme.onPrimary,
+                                modifier = Modifier.size(14.dp)
+                            )
                         }
                     }
                 }
             }
 
-            // Selection indicator badge
-            if (isSelected) {
-                Surface(
-                    shape = CircleShape,
-                    color = MaterialTheme.colorScheme.primary,
-                    shadowElevation = 3.dp,
+            // Theme Footer (Name & Action Buttons)
+            Surface(
+                color = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Row(
                     modifier = Modifier
-                        .size(22.dp)
-                        .align(Alignment.TopEnd)
+                        .fillMaxWidth()
+                        .padding(horizontal = 8.dp, vertical = 6.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Box(contentAlignment = Alignment.Center) {
-                        Icon(
-                            imageVector = Icons.Default.Check,
-                            contentDescription = "Selected",
-                            tint = MaterialTheme.colorScheme.onPrimary,
-                            modifier = Modifier.size(14.dp)
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = themeName,
+                            style = MaterialTheme.typography.labelMedium,
+                            fontWeight = FontWeight.Bold,
+                            maxLines = 1
                         )
+                        Text(
+                            text = if (isCustom) "Custom Theme" else if (palette.dark) "Dark Theme" else "Light Theme",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            fontSize = 10.sp
+                        )
+                    }
+
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(2.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        if (onEdit != null) {
+                            IconButton(onClick = onEdit, modifier = Modifier.size(24.dp)) {
+                                Icon(Icons.Default.Edit, contentDescription = "Edit", modifier = Modifier.size(14.dp))
+                            }
+                        }
+                        if (onShare != null) {
+                            IconButton(onClick = onShare, modifier = Modifier.size(24.dp)) {
+                                Icon(Icons.Default.Share, contentDescription = "Share", modifier = Modifier.size(14.dp))
+                            }
+                        }
+                        if (onDuplicate != null) {
+                            IconButton(onClick = onDuplicate, modifier = Modifier.size(24.dp)) {
+                                Icon(Icons.Default.ContentCopy, contentDescription = "Duplicate", modifier = Modifier.size(14.dp))
+                            }
+                        }
+                        if (onDelete != null) {
+                            IconButton(onClick = onDelete, modifier = Modifier.size(24.dp)) {
+                                Icon(Icons.Default.Delete, contentDescription = "Delete", tint = MaterialTheme.colorScheme.error, modifier = Modifier.size(14.dp))
+                            }
+                        }
                     }
                 }
             }
@@ -2018,6 +2558,7 @@ fun TopBarCustomizationScreen(
     val allItems = remember {
         listOf(
             ToolbarItemConfig("lang_toggle", "භාෂා ස්විචය (සිං / EN)", "Language Switcher", "සිංහල හා ඉංග්‍රීසි අතර මාරු වන ලාංඡනය", R.drawable.ic_language, "Language & Input"),
+            ToolbarItemConfig("font_studio", "ෆොන්ට් ස්ටූඩියෝ (Font Studio)", "Font Studio", "කීබෝඩ් එක තුලින්ම Font Styles තේරීම", R.drawable.ic_key_font_studio, "Actions Toolbar"),
             ToolbarItemConfig("emoji", "ඉමෝජි කෙටිමග (Emoji)", "Quick Emoji", "ඉහළ තීරුවේ ඉමෝජි පුවරු කෙටිමග පෙන්වීම", R.drawable.ic_key_emoji, "Quick Access"),
             ToolbarItemConfig("voice", "හඬ ආදානය (Voice)", "Voice Input", "හඬින් ටයිප් කිරීමේ කෙටිමග", R.drawable.ic_key_mic, "Quick Access"),
             ToolbarItemConfig("undo", "ආපසු ලබා ගැනීම (Undo)", "Undo", "වැරදීමකින් මැකී ගිය හෝ වෙනස් කළ පාඨ ආපසු ලබාගැනීම", R.drawable.ic_key_undo, "Actions Toolbar"),
@@ -2133,7 +2674,7 @@ fun TopBarCustomizationScreen(
                         PresetChip(
                             label = "Left-to-Right",
                             onClick = {
-                                prefs.toolbarIcons = "lang_toggle,emoji,voice,undo,redo,astrology,translate,fm,otp,clipboard,settings"
+                                prefs.toolbarIcons = "lang_toggle,font_studio,emoji,voice,undo,redo,astrology,translate,fm,otp,clipboard,settings"
                                 rawIcons = prefs.toolbarIcons
                                 refresh++
                             }
@@ -2141,7 +2682,7 @@ fun TopBarCustomizationScreen(
                         PresetChip(
                             label = "Right-Handed",
                             onClick = {
-                                prefs.toolbarIcons = "settings,clipboard,otp,fm,translate,astrology,redo,undo,voice,emoji,lang_toggle"
+                                prefs.toolbarIcons = "settings,clipboard,otp,fm,translate,astrology,redo,undo,voice,emoji,font_studio,lang_toggle"
                                 rawIcons = prefs.toolbarIcons
                                 refresh++
                             }
@@ -2149,7 +2690,7 @@ fun TopBarCustomizationScreen(
                         PresetChip(
                             label = "Minimal (4)",
                             onClick = {
-                                prefs.toolbarIcons = "lang_toggle,emoji,clipboard,settings"
+                                prefs.toolbarIcons = "lang_toggle,font_studio,emoji,clipboard,settings"
                                 rawIcons = prefs.toolbarIcons
                                 refresh++
                             }
@@ -2157,7 +2698,7 @@ fun TopBarCustomizationScreen(
                         PresetChip(
                             label = "All Icons",
                             onClick = {
-                                prefs.toolbarIcons = "lang_toggle,emoji,voice,undo,redo,astrology,translate,fm,otp,clipboard,settings"
+                                prefs.toolbarIcons = "lang_toggle,font_studio,emoji,voice,undo,redo,astrology,translate,fm,otp,clipboard,settings"
                                 rawIcons = prefs.toolbarIcons
                                 refresh++
                             }

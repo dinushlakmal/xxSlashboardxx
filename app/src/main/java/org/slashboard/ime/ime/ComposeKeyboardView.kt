@@ -2,6 +2,7 @@ package org.slashboard.ime.ime
 
 import android.content.Context
 import android.util.AttributeSet
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.AbstractComposeView
 import org.slashboard.ime.settings.KeyboardPreferences
@@ -19,19 +20,26 @@ class ComposeKeyboardView @JvmOverloads constructor(
 
     @Composable
     override fun Content() {
-        // Wrap with your app's theme if available, e.g., SlashboardTheme
-        ComposeKeyboard(
-            onKeyPressed = { key ->
-                // Example integration with existing KeyboardActions
-                when (key) {
-                    "Space" -> actions?.onSpace()
-                    "Enter" -> actions?.onEnter()
-                    "Delete" -> actions?.onBackspace(false)
-                    "Shift" -> { /* No direct interface method, usually internal state */ }
-                    "?123" -> { /* No direct interface method, usually switches layer */ }
-                    else -> if (key.length == 1) actions?.onCharacter(key)
+        MaterialTheme {
+            ComposeKeyboard(
+                onCommitText = { text ->
+                    actions?.onCharacter(text)
+                },
+                onBackspace = { word ->
+                    actions?.onBackspace(word)
+                },
+                onSpace = {
+                    actions?.onSpace()
+                },
+                onEnter = {
+                    actions?.onEnter()
+                },
+                onLanguageToggle = {
+                    actions?.onGlobe()
                 }
-            }
-        )
+            )
+        }
     }
 }
+
+

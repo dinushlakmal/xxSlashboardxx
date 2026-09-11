@@ -5,16 +5,20 @@ import android.content.ClipDescription
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.inputmethodservice.InputMethodService
 import android.media.AudioAttributes
 import android.media.AudioManager
 import android.media.SoundPool
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.net.Uri
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.view.KeyEvent
 import android.view.View
+import android.view.Window
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.ExtractedTextRequest
 import android.view.inputmethod.InputConnection
@@ -90,6 +94,14 @@ class SlashboardInputMethodService : InputMethodService(), KeyboardActions {
         }
     }
 
+    private val prefChangeListener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
+        if (key == null || key == KeyboardPreferences.TOP_ROW || key == "theme" || key == "one_handed" || key == "key_spacing" || key == "keyboard_size" || key == "high_contrast" || key == "keyboard_font" || key == "mode") {
+            if (::keyboard.isInitialized) {
+                keyboard.reloadPreferences(prefs)
+            }
+        }
+    }
+
     override fun onCreate() {
         super.onCreate()
         CrashLogger.init(this)
@@ -98,8 +110,13 @@ class SlashboardInputMethodService : InputMethodService(), KeyboardActions {
         }
 
         prefs = KeyboardPreferences(this)
+        prefs.store.registerOnSharedPreferenceChangeListener(prefChangeListener)
         recentEmoji = prefs.recentEmojis.toMutableList()
         org.slashboard.ime.sound.KeySoundPlayer.getInstance(this)
+        
+        // Schedule daily update checks
+        org.slashboard.ime.update.UpdateCheckWorker.scheduleDaily8AMCheck(this)
+        
         org.slashboard.ime.translator.TranslatorEngine.init(this)
 
         voiceInputManager = VoiceInputManager(
@@ -172,11 +189,17 @@ class SlashboardInputMethodService : InputMethodService(), KeyboardActions {
         return keyboard
     }
 
+    override fun onConfigureWindow(win: Window, isFullscreen: Boolean, isCandidatesOnly: Boolean) {
+        super.onConfigureWindow(win, isFullscreen, isCandidatesOnly)
+        win.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        win.decorView.setBackgroundColor(Color.TRANSPARENT)
+        win.setFormat(android.graphics.PixelFormat.TRANSLUCENT)
+        win.clearFlags(android.view.WindowManager.LayoutParams.FLAG_DIM_BEHIND)
+    }
+
     override fun onStartInput(attribute: EditorInfo?, restarting: Boolean) {
         super.onStartInput(attribute, restarting)
-        if (!restarting) {
-            cancelComposition(false)
-        }
+        clearLocalCompositionState()
         restricted = attribute?.let { isRestrictedEditor(it) } ?: true
         lastSelectionEnd = attribute?.initialSelEnd ?: -1
         precedingDirty = true
@@ -184,26 +207,31 @@ class SlashboardInputMethodService : InputMethodService(), KeyboardActions {
 
     override fun onStartInputView(info: EditorInfo?, restarting: Boolean) {
         super.onStartInputView(info, restarting)
+        clearLocalCompositionState()
         prefs = KeyboardPreferences(this)
+        prefs.reload()
+        if (::keyboard.isInitialized) {
+            keyboard.reloadPreferences(prefs)
+        }
         restricted = info?.let { isRestrictedEditor(it) } ?: true
         editorLayout = editorLayout(info)
 
-        // App-Specific Layout Memory
+        // Layout and editor preparation (preserves user-chosen language across sessions)
         if (prefs.appLayoutMemory && info != null) {
             val pkg = info.packageName?.lowercase().orEmpty()
-            if (isTerminalOrDevApp(pkg)) {
-                // Terminal / Termux / Code editor -> Switch to English Programmer / ASCII layout
-                prefs.useEnglish = true
-                if (editorLayout == EditorLayout.TEXT) {
-                    editorLayout = EditorLayout.ASCII
-                }
-            } else if (isChatApp(pkg)) {
-                // WhatsApp / Viber / Telegram -> Switch to Sinhala Singlish (phonetic)
-                prefs.useEnglish = false
-                prefs.mode = InputMode.PHONETIC
+            if (isTerminalOrDevApp(pkg) && editorLayout == EditorLayout.TEXT) {
+                editorLayout = EditorLayout.ASCII
             }
         }
 
+        window?.window?.let { win ->
+            win.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+            win.decorView.setBackgroundColor(Color.TRANSPARENT)
+            win.setFormat(android.graphics.PixelFormat.TRANSLUCENT)
+            win.clearFlags(android.view.WindowManager.LayoutParams.FLAG_DIM_BEHIND)
+            (keyboard.parent as? View)?.setBackgroundColor(Color.TRANSPARENT)
+            win.findViewById<View>(android.R.id.inputArea)?.setBackgroundColor(Color.TRANSPARENT)
+        }
         keyboard.configure(prefs.mode, offerSystemSwitch(), enterLabel(info), editorLayout)
         keyboard.learningEnabled = !restricted && editorLayout == EditorLayout.TEXT
         checkOtp()
@@ -217,11 +245,12 @@ class SlashboardInputMethodService : InputMethodService(), KeyboardActions {
     override fun onFinishInput() {
         deleteAnchor = -1
         deleteLength = 0
-        cancelComposition(false)
+        clearLocalCompositionState()
         super.onFinishInput()
     }
 
     override fun onDestroy() {
+        runCatching { prefs.store.unregisterOnSharedPreferenceChangeListener(prefChangeListener) }
         voiceInputManager?.destroy()
         stopClipboardListener()
         serviceScope.cancel()
@@ -231,7 +260,7 @@ class SlashboardInputMethodService : InputMethodService(), KeyboardActions {
 
     override fun onFinishInputView(finishingInput: Boolean) {
         stopClipboardListener()
-        cancelComposition(false)
+        clearLocalCompositionState()
         super.onFinishInputView(finishingInput)
     }
 
@@ -244,17 +273,25 @@ class SlashboardInputMethodService : InputMethodService(), KeyboardActions {
         candidatesEnd: Int
     ) {
         super.onUpdateSelection(oldSelStart, oldSelEnd, newSelStart, newSelEnd, candidatesStart, candidatesEnd)
-        if (composition.active && candidatesStart >= 0 && (newSelEnd < candidatesStart || newSelEnd > candidatesEnd)) {
-            cancelComposition(false)
+        if (composition.active) {
+            if (candidatesStart < 0 || candidatesEnd < 0 || newSelEnd < candidatesStart || newSelEnd > candidatesEnd) {
+                clearLocalCompositionState()
+            }
         }
         lastSelectionEnd = newSelEnd
     }
 
     override fun onCharacter(value: String) {
         runCatching {
-            if (editorLayout != EditorLayout.TEXT || prefs.useEnglish) {
+            val isPassword = restricted && (currentInputEditorInfo?.let { isRestrictedEditor(it) } ?: false)
+            if (isPassword || prefs.useEnglish) {
                 commitComposition()
-                currentInputConnection?.commitText(value, 1)
+                val fontTransformed = if (prefs.useEnglish && prefs.keyboardFont != "default") {
+                    org.slashboard.ime.settings.font.CustomFontManager.transformText(this, prefs.keyboardFont, value)
+                } else {
+                    value
+                }
+                currentInputConnection?.commitText(fontTransformed, 1)
                 if (value.codePoints().anyMatch { it > 0x1F000 }) {
                     rememberEmoji(value)
                 }
@@ -313,22 +350,14 @@ class SlashboardInputMethodService : InputMethodService(), KeyboardActions {
 
     override fun onSpace() {
         runCatching {
+            val ic = currentInputConnection
+            val before = ic?.getTextBeforeCursor(64, 0)?.toString().orEmpty()
             if (prefs.useEnglish) {
-                val ic = currentInputConnection
-                val before = ic?.getTextBeforeCursor(64, 0)?.toString().orEmpty()
                 val prefix = activeEnglishPrefix ?: Regex("([A-Za-z0-9'’]+)$").find(before)?.value.orEmpty()
-                val correction = activeCorrection
-                if (correction != null && prefix.isNotEmpty() && !correction.equals(prefix, ignoreCase = true) && before.endsWith(prefix)) {
-                    ic?.deleteSurroundingText(prefix.length, 0)
-                    ic?.commitText(correction, 1)
-                    ic?.commitText(" ", 1)
-                    learnEnglish(correction)
-                } else {
-                    if (prefix.isNotEmpty()) {
-                        learnEnglish(prefix)
-                    }
-                    ic?.commitText(" ", 1)
+                if (prefix.isNotEmpty()) {
+                    learnEnglish(prefix)
                 }
+                ic?.commitText(" ", 1)
                 activeCorrection = null
                 activeEnglishPrefix = null
                 precedingDirty = true
@@ -336,20 +365,17 @@ class SlashboardInputMethodService : InputMethodService(), KeyboardActions {
                 return@runCatching
             }
 
-            val correction = activeCorrection
-            val word = if (composition.active && correction != null && correction != composition.rendered) {
-                currentInputConnection?.setComposingText(correction, 1)
-                currentInputConnection?.finishComposingText()
-                composition.clear()
-                slsSource.clear()
-                generation++
-                correction
+            val composed = commitComposition()
+            val word = if (!composed.isNullOrBlank()) {
+                composed
             } else {
-                commitComposition()
+                Regex("([\\p{L}\\p{M}\u200D\u200C]+)$").find(before)?.value
             }
             activeCorrection = null
-            currentInputConnection?.commitText(" ", 1)
-            learn(word)
+            ic?.commitText(" ", 1)
+            if (!word.isNullOrBlank()) {
+                learn(word)
+            }
             precedingDirty = true
             updateSuggestions()
         }
@@ -357,17 +383,27 @@ class SlashboardInputMethodService : InputMethodService(), KeyboardActions {
 
     override fun onEnter() {
         runCatching {
+            val ic = currentInputConnection
+            val before = ic?.getTextBeforeCursor(64, 0)?.toString().orEmpty()
             if (prefs.useEnglish) {
-                val before = currentInputConnection?.getTextBeforeCursor(64, 0)?.toString().orEmpty()
-                val prefix = Regex("([A-Za-z0-9'’]+)$").find(before)?.value.orEmpty()
+                val prefix = activeEnglishPrefix ?: Regex("([A-Za-z0-9'’]+)$").find(before)?.value.orEmpty()
                 if (prefix.isNotEmpty()) {
                     learnEnglish(prefix)
                 }
                 activeCorrection = null
                 activeEnglishPrefix = null
+            } else {
+                val composed = commitComposition()
+                val word = if (!composed.isNullOrBlank()) {
+                    composed
+                } else {
+                    Regex("([\\p{L}\\p{M}\u200D\u200C]+)$").find(before)?.value
+                }
+                if (!word.isNullOrBlank()) {
+                    learn(word)
+                }
             }
-            val word = commitComposition()
-            if (!prefs.useEnglish) learn(word)
+            clearLocalCompositionState()
             val info = currentInputEditorInfo
             val action = (info?.imeOptions ?: 0) and EditorInfo.IME_MASK_ACTION
             if (action != EditorInfo.IME_ACTION_NONE && action != EditorInfo.IME_ACTION_UNSPECIFIED) {
@@ -379,7 +415,7 @@ class SlashboardInputMethodService : InputMethodService(), KeyboardActions {
                 currentInputConnection?.sendKeyEvent(KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_ENTER))
                 currentInputConnection?.sendKeyEvent(KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_ENTER))
             }
-            cancelComposition(false)
+            clearLocalCompositionState()
             updateSuggestions()
         }
     }
@@ -1105,8 +1141,7 @@ class SlashboardInputMethodService : InputMethodService(), KeyboardActions {
 
         fun isTerminalOrDevApp(pkg: String): Boolean {
             return pkg.contains("termux") || pkg.contains("terminal") || pkg.contains("connectbot") ||
-                   pkg.contains("juicessh") || pkg.contains("shell") || pkg.contains("console") ||
-                   pkg.contains("code") || pkg.contains("editor") || pkg.contains("ide")
+                   pkg.contains("juicessh")
         }
 
         fun isChatApp(pkg: String): Boolean {
