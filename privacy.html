@@ -6,19 +6,25 @@
     <meta name="google-site-verification" content="googlee1fc35545edd459a" />
     <meta name="google-site-verification" content="googlee1fc35545edd459a.html" />
     <title>Privacy Policy (පෞද්ගලිකත්ව ප්‍රතිපත්තිය) | Slashboard Sinhala Keyboard</title>
-    <meta name="description" content="Privacy Policy for Slashboard Sinhala Keyboard Android Application by Dinush Lakmal. 100% Offline and Private.">
+    <meta name="description" content="Official Privacy Policy for Slashboard Sinhala Keyboard Android Application by Dinush Lakmal. 100% On-Device, Offline, and Zero Data Collection Guarantee.">
+    <meta name="keywords" content="Slashboard Privacy Policy, Sinhala Keyboard Privacy, Offline Android IME, Zero Data Collection, Dinush Lakmal">
+    
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Sinhala:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Sinhala:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
     <style>
         :root {
-            --primary: #4F46E5;
-            --bg-gradient: linear-gradient(135deg, #0B0F19 0%, #151926 50%, #0B0F19 100%);
-            --card-bg: rgba(26, 32, 48, 0.85);
+            --primary: #6366F1;
+            --primary-light: #818CF8;
+            --accent-green: #10B981;
+            --bg-dark: #090D16;
+            --bg-card: rgba(18, 24, 39, 0.85);
             --card-border: rgba(255, 255, 255, 0.08);
+            --card-border-glow: rgba(99, 102, 241, 0.3);
             --text-main: #F8FAFC;
             --text-muted: #94A3B8;
-            --radius: 16px;
+            --radius: 18px;
         }
 
         * {
@@ -26,19 +32,36 @@
             padding: 0;
             box-sizing: border-box;
             font-family: 'Plus Jakarta Sans', 'Noto Sans Sinhala', sans-serif;
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
-            background: var(--bg-gradient);
+            background: radial-gradient(circle at 50% 0%, #17153B 0%, #090D16 60%, #05070D 100%);
             color: var(--text-main);
             min-height: 100vh;
             line-height: 1.75;
+            overflow-x: hidden;
+        }
+
+        .ambient-glow {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 700px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.12) 0%, rgba(0,0,0,0) 70%);
+            filter: blur(90px);
+            pointer-events: none;
+            z-index: 0;
         }
 
         .container {
-            max-width: 900px;
+            max-width: 920px;
             margin: 0 auto;
             padding: 0 24px;
+            position: relative;
+            z-index: 1;
         }
 
         /* Navbar */
@@ -48,7 +71,8 @@
             justify-content: space-between;
             align-items: center;
             border-bottom: 1px solid var(--card-border);
-            backdrop-filter: blur(12px);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
             position: sticky;
             top: 0;
             z-index: 100;
@@ -61,18 +85,19 @@
             text-decoration: none;
             color: #fff;
             font-weight: 800;
-            font-size: 1.3rem;
+            font-size: 1.35rem;
         }
 
         .logo-badge {
-            background: linear-gradient(135deg, #4F46E5, #EC4899);
-            width: 36px;
-            height: 36px;
-            border-radius: 10px;
+            background: linear-gradient(135deg, #6366F1, #EC4899);
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.2rem;
+            font-size: 1.3rem;
+            box-shadow: 0 4px 16px rgba(99, 102, 241, 0.4);
         }
 
         .nav-links {
@@ -93,29 +118,15 @@
             color: #fff;
         }
 
-        .policy-card {
-            background: var(--card-bg);
+        /* Policy Card Wrapper */
+        .policy-container {
+            background: var(--bg-card);
             border: 1px solid var(--card-border);
             border-radius: var(--radius);
-            padding: 40px;
+            padding: 48px;
             margin: 40px 0 60px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
-        }
-
-        h1 {
-            font-size: 2.4rem;
-            font-weight: 800;
-            margin-bottom: 8px;
-            background: linear-gradient(to right, #FFFFFF, #818CF8);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .last-updated {
-            color: #818CF8;
-            font-size: 0.95rem;
-            font-weight: 600;
-            margin-bottom: 30px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.45);
+            backdrop-filter: blur(14px);
         }
 
         .badge-verified {
@@ -125,57 +136,170 @@
             background: rgba(16, 185, 129, 0.15);
             border: 1px solid rgba(16, 185, 129, 0.4);
             color: #34D399;
-            padding: 8px 16px;
+            padding: 8px 18px;
             border-radius: 99px;
             font-weight: 700;
-            font-size: 0.9rem;
+            font-size: 0.92rem;
             margin-bottom: 24px;
         }
 
-        h2 {
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 900;
+            line-height: 1.25;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #FFFFFF 30%, #C7D2FE 70%, #818CF8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .last-updated {
+            color: #818CF8;
+            font-size: 0.95rem;
+            font-weight: 600;
+            margin-bottom: 32px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Quick Facts Box */
+        .quick-facts {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 16px;
+            background: rgba(15, 23, 42, 0.7);
+            border: 1px solid rgba(99, 102, 241, 0.25);
+            border-radius: 14px;
+            padding: 24px;
+            margin-bottom: 36px;
+        }
+
+        .fact-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .fact-icon {
             font-size: 1.4rem;
+            line-height: 1;
+            margin-top: 2px;
+        }
+
+        .fact-title {
             font-weight: 700;
-            color: #E2E8F0;
-            margin: 32px 0 12px;
+            color: #F1F5F9;
+            font-size: 0.95rem;
+            margin-bottom: 3px;
+        }
+
+        .fact-desc {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            line-height: 1.45;
+        }
+
+        h2 {
+            font-size: 1.45rem;
+            font-weight: 800;
+            color: #F1F5F9;
+            margin: 38px 0 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
             border-left: 4px solid var(--primary);
-            padding-left: 12px;
+            padding-left: 14px;
         }
 
         p, li {
-            color: var(--text-muted);
-            font-size: 1rem;
-            margin-bottom: 12px;
+            color: #CBD5E1;
+            font-size: 1.02rem;
+            margin-bottom: 14px;
+            line-height: 1.75;
+        }
+
+        strong {
+            color: #F8FAFC;
         }
 
         ul {
-            padding-left: 24px;
-            margin-bottom: 16px;
+            padding-left: 26px;
+            margin-bottom: 20px;
+        }
+
+        li {
+            margin-bottom: 8px;
+        }
+
+        .callout-box {
+            background: rgba(99, 102, 241, 0.1);
+            border: 1px solid rgba(99, 102, 241, 0.25);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
         }
 
         .contact-box {
-            background: rgba(15, 23, 42, 0.6);
+            background: rgba(15, 23, 42, 0.8);
             border: 1px solid var(--card-border);
-            border-radius: 12px;
-            padding: 20px;
-            margin-top: 24px;
+            border-radius: 14px;
+            padding: 26px;
+            margin-top: 28px;
+        }
+
+        .contact-box p {
+            margin-bottom: 8px;
+        }
+
+        .contact-box a {
+            color: #818CF8;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .contact-box a:hover {
+            text-decoration: underline;
         }
 
         footer {
             margin-top: 40px;
-            padding: 30px 0;
+            padding: 36px 0;
             border-top: 1px solid var(--card-border);
             text-align: center;
             color: var(--text-muted);
-            font-size: 0.9rem;
+            font-size: 0.92rem;
         }
 
         footer a {
             color: #818CF8;
             text-decoration: none;
+            font-weight: 600;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .policy-container {
+                padding: 28px 20px;
+            }
+            h1 {
+                font-size: 2rem;
+            }
+            .nav-links {
+                display: none;
+            }
+            .quick-facts {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
 <body>
+
+    <div class="ambient-glow"></div>
 
     <div class="container">
         <!-- Navigation -->
@@ -185,77 +309,139 @@
                 <span>Slashboard</span>
             </a>
             <div class="nav-links">
-                <a href="index.html">ගොඩබෑම (Landing)</a>
-                <a href="home.html">විශේෂාංග (Home)</a>
+                <a href="index.html">මුල් පිටුව (Home)</a>
+                <a href="home.html">විශේෂාංග සහ උපදෙස්</a>
                 <a href="privacy.html" class="active">පෞද්ගලිකත්වය (Privacy)</a>
                 <a href="terms.html">කොන්දේසි (Terms)</a>
+                <a href="https://github.com/dinushlakmal01" target="_blank">Developer</a>
             </div>
         </nav>
 
-        <div class="policy-card">
+        <div class="policy-container">
             <div class="badge-verified">
-                🛡️ 100% Offline & Zero Data Collection Guaranteed
+                🛡️ 100% On-Device & Zero Data Collection Guarantee
             </div>
 
             <h1>Privacy Policy (පෞද්ගලිකත්ව ප්‍රතිපත්තිය)</h1>
-            <div class="last-updated">Last updated: September 2026 | යාවත්කාලීන කළ දිනය: සැප්තැම්බර් 2026</div>
+            <div class="last-updated">
+                <span>📅 Last Updated: September 2026 | යාවත්කාලීන කළ දිනය: සැප්තැම්බර් 2026</span>
+            </div>
 
             <p>
-                <strong>Slashboard Sinhala Keyboard</strong> ("අප", "අපගේ යෙදුම") ඔබගේ පෞද්ගලිකත්වය සහ දත්ත ආරක්ෂාව උපරිමයෙන් සුරැකීමට කැපවී සිටී. මෙම පෞද්ගලිකත්ව ප්‍රතිපත්තිය මඟින් Slashboard යෙදුම ඔබගේ දත්ත සම්බන්ධයෙන් ක්‍රියාත්මක වන ආකාරය පැහැදිලි කරයි.
+                <strong>Slashboard Sinhala Keyboard</strong> ("අප", "අපගේ යෙදුම", "Slashboard") ඔබගේ පෞද්ගලිකත්වය සහ දත්තවල උපරිම ආරක්ෂාව තහවුරු කිරීමට දැඩි ලෙස බැඳී සිටී. ස්වාධීන මෘදුකාංග සංවර්ධක <strong>Dinush Lakmal</strong> විසින් නිර්මාණය කරන ලද මෙම යතුරුපුවරු යෙදුම සම්පූර්ණයෙන්ම ක්‍රියාත්මක වන්නේ ඔබගේ දුරකථනය තුළම පමණි (100% On-Device & Offline).
             </p>
 
-            <h2>1. අන්තර්ජාල භාවිතය (Internet Access)</h2>
-            <p>
-                Slashboard යතුරුපුවරුව ඔබගේ ටයිප් කරන ලද දත්ත 100% ක් ඔබගේ දුරකථනය තුළම පමණක් (On-Device) සකසනු ලබයි. යෙදුම <strong>අන්තර්ජාලය භාවිතා කරන්නේ යෙදුමේ නව යාවත්කාලීන කිරීම් (App Updates) පරීක්ෂා කිරීම සඳහා පමණක් වන අතර</strong>, කිසිදු Analytics SDK හෝ තෙවන පාර්ශවීය Tracking සේවාවක් අඩංගු නොවේ. ඔබගේ යතුරු ලියනයන් කිසිවක් අන්තර්ජාලයට යවනු නොලැබේ.
-            </p>
+            <!-- Key Commitments Quick Facts -->
+            <div class="quick-facts">
+                <div class="fact-item">
+                    <div class="fact-icon">🔒</div>
+                    <div>
+                        <div class="fact-title">Zero Keystroke Logging</div>
+                        <div class="fact-desc">ඔබ ටයිප් කරන කිසිදු අකුරක්, වචනයක් හෝ පණිවිඩයක් සටහන් කර නොගනී.</div>
+                    </div>
+                </div>
+                <div class="fact-item">
+                    <div class="fact-icon">🚫</div>
+                    <div>
+                        <div class="fact-title">No Ads or Trackers</div>
+                        <div class="fact-desc">කිසිදු Analytics SDK, Facebook Pixel හෝ දැන්වීම් ජාල අඩංගු නොවේ.</div>
+                    </div>
+                </div>
+                <div class="fact-item">
+                    <div class="fact-icon">🔑</div>
+                    <div>
+                        <div class="fact-title">Password Safety</div>
+                        <div class="fact-desc">මුරපද ටයිප් කිරීමේදී වචන ඉගෙනුම ස්වයංක්‍රීයව අක්‍රිය වේ.</div>
+                    </div>
+                </div>
+                <div class="fact-item">
+                    <div class="fact-icon">🔄</div>
+                    <div>
+                        <div class="fact-title">OTA Updates Only</div>
+                        <div class="fact-desc">අන්තර්ජාලය භාවිතා කරන්නේ යෙදුමේ නව සංස්කරණ පරීක්ෂා කිරීමට පමණි.</div>
+                    </div>
+                </div>
+            </div>
 
-            <h2>2. යතුරුකරණ දත්ත සහ මුරපද (Keystrokes & Passwords)</h2>
+            <h2>1. අන්තර්ජාල භාවිතය සහ එහි සීමාව (Internet Access Policy)</h2>
             <p>
-                ඔබ ටයිප් කරන කිසිදු පාඨයක්, පණිවිඩයක්, ක්‍රෙඩිට් කාඩ් විස්තරයක් හෝ මුරපදයක් (Passwords) කිසිදු බාහිර Server එකකට යැවීමක් හෝ සටහන් කර තබා ගැනීමක් සිදු නොවේ. රහස්‍ය ආදාන ක්ෂේත්‍රවලදී (Password fields) වචන යෝජනා හෝ ඉගෙනුම් ක්‍රම ස්වයංක්‍රීයව අක්‍රිය වේ.
-            </p>
-
-            <h2>3. පසුරු පුවරුව (Clipboard History)</h2>
-            <p>
-                යතුරුපුවරුවේ ඇති Clipboard History පහසුකම ක්‍රියාත්මක වන්නේ ඔබගේ දුරකථනයේ පමණි:
+                Slashboard යතුරුපුවරුවේ මූලික යතුරුකරණ කාර්යයන් කිසිවකටත් අන්තර්ජාලය අවශ්‍ය නොවේ (100% Offline). යෙදුම තුළ ඇති අන්තර්ජාල අවසරය (Internet Permission) භාවිතා කරනු ලබන්නේ පහත නිශ්චිත අරමුණ සඳහා <strong>පමණි</strong>:
             </p>
             <ul>
-                <li>පිටපත් කරගන්නා ලද දත්ත ඔබගේ උපාංගයේ පමණක් තාවකාලිකව සුරැකේ.</li>
-                <li>සැකසුම් (Settings) මඟින් ඕනෑම මොහොතක සම්පූර්ණ Clipboard ඉතිහාසය මැකීමට පරිශීලකයාට හැකියාව ඇත.</li>
+                <li><strong>In-App OTA Updates (යාවත්කාලීන පරීක්ෂාව):</strong> ඔබ යෙදුම විවෘත කළ විට හෝ Settings මඟින් Update පරීක්ෂා කළ විට, GitHub Releases වෙතින් නවතම APK එකක් නිකුත් වී ඇත්දැයි බැලීමට පමණි.</li>
+            </ul>
+            <div class="callout-box">
+                <strong>විශේෂ සටහන:</strong> Slashboard යෙදුම තුළ කිසිදු Google Analytics, Firebase Analytics, Flurry, හෝ වෙනත් තෙවන පාර්ශවීය Tracking/Telemetry පුස්තකාල අඩංගු කර නොමැත. ඔබගේ IP ලිපිනය හෝ ඔබගේ ටයිප් කිරීම් කිසිදු අවස්ථාවක අප වෙත නොලැබේ.
+            </div>
+
+            <h2>2. ඔබ ටයිප් කරන දත්ත සහ මුරපද ආරක්ෂාව (Keystrokes & Passwords)</h2>
+            <p>
+                ඔබ ටයිප් කරන කිසිදු පෙළක් (Text), පෞද්ගලික පණිවිඩයක්, බැංකු තොරතුරක් හෝ මුරපදයක් (Passwords) කිසිදු බාහිර Server එකකට යැවීමක් හෝ දුරකථනයෙන් පිටතට රැගෙන යාමක් සිදු නොවේ.
+            </p>
+            <ul>
+                <li><strong>Strict Password Protection:</strong> ඔබ මුරපදයක් ටයිප් කරන විට (Password/Pin Fields) යතුරුපුවරුවේ ස්වයංක්‍රීය වචන යෝජනා (Word Suggestions) සහ ශබ්දකෝෂ ඉගෙනුම (Personal Learning) සම්පූර්ණයෙන්ම අක්‍රිය වේ.</li>
+                <li><strong>Incognito Mode:</strong> පුද්ගලික බ්‍රවුසින් හෝ රහස්‍ය ක්ෂේත්‍රවලදී කිසිදු දත්තයක් තාවකාලික මතකයට හෝ සටහන් නොකෙරේ.</li>
             </ul>
 
-            <h2>4. වචන ඉගෙනුම (On-Device Word Learning)</h2>
+            <h2>3. පසුරු පුවරුව (Clipboard Privacy & Pinned Clips)</h2>
             <p>
-                ඔබ නිතර ටයිප් කරන වචන යෝජනා කිරීම සඳහා වන ශබ්දකෝෂ දත්ත (Personal Dictionary) ඔබගේ දුරකථනයේ අභ්‍යන්තර ආචයනය තුළ පමණක් ගබඩා වන අතර, එය Cloud Backup වෙත යැවීමෙන් පවා සම්පූර්ණයෙන්ම බැහැර කර ඇත.
+                Slashboard හි ඇති ස්මාර්ට් පසුරු පුවරුව (Smart Clipboard Manager) පරිශීලකයාට පිටපත් කළ පාඨ සහ නිතර අවශ්‍ය සටහන් පහසුවෙන් භාවිත කිරීමට ඉඩ සලසයි:
+            </p>
+            <ul>
+                <li>පිටපත් කරගත් පාඨ ගබඩා වන්නේ ඔබගේ උපාංගයේ අභ්‍යන්තර SQLite දත්තගබඩාවේ පමණි.</li>
+                <li>සැකසුම් (Settings) හෝ Clipboard පුවරුවේ ඇති 🗑️ 'Clear All' බොත්තම මඟින් ඕනෑම මොහොතක සම්පූර්ණ පසුරු පුවරු ඉතිහාසය මැකීමට පරිශීලකයාට පූර්ණ බලය ඇත.</li>
+                <li>පසුරු පුවරුවේ කිසිදු සටහනක් අන්තර්ජාලය ඔස්සේ කිසිදු පාර්ශවයකට යැවීමක් සිදු නොවේ.</li>
+            </ul>
+
+            <h2>4. වචන ඉගෙනුම සහ පුද්ගලික ශබ්දකෝෂය (On-Device Dictionary)</h2>
+            <p>
+                ඔබ නිතර ටයිප් කරන වචන ඉදිරියේදී පහසුවෙන් යෝජනා කිරීම සඳහා වන ඉගෙනුම් ක්‍රමය (Next-Word Prediction & User Dictionary) ක්‍රියාත්මක වන්නේ ඔබගේ දුරකථනයේ පමණි:
+            </p>
+            <ul>
+                <li>මෙම ශබ්දකෝෂ දත්ත Android Cloud Backup (Google Drive Backup) වෙතින් පවා බැහැර කර ඇත (Excluded from backups).</li>
+                <li>Settings මඟින් ඕනෑම මොහොතක "Reset Learned Words" තේරීමෙන් ඔබගේ පුද්ගලික ශබ්දකෝෂය සම්පූර්ණයෙන්ම මුකා හැරිය හැක.</li>
+            </ul>
+
+            <h2>5. ළමුන්ගේ පෞද්ගලිකත්වය (Children's Privacy Protection)</h2>
+            <p>
+                අපගේ යෙදුම කිසිදු ආකාරයක පුද්ගලික හඳුනාගැනීමේ දත්ත (Personally Identifiable Information - PII) රැස් නොකරන බැවින්, ළමුන් ඇතුළු ඕනෑම වයස් කාණ්ඩයක පරිශීලකයින් සඳහා 100% ක් ආරක්ෂිත වේ. Google Play Families Policy සහ COPPA නීතිරීතිවලට පූර්ණ ලෙස අනුකූල වේ.
             </p>
 
-            <h2>5. ළමුන්ගේ පෞද්ගලිකත්වය (Children's Privacy)</h2>
+            <h2>6. උපාංග අවසරයන් (Device Permissions)</h2>
             <p>
-                අපගේ යෙදුම කිසිදු පුද්ගලික තොරතුරක් රැස් නොකරන බැවින් ළමුන් ඇතුළු ඕනෑම වයස් කාණ්ඩයක පරිශීලකයින් සඳහා 100% ක් ආරක්ෂිත වේ.
+                Slashboard ඉල්ලා සිටින්නේ යතුරුපුවරුව ක්‍රියාත්මක වීමට අවශ්‍ය අවම අවසරයන් පමණි:
+            </p>
+            <ul>
+                <li><code>VIBRATE</code>: යතුරු ඔබන විට Haptic Feedback ලබා දීම සඳහා පමණි.</li>
+                <li><code>INTERNET</code>: GitHub වෙතින් යෙදුමේ නව updates පරීක්ෂා කිරීම සඳහා පමණි.</li>
+                <li><code>POST_NOTIFICATIONS</code> (Android 13+): නව update එකක් ඇති විට දැනුම් දීම සඳහා පමණි.</li>
+            </ul>
+
+            <h2>7. ප්‍රතිපත්ති සංශෝධනය කිරීම (Policy Updates)</h2>
+            <p>
+                අනාගතයේදී කිසියම් නව අංගයක් එක්වීම හේතුවෙන් මෙම ප්‍රතිපත්තිය සංශෝධනය කළහොත්, සංශෝධිත නව දිනය සමඟ මෙම පිටුවෙහි පළ කරනු ලැබේ.
             </p>
 
-            <h2>6. ප්‍රතිපත්ති සංශෝධන (Policy Updates)</h2>
-            <p>
-                අප මෙම පෞද්ගලිකත්ව ප්‍රතිපත්තිය ඉදිරියේදී යාවත්කාලීන කළහොත්, එම වෙනස්කම් මෙම පිටුවෙහි පළ කරනු ලැබේ.
-            </p>
-
-            <h2>7. සම්බන්ධ කරගැනීම (Contact Information)</h2>
+            <h2>8. සංවර්ධකයා සම්බන්ධ කරගැනීම (Contact Developer)</h2>
             <div class="contact-box">
-                <p>ඔබට මෙම පෞද්ගලිකත්ව ප්‍රතිපත්තිය පිළිබඳව කිසියම් ප්‍රශ්නයක් හෝ විමසීමක් ඇත්නම් අප හා සම්බන්ධ වන්න:</p>
-                <p><strong>Developer:</strong> Dinush Lakmal</p>
-                <p><strong>App:</strong> Slashboard Sinhala Keyboard</p>
-                <p><strong>Email:</strong> <a href="mailto:dinushlakmal01@gmail.com" style="color: #818CF8;">dinushlakmal01@gmail.com</a></p>
-                <p><strong>GitHub:</strong> <a href="https://github.com/dinushlakmal01" target="_blank" style="color: #818CF8;">github.com/dinushlakmal01</a></p>
+                <p>මෙම පෞද්ගලිකත්ව ප්‍රතිපත්තිය හෝ යෙදුමේ ආරක්ෂාව පිළිබඳව ඔබට කිසියම් ප්‍රශ්නයක් හෝ විමසීමක් ඇත්නම් සෘජුවම සංවර්ධකයා අමතන්න:</p>
+                <p><strong>සංවර්ධක (Developer):</strong> Dinush Lakmal</p>
+                <p><strong>යෙදුම (Application):</strong> Slashboard Sinhala Keyboard (Android)</p>
+                <p><strong>විද්‍යුත් තැපෑල (Email):</strong> <a href="mailto:dinushlakmal01@gmail.com">dinushlakmal01@gmail.com</a></p>
+                <p><strong>GitHub Project:</strong> <a href="https://github.com/dinushlakmal01" target="_blank">github.com/dinushlakmal01</a></p>
+                <p><strong>රට (Country):</strong> ශ්‍රී ලංකාව (Sri Lanka 🇱🇰)</p>
             </div>
         </div>
 
         <!-- Footer -->
         <footer>
-            <p>© 2026 Slashboard Sinhala Keyboard. Developed by <strong>Dinush Lakmal</strong>.</p>
+            <p>© 2026 Slashboard Sinhala Keyboard. Developed with ❤️ for Sri Lanka by <strong>Dinush Lakmal</strong>.</p>
             <p style="margin-top: 8px;">
-                <a href="index.html">Landing</a> • 
-                <a href="home.html">Features</a> • 
+                <a href="index.html">Home</a> • 
+                <a href="home.html">Features & Guide</a> • 
                 <a href="privacy.html">Privacy Policy</a> • 
-                <a href="terms.html">Terms of Service</a>
+                <a href="terms.html">Terms of Service</a> • 
+                <a href="https://github.com/dinushlakmal01">GitHub</a>
             </p>
         </footer>
     </div>
