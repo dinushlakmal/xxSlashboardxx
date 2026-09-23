@@ -739,6 +739,237 @@
             color: var(--primary-light);
         }
 
+        /* FAQ Section & Accordion Styles */
+        .faq-section {
+            padding: 40px 0 80px;
+        }
+
+        .faq-filter-bar {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 24px;
+        }
+
+        .faq-filter-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--card-border);
+            color: var(--text-muted);
+            padding: 8px 18px;
+            border-radius: 99px;
+            font-size: 0.88rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .faq-filter-btn:hover {
+            background: rgba(99, 102, 241, 0.15);
+            color: #fff;
+            border-color: rgba(99, 102, 241, 0.35);
+        }
+
+        .faq-filter-btn.active {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.35) 0%, rgba(79, 70, 229, 0.35) 100%);
+            border-color: var(--primary-light);
+            color: #fff;
+            box-shadow: 0 4px 14px rgba(99, 102, 241, 0.25);
+        }
+
+        .faq-search-box {
+            max-width: 580px;
+            margin: 0 auto 36px;
+            position: relative;
+        }
+
+        .faq-search-input {
+            width: 100%;
+            background: rgba(15, 23, 42, 0.85);
+            border: 1px solid var(--card-border);
+            border-radius: 14px;
+            padding: 14px 20px 14px 44px;
+            color: #fff;
+            font-size: 0.96rem;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        .faq-search-input:focus {
+            border-color: var(--primary-light);
+            box-shadow: 0 0 16px rgba(99, 102, 241, 0.3);
+        }
+
+        .faq-search-icon {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            pointer-events: none;
+        }
+
+        .faq-accordion-container {
+            max-width: 860px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .faq-item {
+            background: var(--bg-card);
+            border: 1px solid var(--card-border);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            backdrop-filter: blur(12px);
+            transition: all 0.25s ease;
+        }
+
+        .faq-item:hover {
+            border-color: rgba(99, 102, 241, 0.35);
+        }
+
+        .faq-item.active {
+            border-color: rgba(99, 102, 241, 0.55);
+            background: rgba(22, 29, 49, 0.92);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+        }
+
+        .faq-question {
+            width: 100%;
+            padding: 20px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            background: transparent;
+            border: none;
+            color: #F8FAFC;
+            font-size: 1.05rem;
+            font-weight: 700;
+            text-align: left;
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+
+        .faq-question:hover {
+            color: var(--primary-light);
+        }
+
+        .faq-item.active .faq-question {
+            color: #A5B4FC;
+        }
+
+        .faq-q-content {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex: 1;
+        }
+
+        .faq-tag {
+            font-size: 0.72rem;
+            font-weight: 800;
+            padding: 3px 9px;
+            border-radius: 99px;
+            letter-spacing: 0.03em;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        .faq-tag.usage {
+            background: rgba(99, 102, 241, 0.2);
+            color: #A5B4FC;
+            border: 1px solid rgba(99, 102, 241, 0.3);
+        }
+
+        .faq-tag.install {
+            background: rgba(236, 72, 153, 0.2);
+            color: #F472B6;
+            border: 1px solid rgba(236, 72, 153, 0.3);
+        }
+
+        .faq-tag.privacy {
+            background: rgba(16, 185, 129, 0.2);
+            color: #6EE7B7;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .faq-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.05);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            color: var(--text-muted);
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+            line-height: 1;
+        }
+
+        .faq-item.active .faq-icon {
+            transform: rotate(45deg);
+            background: rgba(99, 102, 241, 0.25);
+            color: var(--primary-light);
+        }
+
+        .faq-answer {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
+            opacity: 0;
+        }
+
+        .faq-item.active .faq-answer {
+            opacity: 1;
+        }
+
+        .faq-answer-inner {
+            padding: 0 24px 22px;
+            color: #CBD5E1;
+            font-size: 0.96rem;
+            line-height: 1.75;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            padding-top: 16px;
+        }
+
+        .faq-answer-inner strong {
+            color: #F8FAFC;
+        }
+
+        .faq-answer-inner ul, .faq-answer-inner ol {
+            margin: 10px 0 10px 20px;
+        }
+
+        .faq-answer-inner li {
+            margin-bottom: 6px;
+        }
+
+        .faq-answer-inner code {
+            background: rgba(99, 102, 241, 0.18);
+            color: #93C5FD;
+            padding: 2px 7px;
+            border-radius: 6px;
+            font-family: monospace;
+            font-size: 0.9em;
+        }
+
+        .faq-empty-state {
+            display: none;
+            text-align: center;
+            padding: 40px;
+            color: var(--text-muted);
+            font-size: 1rem;
+            background: var(--bg-card);
+            border: 1px dashed var(--card-border);
+            border-radius: var(--radius-md);
+        }
+
         @media (max-width: 900px) {
             .trust-bar {
                 grid-template-columns: repeat(2, 1fr);
@@ -764,6 +995,19 @@
             .trust-bar {
                 grid-template-columns: 1fr 1fr;
             }
+            .faq-question {
+                padding: 16px 18px;
+                font-size: 0.98rem;
+            }
+            .faq-q-content {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 6px;
+            }
+            .faq-answer-inner {
+                padding: 0 18px 18px;
+                font-size: 0.92rem;
+            }
         }
     </style>
 </head>
@@ -783,10 +1027,12 @@
                 <a href="index.html" class="active">මුල් පිටුව (Home)</a>
                 <a href="#features">විශේෂාංග (Features)</a>
                 <a href="#guide">ටයිප් කරන හැටි (Guide)</a>
+                <a href="#faq">ප්‍රශ්න සහ පිළිතුරු (FAQ)</a>
+                <a href="https://www.facebook.com/profile.php?id=61593856756750" target="_blank" style="color: #60A5FA;">📘 Facebook</a>
+                <a href="https://github.com/dinushlakmal" target="_blank">GitHub</a>
                 <a href="privacy.html">පෞද්ගලිකත්වය (Privacy)</a>
                 <a href="terms.html">කොන්දේසි (Terms)</a>
-                <a href="https://github.com/dinushlakmal01" target="_blank">Developer</a>
-                <a href="#download" class="btn-cta">බාගත කරන්න 🚀</a>
+                <a href="https://github.com/dinushlakmal/xxSlashboardxx/releases" target="_blank" class="btn-cta">බාගත කරන්න 🚀</a>
             </div>
         </nav>
 
@@ -811,11 +1057,14 @@
             </p>
 
             <div class="cta-buttons">
-                <a href="#demo" class="btn-lg-primary">
+                <a href="https://github.com/dinushlakmal/xxSlashboardxx/releases" target="_blank" class="btn-lg-primary">
+                    📥 Direct Download APK (v2.5)
+                </a>
+                <a href="#demo" class="btn-lg-secondary">
                     ⚡ Live Typing අත්හදා බලන්න
                 </a>
-                <a href="#features" class="btn-lg-secondary">
-                    🔍 නව විශේෂාංග ගවේෂණය
+                <a href="https://www.facebook.com/profile.php?id=61593856756750" target="_blank" class="btn-lg-secondary" style="border-color: rgba(96, 165, 250, 0.4); color: #93C5FD;">
+                    📘 Facebook Page
                 </a>
                 <a href="privacy.html" class="btn-lg-secondary">
                     🛡️ Privacy Policy
@@ -1121,6 +1370,274 @@
             </div>
         </section>
 
+        <!-- FAQ Section with Clean Accordion Design -->
+        <section class="faq-section" id="faq">
+            <div class="section-header">
+                <div class="section-tag">❓ Common Questions & Help</div>
+                <h2>නිතර අසන ප්‍රශ්න සහ පිළිතුරු (FAQ)</h2>
+                <p>Slashboard සිංහල යතුරුපුවරුව, ස්ථාපනය, ටයිප් කිරීම සහ දත්ත ආරක්ෂාව පිළිබඳ ඔබගේ සියලු ගැටලුවලට සවිස්තරාත්මක පිළිතුරු</p>
+            </div>
+
+            <!-- Category Filter Bar -->
+            <div class="faq-filter-bar">
+                <button class="faq-filter-btn active" data-category="all" onclick="filterFaq('all', this)">සියල්ල (All Questions)</button>
+                <button class="faq-filter-btn" data-category="install" onclick="filterFaq('install', this)">⚙️ ස්ථාපනය සහ ගැටලු (Installation)</button>
+                <button class="faq-filter-btn" data-category="usage" onclick="filterFaq('usage', this)">⌨️ සිංහල ටයිපිං (Keyboard Usage)</button>
+                <button class="faq-filter-btn" data-category="privacy" onclick="filterFaq('privacy', this)">🔒 පෞද්ගලිකත්වය සහ ආරක්ෂාව (Privacy)</button>
+            </div>
+
+            <!-- Realtime Search Box -->
+            <div class="faq-search-box">
+                <span class="faq-search-icon">🔍</span>
+                <input type="text" id="faqSearch" class="faq-search-input" placeholder="ප්‍රශ්න සොයන්න (e.g. singlish, warning, password, xiaomi, offline)..." oninput="searchFaq(this.value)">
+            </div>
+
+            <!-- Accordion List -->
+            <div class="faq-accordion-container" id="faqList">
+
+                <!-- Q1: Installation & Activation -->
+                <div class="faq-item active" data-category="install">
+                    <button class="faq-question" aria-expanded="true" onclick="toggleFaq(this)">
+                        <div class="faq-q-content">
+                            <span class="faq-tag install">ස්ථාපනය</span>
+                            <span>Slashboard Keyboard එක Android දුරකථනයේ සක්‍රීය (Enable & Set as Default) කරන්නේ කෙසේද?</span>
+                        </div>
+                        <div class="faq-icon">+</div>
+                    </button>
+                    <div class="faq-answer" style="max-height: 500px;">
+                        <div class="faq-answer-inner">
+                            <p>Slashboard ඉතා පහසුවෙන් පියවර 4කින් ඔබගේ දුරකථනයේ ප්‍රධාන යතුරුපුවරුව බවට පත් කරගත හැක:</p>
+                            <ol>
+                                <li><strong>APK එක බාගත කර ස්ථාපනය කරන්න:</strong> නිල <a href="https://github.com/dinushlakmal/xxSlashboardxx/releases" target="_blank" style="color: var(--primary-light); text-decoration: underline;">GitHub Releases</a> පිටුවෙන් නවතම APK එක බාගත කර Install කරගන්න.</li>
+                                <li><strong>Slashboard Settings ඇප් එක විවෘත කරන්න:</strong> යෙදුම විවෘත කළ විට දිස්වන මඟපෙන්වීම අනුගමනය කරන්න. නැතහොත් දුරකථනයේ <code>Settings > System > Languages & Input > On-screen Keyboard</code> (හෝ General Management) වෙත යන්න.</li>
+                                <li><strong>Slashboard සක්‍රීය (Enable) කරන්න:</strong> "Manage Keyboards" ලැයිස්තුවේ ඇති <em>Slashboard Sinhala Keyboard</em> ඉදිරියෙන් ඇති ස්විචය සක්‍රීය (ON) කරන්න.</li>
+                                <li><strong>Default Keyboard එක ලෙස තෝරන්න:</strong> ඕනෑම Text Box එකක් මත Tap කළ විට පහළ Navigation තීරුවේ දිස්වන Keyboard Icon එකෙන් හෝ Notification Bar එකෙන් <em>Slashboard</em> තෝරන්න.</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Q2: System Warning Explanation -->
+                <div class="faq-item" data-category="install">
+                    <button class="faq-question" aria-expanded="false" onclick="toggleFaq(this)">
+                        <div class="faq-q-content">
+                            <span class="faq-tag install">ආරක්ෂක පණිවිඩ</span>
+                            <span>ස්ථාපනයේදී "This input method may be able to collect all text you type..." පෙන්වන්නේ ඇයි?</span>
+                        </div>
+                        <div class="faq-icon">+</div>
+                    </button>
+                    <div class="faq-answer">
+                        <div class="faq-answer-inner">
+                            <p>මෙය Android මෙහෙයුම් පද්ධතිය (Google Android OS) විසින් Play Store එකෙන් පිටතින් හෝ වෙනත් ඕනෑම තෙවන පාර්ශවීය (3rd-party) යතුරුපුවරුවක් සක්‍රීය කරන විට <strong>පද්ධතිය මඟින් ස්වයංක්‍රීයව පෙන්වන සම්මත ආරක්ෂක පණිවිඩයකි (Default Android Warning)</strong>.</p>
+                            <ul>
+                                <li><strong>100% On-Device විශ්වාසය:</strong> Slashboard යනු සම්පූර්ණයෙන්ම ඔබගේ දුරකථනය තුළ පමණක් ක්‍රියාත්මක වන (Offline) යෙදුමකි.</li>
+                                <li><strong>කිසිදු සර්වර් එකකට දත්ත නොයයි:</strong> ඔබ ටයිප් කරන කිසිදු අකුරක්, පාස්වර්ඩ් එකක් හෝ පණිවිඩයක් කිසිදු Cloud Server එකකට සම්ප්‍රේෂණය නොවේ.</li>
+                                <li>එබැවින් මෙම Android සම්මත පණිවිඩයට කිසිදු සැකයකින් තොරව <strong>"OK"</strong> ලබා දී ඉදිරියට යා හැක.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Q3: Xiaomi/Samsung Background Killing Fix -->
+                <div class="faq-item" data-category="install">
+                    <button class="faq-question" aria-expanded="false" onclick="toggleFaq(this)">
+                        <div class="faq-q-content">
+                            <span class="faq-tag install">ගැටලු විසඳීම</span>
+                            <span>Xiaomi (MIUI/HyperOS), Vivo, Oppo හෝ Samsung වල යතුරුපුවරුව ඉබේ Switch වීම හෝ වැසී යාම වළක්වන්නේ කෙසේද?</span>
+                        </div>
+                        <div class="faq-icon">+</div>
+                    </button>
+                    <div class="faq-answer">
+                        <div class="faq-answer-inner">
+                            <p>සමහර චීන සහ Custom Android උපාංගවල ඇති අතිශය දැඩි Battery Saving (Task Killer) පද්ධති නිසා පසුබිමේ ඇති යතුරුපුවරුව අක්‍රිය විය හැක. ඒ සඳහා පහත පියවර අනුගමනය කරන්න:</p>
+                            <ul>
+                                <li><strong>Battery Optimization ඉවත් කරන්න:</strong> දුරකථන <code>Settings > Apps > Slashboard > Battery</code> වෙත ගොස් <strong>"No restrictions"</strong> හෝ <strong>"Don't optimize"</strong> තෝරන්න.</li>
+                                <li><strong>Autostart අවසරය ලබා දෙන්න:</strong> Xiaomi / Vivo / Realme දුරකථන වල <code>Security > Manage Apps > Slashboard</code> වෙත ගොස් <strong>Autostart</strong> සක්‍රීය (ON) කරන්න.</li>
+                                <li><strong>Recent Apps හි Lock කරන්න:</strong> Recent Apps (විවෘත කර ඇති යෙදුම්) තිරයට ගොස් Slashboard කාඩ්පත මත දිගු වේලාවක් ඔබාගෙන සිට 🔒 <strong>Lock</strong> අයිකනය තෝරන්න.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Q4: Switching Layouts -->
+                <div class="faq-item" data-category="usage">
+                    <button class="faq-question" aria-expanded="false" onclick="toggleFaq(this)">
+                        <div class="faq-q-content">
+                            <span class="faq-tag usage">භාවිතය</span>
+                            <span>Singlish, විජේසේකර සහ English අතර ඉක්මනින් මාරු වන්නේ කෙසේද?</span>
+                        </div>
+                        <div class="faq-icon">+</div>
+                    </button>
+                    <div class="faq-answer">
+                        <div class="faq-answer-inner">
+                            <p>Slashboard හි භාෂා සහ Layouts මාරු කිරීම ක්ෂණිකව සහ ඉතා පහසුවෙන් කළ හැක:</p>
+                            <ul>
+                                <li><strong>Globe Key (🌐):</strong> Space Bar එකට වම් පසින්, කමාවට (<code> , </code>) යාබදව පිහිටි Globe Icon එක මත එකවරක් තට්ටු කිරීමෙන් (1-Tap) Singlish, විජේසේකර හා English අතර ක්ෂණිකව මාරු විය හැක.</li>
+                                <li><strong>Top Toolbar Pill:</strong> යතුරුපුවරුවේ ඉහළ Suggestion Bar එකෙහි වම් කෙළවරේ ඇති <code>සිං | EN</code> ලේබලය මත තට්ටු කිරීමෙන්ද ක්ෂණිකව මාරු විය හැක.</li>
+                                <li><strong>Settings මඟින්:</strong> Slashboard Settings > Keyboard Layouts වෙතින් ඔබට නිතර අවශ්‍ය වන ප්‍රධාන පෙරනිමි Layout එක (Default Layout) තෝරාගත හැක.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Q5: Complex Sinhala typing, Bandi & Pillam -->
+                <div class="faq-item" data-category="usage">
+                    <button class="faq-question" aria-expanded="false" onclick="toggleFaq(this)">
+                        <div class="faq-q-content">
+                            <span class="faq-tag usage">සිංහල ටයිපිං</span>
+                            <span>සංකීර්ණ සිංහල අකුරු, බැඳි අකුරු (සඤ්ඤක), යංශය සහ රකාරාංශය ටයිප් කරන්නේ කෙසේද?</span>
+                        </div>
+                        <div class="faq-icon">+</div>
+                    </button>
+                    <div class="faq-answer">
+                        <div class="faq-answer-inner">
+                            <p>Slashboard හි ඇති සුහුරු Phonetic Engine එක මඟින් පහසුවෙන්ම සියලුම සිංහල අක්ෂර නිවැරදිව ටයිප් කළ හැක:</p>
+                            <ul>
+                                <li><strong>දීර්ඝ පිල්ලම්:</strong> කෙටි පිල්ලම් අකුර දෙවරක් ටයිප් කරන්න — උදා: <code>ii</code> ➔ <code>ී</code> (කි ➔ කී), <code>uu</code> ➔ <code>ූ</code> (කු ➔ කූ), <code>ee</code> ➔ <code>ේ</code> (කෙ ➔ කේ), <code>oo</code> ➔ <code>ෝ</code> (කො ➔ කෝ).</li>
+                                <li><strong>රකාරාංශය:</strong> අකුරට පසු <code>r</code> යොදන්න — උදා: <code>kra</code> ➔ <code>ක්‍ර</code>, <code>pra</code> ➔ <code>ප්‍ර</code>, <code>sri</code> ➔ <code>ශ්‍රී</code>, <code>tri</code> ➔ <code>ත්‍රී</code>.</li>
+                                <li><strong>යංශය:</strong> අකුරට පසු <code>y</code> යොදන්න — උදා: <code>kya</code> ➔ <code>ක්‍ය</code>, <code>vya</code> ➔ <code>ව්‍ය</code>, <code>sya</code> ➔ <code>ශ්‍ය</code>.</li>
+                                <li><strong>සඤ්ඤක / බඳි අකුරු:</strong> <code>nd</code> හෝ <code>zdha</code> ➔ <code>ඳ</code>, <code>nnd</code> හෝ <code>zda</code> ➔ <code>ඬ</code>, <code>mb</code> ➔ <code>ඹ</code>, <code>ng</code> ➔ <code>ඟ</code>, <code>gna</code> ➔ <code>ඥ</code>, <code>nya</code> ➔ <code>ඤ</code>.</li>
+                                <li><strong>මහාප්‍රාණ අක්ෂර:</strong> Capital අකුරින් හෝ <code>h</code> සමඟ — උදා: <code>K</code> / <code>kha</code> ➔ <code>ඛ</code>, <code>G</code> / <code>gha</code> ➔ <code>ඝ</code>, <code>Th</code> ➔ <code>ඨ</code>, <code>thha</code> ➔ <code>ථ</code>, <code>dhha</code> ➔ <code>ධ</code>, <code>sha</code> ➔ <code>ශ</code>, <code>Sha</code> ➔ <code>ෂ</code>.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Q6: Cursor Jump Permanent Fix -->
+                <div class="faq-item" data-category="usage">
+                    <button class="faq-question" aria-expanded="false" onclick="toggleFaq(this)">
+                        <div class="faq-q-content">
+                            <span class="faq-tag usage">කර්සරය</span>
+                            <span>වේගයෙන් ටයිප් කිරීමේදී Cursor එක ඉබේ වෙනත් තැනකට පැනීම (Cursor Jump) විසඳා තිබේද?</span>
+                        </div>
+                        <div class="faq-icon">+</div>
+                    </button>
+                    <div class="faq-answer">
+                        <div class="faq-answer-inner">
+                            <p><strong>ඔව්! Slashboard v2.5 හි මෙම ගැටලුව 100%ක් ස්ථිරවම විසඳා ඇත.</strong></p>
+                            <ul>
+                                <li><strong>Atomic Batch Synchronization:</strong> පෙර පැවති සිංහල යතුරුපුවරුවල සංයුක්ත අක්ෂර (Composition) සැකසීමේදී Cursor එක කලින් ස්ථානයට පැනීම හෝ "ගෙගියාදර" ආදී අකුරු පෙරලීම් වැළැක්වීමට නව ආරක්ෂිත තාක්ෂණයක් යොදා ඇත.</li>
+                                <li><strong>Spacebar Trackpad Slide:</strong> කර්සරය අවශ්‍ය තැනකට පහසුවෙන් ගෙන යාමට Space bar එක මත ඇඟිල්ල වමට හෝ දකුණට Slide කර (ලිස්සා යවා) අකුරෙන් අකුරට කර්සරය ගෙනයාමේ සුපිරි පහසුකමද මෙහි අඩංගුය.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Q7: Keyboard Height and IME Space Adjuster -->
+                <div class="faq-item" data-category="usage">
+                    <button class="faq-question" aria-expanded="false" onclick="toggleFaq(this)">
+                        <div class="faq-q-content">
+                            <span class="faq-tag usage">සැකසුම්</span>
+                            <span>යතුරුපුවරුවේ උස (Height) සහ යට ඇති Navigation Gesture Bar පරතරය වෙනස් කරන්නේ කෙසේද?</span>
+                        </div>
+                        <div class="faq-icon">+</div>
+                    </button>
+                    <div class="faq-answer">
+                        <div class="faq-answer-inner">
+                            <p>ඔබගේ ඇඟිලිවලට වඩාත් පහසු පරිදි යතුරුපුවරුව සම්පූර්ණයෙන්ම සකසාගත හැක:</p>
+                            <ul>
+                                <li><strong>Keyboard Height (උස):</strong> Slashboard Settings > <code>Appearance & Layout > Keyboard Size</code> වෙත ගොස් Short, Medium, Normal, Tall ආදී කැමති උසක් තෝරාගත හැක.</li>
+                                <li><strong>Dynamic IME Space Adjuster:</strong> Android Gesture Navigation භාවිතා කරන විට යතුරුපුවරුව දුරකථනයේ යටටම ගෑවී ටයිප් කිරීමට අපහසු වීම වැළැක්වීමට, <strong>0dp සිට 48dp දක්වා Live Slider එකකින්</strong> පහළ පරතරය සකසා ගත හැක.</li>
+                                <li>යතුරුපුවරුවේ Toolbar එකෙහි ඇති <code>📏</code> අයිකනය මත තට්ටු කිරීමෙන්ද මෙය ක්ෂණිකව සකස් කළ හැක.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Q8: Live Math & Unit Converter -->
+                <div class="faq-item" data-category="usage">
+                    <button class="faq-question" aria-expanded="false" onclick="toggleFaq(this)">
+                        <div class="faq-q-content">
+                            <span class="faq-tag usage">ස්මාර්ට් මෙවලම්</span>
+                            <span>යතුරුපුවරුව තුළින්ම ගණිත ගැටලු විසඳන්නේ සහ ඒකක පරිවර්තනය කරන්නේ කෙසේද?</span>
+                        </div>
+                        <div class="faq-icon">+</div>
+                    </button>
+                    <div class="faq-answer">
+                        <div class="faq-answer-inner">
+                            <p>වෙනම කැල්කියුලේටර් ඇප් විවෘත නොකර යතුරුපුවරුව තුළින්ම ක්ෂණික ගණනය කිරීම් සිදු කළ හැක:</p>
+                            <ul>
+                                <li><strong>Live Math Evaluator:</strong> ඕනෑම Text Field එකක <code>50+25=</code> හෝ <code>125*8=</code> හෝ <code>(2500-450)/2=</code> ලෙස සමීකරණය අගට <code>=</code> ලකුණ ටයිප් කළ සැනින් Suggestion Bar එකෙහි පිළිතුර දිස්වේ.</li>
+                                <li>එම පිළිතුර මත තට්ටු කළ විට සම්පූර්ණ පිළිතුර ක්ෂණිකව පණිවිඩයට ඇතුළත් වේ.</li>
+                                <li><strong>Unit Converter:</strong> <code>10 USD to LKR</code>, <code>5 KM to M</code>, <code>100 C to F</code> ආදී ඒකක පරිවර්තනයන්ද යතුරුපුවරුව තුළින්ම සෘජුවම සිදු කරගත හැක.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Q9: Privacy Guarantee & Zero Data Logging -->
+                <div class="faq-item" data-category="privacy">
+                    <button class="faq-question" aria-expanded="false" onclick="toggleFaq(this)">
+                        <div class="faq-q-content">
+                            <span class="faq-tag privacy">පෞද්ගලිකත්වය</span>
+                            <span>Slashboard මඟින් මගේ Passwords, බැංකු කාඩ්පත් හෝ පෞද්ගලික පණිවිඩ කිසිවක් සර්වර් වලට යවනවාද?</span>
+                        </div>
+                        <div class="faq-icon">+</div>
+                    </button>
+                    <div class="faq-answer">
+                        <div class="faq-answer-inner">
+                            <p><strong>නැත! කිසිසේත්ම නැත.</strong> Slashboard යනු 100% ඔබගේ පෞද්ගලිකත්වය සුරකින ස්වාධීන යෙදුමකි:</p>
+                            <ul>
+                                <li><strong>Zero Cloud Telemetry:</strong> Slashboard තුළ ඔබගේ යතුරු ලකුණු (Keystrokes) එකතු කරන කිසිදු Cloud Server සම්බන්ධතාවයක්, Analytics හෝ Tracking SDK එකක් (Firebase Analytics, Facebook Graph SDK, Flurry ආදී) අඩංගු නොවේ.</li>
+                                <li><strong>Strict Password Protection:</strong> මුරපද (Password / PIN) හෝ සංවේදී අංක ඇතුළත් කරන Text Fields හඳුනාගත් සැනින් යතුරුපුවරුව ස්වයංක්‍රීයව <strong>Incognito / Secure Mode</strong> එකට මාරු වන අතර කිසිදු වචනයක් ශබ්දකෝෂයට හෝ මතකයට එක් කර නොගනී.</li>
+                                <li>ඔබගේ පෞද්ගලිකත්වය පිළිබඳ වැඩිදුර විස්තර අපගේ <a href="privacy.html" style="color: var(--primary-light); text-decoration: underline;">Privacy Policy</a> පිටුවෙන් කියවිය හැක.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Q10: Clipboard Manager Security -->
+                <div class="faq-item" data-category="privacy">
+                    <button class="faq-question" aria-expanded="false" onclick="toggleFaq(this)">
+                        <div class="faq-q-content">
+                            <span class="faq-tag privacy">පසුරු පුවරුව</span>
+                            <span>Clipboard Manager එකේ පිටපත් කරන තොරතුරු සහ Personal Dictionary කොතරම් දුරට ආරක්ෂිතද?</span>
+                        </div>
+                        <div class="faq-icon">+</div>
+                    </button>
+                    <div class="faq-answer">
+                        <div class="faq-answer-inner">
+                            <p>ඔබ පිටපත් කරන (Copy) සියලුම පාඨ සහ නිතර භාවිතා වන පුද්ගලික ශබ්දකෝෂය (Personal Dictionary) ආරක්ෂා කිරීමට විශේෂ පියවර ගෙන ඇත:</p>
+                            <ul>
+                                <li><strong>100% On-Device Local SQLite Storage:</strong> Clipboard ඉතිහාසය ගබඩා වන්නේ ඔබගේ දුරකථනයේ පමණක් වන අතර කිසි විටෙකත් අන්තර්ජාලයට හෝ බාහිර පාර්ශවයකට යැවීමක් සිදු නොවේ.</li>
+                                <li><strong>Smart Sensitive Data Filtering:</strong> බැංකු OTPs සහ Passwords වැනි සංවේදී තොරතුරු ස්වයංක්‍රීයව හඳුනාගෙන ඒවා ක්ලිප්බෝඩ් ඉතිහාසයේ ස්ථිරව රැඳවීම වළක්වයි.</li>
+                                <li><strong>One-Tap Clear History:</strong> අවශ්‍ය ඕනෑම අවස්ථාවක Clipboard Manager හි ඇති කුණු කූඩයේ අයිකනය (Delete All) මඟින් මුළු ඉතිහාසයම තනි තට්ටුවෙන් සම්පූර්ණයෙන්ම මකා දැමිය හැක.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Q11: 100% Offline Capability -->
+                <div class="faq-item" data-category="privacy">
+                    <button class="faq-question" aria-expanded="false" onclick="toggleFaq(this)">
+                        <div class="faq-q-content">
+                            <span class="faq-tag privacy">නොබැඳි භාවිතය</span>
+                            <span>මෙම යතුරුපුවරුව භාවිතා කිරීමට අන්තර්ජාල සම්බන්ධතාවයක් (Mobile Data / Wi-Fi) අවශ්‍යද?</span>
+                        </div>
+                        <div class="faq-icon">+</div>
+                    </button>
+                    <div class="faq-answer">
+                        <div class="faq-answer-inner">
+                            <p><strong>නැත. Slashboard හි සියලුම ප්‍රධාන කාර්යයන් 100% Offline (නොබැඳිව) ක්‍රියාත්මක වේ.</strong></p>
+                            <ul>
+                                <li>සම්පූර්ණ සිංහල ශබ්දකෝෂය (Sinhala Dictionary), Singlish Phonetic Transliteration Engine, අකුරු නිවැරදි කිරීම්, Live Math Evaluator සහ සියලුම Themes ඔබගේ දුරකථනය තුළම අන්තර්ගත කර ඇත.</li>
+                                <li>දුරකථනයේ Mobile Data හෝ Wi-Fi අක්‍රිය කර තිබුණද, නැතහොත් Airplane Mode එකේදී පවා ඔබට කිසිදු බාධාවකින් තොරව සිංහල ටයිප් කළ හැක.</li>
+                                <li><em>සටහන:</em> යතුරුපුවරුවේ Toolbar එකෙන් සෘජුවම විවෘත වන "In-Keyboard Translate Bar" මඟින් භාෂා පරිවර්තනය කරන විට පමණක් පරිවර්තන API සඳහා අන්තර්ජාලය අවශ්‍ය වේ.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Empty State for Search -->
+            <div class="faq-empty-state" id="faqEmpty">
+                <div style="font-size: 2.2rem; margin-bottom: 10px;">🔍</div>
+                <div style="font-weight: 700; color: #F8FAFC; margin-bottom: 6px;">ප්‍රශ්න කිසිවක් හමු නොවීය</div>
+                <p>ඔබ සොයන වචනයට අදාළ ප්‍රශ්නයක් ලැයිස්තුවේ නොමැත. කරුණාකර වෙනත් සෙවුම් පදයක් භාවිතා කරන්න.</p>
+            </div>
+        </section>
+
         <!-- Bottom Download Call to Action -->
         <section class="download-banner" id="download">
             <h2>Slashboard අදම ඔබගේ දුරකථනයට ලබාගන්න</h2>
@@ -1128,8 +1645,14 @@
                 100% නොමිලේ, කිසිදු දැන්වීමකින් තොරව, ඔබේ පෞද්ගලිකත්වය සුරකිමින් අලුත්ම අත්දැකීම ලබාගන්න.
             </p>
             <div class="cta-buttons" style="margin-bottom: 0;">
-                <a href="https://github.com/dinushlakmal01" target="_blank" class="btn-lg-primary">
-                    📥 GitHub Releases වෙතින් Download
+                <a href="https://github.com/dinushlakmal/xxSlashboardxx/releases" target="_blank" class="btn-lg-primary">
+                    📥 Direct Download (GitHub Releases)
+                </a>
+                <a href="https://www.facebook.com/profile.php?id=61593856756750" target="_blank" class="btn-lg-secondary" style="background: rgba(24, 119, 242, 0.15); border-color: rgba(24, 119, 242, 0.4); color: #93C5FD;">
+                    📘 Facebook Page එකට එක්වන්න
+                </a>
+                <a href="https://github.com/dinushlakmal" target="_blank" class="btn-lg-secondary">
+                    💻 GitHub Profile (Dinush Lakmal)
                 </a>
                 <a href="privacy.html" class="btn-lg-secondary">
                     🔒 Privacy Policy කියවන්න
@@ -1141,10 +1664,14 @@
         <footer>
             <div class="footer-nav">
                 <a href="index.html">Home (මුල් පිටුව)</a>
-                <a href="home.html">Features & Guide</a>
+                <a href="#features">Features (විශේෂාංග)</a>
+                <a href="#guide">Typing Guide (උපදෙස්)</a>
+                <a href="#faq">FAQ (ප්‍රශ්නෝත්තර)</a>
+                <a href="https://github.com/dinushlakmal/xxSlashboardxx/releases" target="_blank" style="color: #A5B4FC; font-weight: 700;">Direct Download (APK)</a>
+                <a href="https://www.facebook.com/profile.php?id=61593856756750" target="_blank" style="color: #60A5FA;">Facebook Page</a>
+                <a href="https://github.com/dinushlakmal" target="_blank">GitHub Profile</a>
                 <a href="privacy.html">Privacy Policy (පෞද්ගලිකත්වය)</a>
                 <a href="terms.html">Terms of Service (කොන්දේසි)</a>
-                <a href="https://github.com/dinushlakmal01" target="_blank">Developer (Dinush Lakmal)</a>
             </div>
             <p>© 2026 Slashboard Sinhala Keyboard. Crafted with ❤️ for Sri Lanka 🇱🇰 by <strong>Dinush Lakmal</strong>.</p>
             <p style="margin-top: 6px; font-size: 0.85rem; color: #64748B;">
@@ -1316,6 +1843,82 @@
 
         // Initialize default tab
         renderGuideItems('vowels');
+
+        // FAQ Accordion Toggle Function
+        function toggleFaq(btn) {
+            const item = btn.closest('.faq-item');
+            const answer = item.querySelector('.faq-answer');
+            const wasActive = item.classList.contains('active');
+
+            // Close other items for a clean single-accordion experience
+            document.querySelectorAll('.faq-item').forEach(other => {
+                if (other !== item && other.classList.contains('active')) {
+                    other.classList.remove('active');
+                    other.querySelector('.faq-answer').style.maxHeight = null;
+                    const otherBtn = other.querySelector('.faq-question');
+                    if (otherBtn) otherBtn.setAttribute('aria-expanded', 'false');
+                }
+            });
+
+            if (wasActive) {
+                item.classList.remove('active');
+                answer.style.maxHeight = null;
+                btn.setAttribute('aria-expanded', 'false');
+            } else {
+                item.classList.add('active');
+                answer.style.maxHeight = (answer.scrollHeight + 40) + 'px';
+                btn.setAttribute('aria-expanded', 'true');
+            }
+        }
+
+        // FAQ Category Filter
+        function filterFaq(category, btn) {
+            document.querySelectorAll('.faq-filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            const searchInput = document.getElementById('faqSearch');
+            const query = searchInput ? searchInput.value : '';
+            applyFaqFilter(category, query);
+        }
+
+        // FAQ Search
+        function searchFaq(query) {
+            const activeBtn = document.querySelector('.faq-filter-btn.active');
+            const category = activeBtn ? activeBtn.getAttribute('data-category') : 'all';
+            applyFaqFilter(category, query);
+        }
+
+        function applyFaqFilter(category, query) {
+            const cleanQuery = (query || '').toLowerCase().trim();
+            const items = document.querySelectorAll('.faq-item');
+            let visibleCount = 0;
+
+            items.forEach(item => {
+                const itemCategory = item.getAttribute('data-category');
+                const text = item.textContent.toLowerCase();
+
+                const matchesCat = (category === 'all' || itemCategory === category);
+                const matchesQuery = !cleanQuery || text.includes(cleanQuery);
+
+                if (matchesCat && matchesQuery) {
+                    item.style.display = '';
+                    visibleCount++;
+                } else {
+                    item.style.display = 'none';
+                    if (item.classList.contains('active')) {
+                        item.classList.remove('active');
+                        item.querySelector('.faq-answer').style.maxHeight = null;
+                        const btn = item.querySelector('.faq-question');
+                        if (btn) btn.setAttribute('aria-expanded', 'false');
+                    }
+                }
+            });
+
+            const emptyState = document.getElementById('faqEmpty');
+            if (emptyState) {
+                emptyState.style.display = visibleCount === 0 ? 'block' : 'none';
+            }
+        }
     </script>
 </body>
 </html>
