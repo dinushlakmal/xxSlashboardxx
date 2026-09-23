@@ -6,7 +6,7 @@
     <meta name="google-site-verification" content="googlee1fc35545edd459a" />
     <meta name="google-site-verification" content="googlee1fc35545edd459a.html" />
     <title>Slashboard - විශේෂාංග සහ භාවිත උපදෙස් | Guide & Features</title>
-    <meta name="description" content="Slashboard Sinhala Keyboard Complete Guide, Setup Instructions, Typing Rules, and v2.5 Features by Dinush Lakmal.">
+    <meta name="description" content="Slashboard Sinhala Keyboard Complete Guide, Setup Instructions, Typing Rules, and v2.6 Features by Dinush Lakmal.">
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -314,6 +314,117 @@
             .nav-links {
                 display: none;
             }
+            .nav-mobile-actions {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+            .back-to-top {
+                bottom: 20px;
+                right: 20px;
+                width: 44px;
+                height: 44px;
+            }
+        }
+
+        /* Share Button */
+        .btn-share {
+            background: rgba(255, 255, 255, 0.08);
+            color: #E2E8F0;
+            padding: 6px 14px;
+            border-radius: 99px;
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.25s ease;
+            font-family: inherit;
+        }
+
+        .btn-share:hover {
+            background: rgba(99, 102, 241, 0.22);
+            border-color: rgba(99, 102, 241, 0.5);
+            color: #FFFFFF;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 14px rgba(99, 102, 241, 0.35);
+        }
+
+        .btn-share:active {
+            transform: translateY(0);
+        }
+
+        .nav-mobile-actions {
+            display: none;
+        }
+
+        /* Floating Back to Top Button */
+        .back-to-top {
+            position: fixed;
+            bottom: 28px;
+            right: 28px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #6366F1, #4F46E5);
+            color: #FFFFFF;
+            border: 1.5px solid rgba(255, 255, 255, 0.25);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5), 0 0 20px rgba(99, 102, 241, 0.45);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 999;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(20px) scale(0.85);
+            transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.3s, box-shadow 0.3s;
+        }
+
+        .back-to-top.visible {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0) scale(1);
+        }
+
+        .back-to-top:hover {
+            transform: translateY(-4px) scale(1.08);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6), 0 0 30px rgba(99, 102, 241, 0.7);
+        }
+
+        .back-to-top:active {
+            transform: translateY(-1px) scale(0.98);
+        }
+
+        /* Share Toast Notification */
+        .share-toast {
+            position: fixed;
+            bottom: 32px;
+            left: 50%;
+            transform: translateX(-50%) translateY(60px);
+            background: #1E293B;
+            color: #F8FAFC;
+            padding: 12px 24px;
+            border-radius: 99px;
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.6), 0 0 24px rgba(99, 102, 241, 0.45);
+            border: 1px solid rgba(99, 102, 241, 0.45);
+            font-size: 0.92rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            opacity: 0;
+            pointer-events: none;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 10000;
+        }
+
+        .share-toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+            pointer-events: auto;
         }
     </style>
 </head>
@@ -333,13 +444,35 @@
                 <a href="https://www.facebook.com/profile.php?id=61593856756750" target="_blank" style="color: #60A5FA;">📘 Facebook</a>
                 <a href="https://github.com/dinushlakmal" target="_blank">Developer</a>
                 <a href="privacy.html">පෞද්ගලිකත්වය (Privacy)</a>
+                <button type="button" class="btn-share" onclick="shareApp()" aria-label="Share Slashboard App" title="යෙදුම බෙදාගන්න (Share App)">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="18" cy="5" r="3"></circle>
+                        <circle cx="6" cy="12" r="3"></circle>
+                        <circle cx="18" cy="19" r="3"></circle>
+                        <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
+                        <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+                    </svg>
+                    <span>Share App</span>
+                </button>
                 <a href="https://github.com/dinushlakmal/xxSlashboardxx/releases" target="_blank" style="background: var(--primary); color: #fff; padding: 6px 14px; border-radius: 99px;">Download 🚀</a>
+            </div>
+            <div class="nav-mobile-actions">
+                <button type="button" class="btn-share" onclick="shareApp()" aria-label="Share Slashboard App" title="යෙදුම බෙදාගන්න (Share App)">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="18" cy="5" r="3"></circle>
+                        <circle cx="6" cy="12" r="3"></circle>
+                        <circle cx="18" cy="19" r="3"></circle>
+                        <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
+                        <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+                    </svg>
+                    <span>Share</span>
+                </button>
             </div>
         </nav>
 
         <!-- Header -->
-        <div class="header-section">
-            <div class="header-badge">✨ User Guide & Features v2.5</div>
+        <div class="header-section" id="hero">
+            <div class="header-badge">✨ User Guide & Features v2.6</div>
             <h1>Slashboard විශේෂාංග සහ භාවිත උපදෙස්</h1>
             <p>Android සඳහා නිර්මාණය කරන ලද වේගවත්ම, අලංකාරවත් සහ පූර්ණ ආරක්ෂිත සිංහල යතුරුපුවරුව</p>
         </div>
@@ -363,9 +496,9 @@
             </div>
         </div>
 
-        <!-- Version 2.5 New Features Showcase -->
+        <!-- Version 2.6 New Features Showcase -->
         <div class="section-card">
-            <h2 class="section-title">✨ v2.5 හි අලුතින් එක් වූ සුවිශේෂතා (What's New)</h2>
+            <h2 class="section-title">✨ v2.6 හි අලුතින් එක් වූ සුවිශේෂතා (What's New in v2.6)</h2>
             <div class="sub-grid">
                 <div class="sub-card">
                     <h4>🌐 කමාව අසල Globe Key</h4>
@@ -515,5 +648,116 @@
         </footer>
     </div>
 
+    <!-- Floating Back to Top Button -->
+    <button type="button" id="backToTopBtn" class="back-to-top" aria-label="Back to Top" title="මුල් පිටුවේ ඉහළට (Back to Top)">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="18 15 12 9 6 15"></polyline>
+        </svg>
+    </button>
+
+    <!-- Share Toast Notification -->
+    <div id="shareToast" class="share-toast" role="status" aria-live="polite">
+        <span id="shareToastIcon">📋</span>
+        <span id="shareToastMsg">Releases සබැඳිය පිටපත් කරගන්නා ලදී! (Link copied)</span>
+    </div>
+
+    <script>
+        const GITHUB_RELEASE_URL = "https://github.com/dinushlakmal/xxSlashboardxx/releases";
+
+        async function shareApp() {
+            const shareData = {
+                title: "Slashboard Sinhala Keyboard",
+                text: "🇱🇰 Slashboard v2.6.0 - වේගවත්, ආරක්ෂිත 100% On-Device ස්වදේශික සිංහල යතුරුපුවරුව. දැන්ම බාගත කරගන්න:\n",
+                url: GITHUB_RELEASE_URL
+            };
+
+            if (navigator.share) {
+                try {
+                    await navigator.share(shareData);
+                    showShareToast("බෙදාගැනීම සාර්ථකයි! (Shared successfully)", "🎉");
+                } catch (err) {
+                    if (err.name !== 'AbortError') {
+                        copyReleaseUrlFallback();
+                    }
+                }
+            } else {
+                copyReleaseUrlFallback();
+            }
+        }
+
+        function copyReleaseUrlFallback() {
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(GITHUB_RELEASE_URL).then(() => {
+                    showShareToast("Releases සබැඳිය පිටපත් කරගන්නා ලදී! (Link copied)", "📋");
+                }).catch(() => {
+                    promptCopyFallback();
+                });
+            } else {
+                promptCopyFallback();
+            }
+        }
+
+        function promptCopyFallback() {
+            const tempInput = document.createElement("input");
+            tempInput.value = GITHUB_RELEASE_URL;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            try {
+                document.execCommand("copy");
+                showShareToast("Releases සබැඳිය පිටපත් කරගන්නා ලදී! (Link copied)", "📋");
+            } catch (e) {
+                window.open(GITHUB_RELEASE_URL, '_blank');
+            }
+            document.body.removeChild(tempInput);
+        }
+
+        let toastTimeout;
+        function showShareToast(message, icon = "📋") {
+            const toast = document.getElementById("shareToast");
+            const msgEl = document.getElementById("shareToastMsg");
+            const iconEl = document.getElementById("shareToastIcon");
+            if (!toast) return;
+
+            if (msgEl) msgEl.textContent = message;
+            if (iconEl) iconEl.textContent = icon;
+
+            toast.classList.add("show");
+            clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => {
+                toast.classList.remove("show");
+            }, 3200);
+        }
+
+        function initBackToTop() {
+            const backToTopBtn = document.getElementById("backToTopBtn");
+            if (!backToTopBtn) return;
+
+            const toggleBackToTop = () => {
+                if (window.scrollY > 300) {
+                    backToTopBtn.classList.add("visible");
+                } else {
+                    backToTopBtn.classList.remove("visible");
+                }
+            };
+
+            window.addEventListener("scroll", toggleBackToTop, { passive: true });
+            toggleBackToTop();
+
+            backToTopBtn.addEventListener("click", () => {
+                const hero = document.getElementById("hero") || document.querySelector(".header-section");
+                if (hero && hero.scrollIntoView) {
+                    hero.scrollIntoView({ behavior: "smooth", block: "start" });
+                } else {
+                    window.scrollTo({ top: 0, behavior: "smooth" });
+                }
+            });
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initBackToTop);
+        } else {
+            initBackToTop();
+        }
+    </script>
 </body>
 </html>
