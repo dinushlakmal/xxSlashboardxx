@@ -1,6 +1,17 @@
 # 🇱🇰 Slashboard Sinhala Keyboard (ස්ලෑෂ්බෝඩ් සිංහල යතුරුපුවරුව)
 
+[![Latest Release](https://img.shields.io/badge/Release-v2.6.0-indigo?style=for-the-badge&logo=android)](https://github.com/dinushlakmal/xxSlashboardxx/releases)
+[![Build & Test](https://img.shields.io/badge/Build-Passing-emerald?style=for-the-badge&logo=githubactions)](https://github.com/dinushlakmal/xxSlashboardxx/actions)
+[![Offline & Private](https://img.shields.io/badge/Privacy-100%25%20Offline-blue?style=for-the-badge&logo=shield)](https://dinushlakmal.github.io/xxSlashboardxx/privacy.html)
+[![Facebook](https://img.shields.io/badge/Facebook-Follow-1877F2?style=for-the-badge&logo=facebook)](https://www.facebook.com/profile.php?id=61593856756750)
+
 Slashboard යනු Android උපාංග සඳහා විශේෂයෙන් නිර්මාණය කරන ලද, 100% On-Device සහ ආරක්ෂිත (Offline & Private) ස්වදේශික සිංහල යතුරුපුවරු යෙදුමකි (Native Sinhala IME).
+
+### 🔗 ප්‍රයෝජනවත් සබැඳි (Quick Links):
+- 📥 **Direct Download APK (v2.6.0):** [GitHub Releases](https://github.com/dinushlakmal/xxSlashboardxx/releases)
+- 🌐 **නිල වෙබ් අඩවිය (Official Website):** [https://dinushlakmal.github.io/xxSlashboardxx/](https://dinushlakmal.github.io/xxSlashboardxx/)
+- 📘 **නිල Facebook පිටුව:** [Slashboard Facebook](https://www.facebook.com/profile.php?id=61593856756750)
+- 👨‍💻 **GitHub Profile:** [@dinushlakmal](https://github.com/dinushlakmal)
 
 ---
 
