@@ -4,6 +4,39 @@ All notable changes to **Slashboard Sinhala Keyboard** will be documented in thi
 
 ---
 
+## [2.8.0] - 2026-09-26
+
+### 📱 Horizontal Swipe Navigation & English Default (දෙපැත්තට Slide කර Tabs මාරු කිරීම)
+- **Horizontal Pager for Settings**: Effortlessly swipe left and right across all settings tabs (`HorizontalPager`) with smooth animated scrolling and tab synchronization.
+- **Default App Language**: English set as the default interface language for global accessibility, while retaining the instant English/Sinhala toggle.
+- **Integrated Setup & About Tab**: Merged "Updates & About" directly beneath "Setup" in Tab 0, enabling one-stop access to version information, update checking, and developer links.
+
+### 📐 Ergonomic Size & Spacing Controls (ප්‍රමාණ සහ පරතරය සැකසුම් ඒකාබද්ධ කිරීම)
+- **Unified Sound, Haptics & Size Tab**: Consolidated all keyboard sizing and spacing controls into a single intuitive panel:
+  - Keyboard Height / Sizing (Short, Normal, Tall, Very Tall)
+  - Key Gap Spacing (Horizontal & Vertical gaps)
+  - One-Handed Mode & Thumb Reach Heatmap alignment
+  - IME Bottom Space Clearance
+- **36dp Default IME Bottom Space**: Increased default bottom clearance to 36dp for seamless compatibility with Android gesture navigation bars.
+
+### 💧 Serene Slow-Motion Water Bubble Touch Reaction (ජල බුබුළු ප්‍රතික්‍රියාව)
+- **Glassy Water Bubble Animation**: Completely redesigned RGB touch reaction with a serene, slow-motion (2400ms) glassy water bubble that wraps naturally around the tapped key.
+- **Realistic Fluid Optics**: Features organic surface tension wobble, curved specular light reflection arcs, highlight gloss dots, and clean transparent dissipation without screen clutter.
+
+### ✨ Extended Key Press Particle Effects (නව Particle Effects)
+- **Expanded Particle Gallery**: Added five brand-new visual particle effects:
+  - Floating Hearts (ආදර හදවත්)
+  - Fiery Flames (ගිනි දැල්)
+  - Winter Snowflakes (හිම පියලි)
+  - Sakura Petals (චෙරි මල් පෙති)
+  - Water Splash Droplets (ජල බිංදු)
+
+### 🐛 Sinhala Space Cursor Stability Fix (සිංහල ටයිප් කිරීමේ කර්සර් ගැටලුව නිරාකරණය)
+- **Evolution A17 / Custom ROM Fix**: Fixed cursor jumping to the start of text when typing Sinhala words with Spacebar Cursor enabled by anchoring cursor offsets to active composition bounds.
+- **Micro-Drag Deadband**: Added direction-ratio and distance thresholds to prevent accidental cursor drags during quick spacebar taps.
+
+---
+
 ## [2.6.0] - 2026-09-23
 
 ### 🚀 Automated GitHub Releases & CI/CD Pipeline (ස්වයංක්‍රීය GitHub Release පද්ධතිය)
@@ -18,8 +51,10 @@ All notable changes to **Slashboard Sinhala Keyboard** will be documented in thi
 - **Gesture Bar Clearance**: Fine-tuned bottom space clearance defaults and persistence across device restarts, ensuring zero obstruction on full-screen gesture navigation phones.
 - **Consistent Key Geometry**: Improved touch-target bounds for comma, period, and symbol keys to prevent accidental taps.
 
-### 🌐 Social & Community Ecosystem Integration (සමාජ මාධ්‍ය සහ සබැඳි ඒකාබද්ධ කිරීම)
-- **Direct Release & Community Links**: Added 1-click links to the official Facebook page (`https://www.facebook.com/profile.php?id=61593856756750`), GitHub developer profile (`https://github.com/dinushlakmal`), and GitHub Releases download across Settings, About screen, and Web documentation.
+### 🌐 Web & Community Integration (වෙබ් අඩවිය සහ සමාජ මාධ්‍ය පහසුකම්)
+- **Web Share API ('Share App' Button)**: Added a native Web Share button to the navigation bar enabling 1-click sharing of the app release link to WhatsApp, Facebook, or any messenger app with automated clipboard fallback and toast feedback.
+- **Floating 'Back to Top' Action**: Added a smooth-scrolling floating action button that appears after scrolling down, allowing users to effortlessly navigate back to the hero section.
+- **Direct Release & Community Links**: Integrated 1-click links to the official Facebook page (`https://www.facebook.com/profile.php?id=61593856756750`), GitHub developer profile (`https://github.com/dinushlakmal`), and GitHub Releases download across Settings, About screen, and Web documentation.
 - **Synchronized Documentation**: Updated landing page (`index.html`), feature guide (`home.html`), and terms/privacy documentation to reflect v2.6.0 release standards.
 
 ---
