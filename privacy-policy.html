@@ -368,13 +368,14 @@
 
             <h2>1. අන්තර්ජාල භාවිතය සහ එහි සීමාව (Internet Access Policy)</h2>
             <p>
-                Slashboard යතුරුපුවරුවේ මූලික යතුරුකරණ කාර්යයන් කිසිවකටත් අන්තර්ජාලය අවශ්‍ය නොවේ (100% Offline). යෙදුම තුළ ඇති අන්තර්ජාල අවසරය (Internet Permission) භාවිතා කරනු ලබන්නේ පහත නිශ්චිත අරමුණ සඳහා <strong>පමණි</strong>:
+                Slashboard යතුරුපුවරුවේ මූලික යතුරුකරණ කාර්යයන් සියල්ල 100% ක් අන්තර්ජාලය රහිතව ඔබගේ දුරකථනය තුළම පමණක් සිදුවේ (100% Offline & On-Device). යෙදුම තුළ ඇති අන්තර්ජාල අවසරය (Internet Permission) භාවිතා වන්නේ පරිශීලකයා විසින් සක්‍රියව සිදුකරන පහත අරමුණු සඳහා <strong>පමණි</strong>:
             </p>
             <ul>
-                <li><strong>In-App OTA Updates (යාවත්කාලීන පරීක්ෂාව):</strong> ඔබ යෙදුම විවෘත කළ විට හෝ Settings මඟින් Update පරීක්ෂා කළ විට, GitHub Releases වෙතින් නවතම APK එකක් නිකුත් වී ඇත්දැයි බැලීමට පමණි.</li>
+                <li><strong>In-Keyboard Online Translation:</strong> පරිශීලකයා විසින් යතුරුපුවරුවේ ඇති Translate Bar එක භාවිතයෙන් සිංහලෙන් ඉංග්‍රීසියට හෝ ඉංග්‍රීසියෙන් සිංහලට පරිවර්තනය ඉල්ලා සිටින අවස්ථාවේදී පමණක් එම නිශ්චිත පාඨය පරිවර්තන සේවාව වෙත යොමු කෙරේ.</li>
+                <li><strong>Play Store Safe Updates (යාවත්කාලීන පරීක්ෂාව):</strong> යෙදුමේ නව v3.0.1+ සංස්කරණ පරීක්ෂා කර පරිශීලකයා නිල Google Play Store පිටුව වෙත යොමු කිරීම සඳහා.</li>
             </ul>
             <div class="callout-box">
-                <strong>විශේෂ සටහන:</strong> Slashboard යෙදුම තුළ කිසිදු Google Analytics, Firebase Analytics, Flurry, හෝ වෙනත් තෙවන පාර්ශවීය Tracking/Telemetry පුස්තකාල අඩංගු කර නොමැත. ඔබගේ IP ලිපිනය හෝ ඔබගේ ටයිප් කිරීම් කිසිදු අවස්ථාවක අප වෙත නොලැබේ.
+                <strong>පෞද්ගලිකත්ව සහතිකය:</strong> Slashboard තුළ කිසිදු තෙවන පාර්ශවීය දැන්වීම් ජාල (AdMob, Meta Ads) හෝ පරිශීලක හැසිරීම් නිරීක්ෂණය කරන Tracking/Telemetry SDK (Firebase, Flurry) අඩංගු නොවේ. ඔබ ටයිප් කරන කිසිදු අකුරක් හෝ මුරපදයක් අපගේ හෝ වෙනත් කිසිදු Server එකකට කිසිවිටෙකත් යැවීමක් සිදු නොවේ.
             </div>
 
             <h2>2. ඔබ ටයිප් කරන දත්ත සහ මුරපද ආරක්ෂාව (Keystrokes & Passwords)</h2>
@@ -386,7 +387,17 @@
                 <li><strong>Incognito Mode:</strong> පුද්ගලික බ්‍රවුසින් හෝ රහස්‍ය ක්ෂේත්‍රවලදී කිසිදු දත්තයක් තාවකාලික මතකයට හෝ සටහන් නොකෙරේ.</li>
             </ul>
 
-            <h2>3. පසුරු පුවරුව (Clipboard Privacy & Pinned Clips)</h2>
+            <h2>3. හඬ යතුරුකරණය සහ මයික්‍රෆෝනය (Voice Typing & Microphone Privacy)</h2>
+            <p>
+                Slashboard හි ඇති හඬ යතුරුකරණ විශේෂාංගය (Voice Typing) භාවිතා කිරීම සඳහා <code>RECORD_AUDIO</code> අවසරය අවශ්‍ය වේ:
+            </p>
+            <ul>
+                <li><strong>Strict Purpose:</strong> මයික්‍රෆෝනය ක්‍රියාත්මක වන්නේ ඔබ යතුරුපුවරුවේ ඇති මයික්‍රෆෝන බොත්තම ඔබා හඬ යතුරුකරණය ආරම්භ කළ විට පමණි.</li>
+                <li><strong>No Audio Storage:</strong> ඔබ කතා කරන ශ්‍රව්‍ය පට (Voice/Audio recordings) ඔබගේ දුරකථනයේ හෝ කිසිදු Server එකක සුරැකීමක් සිදු නොකෙරේ. හඬ හඳුනාගැනීමෙන් අනතුරුව එම ශ්‍රව්‍ය දත්ත ක්ෂණිකව මතකයෙන් ඉවත් කරනු ලැබේ.</li>
+                <li><strong>System Speech Recognition:</strong> හඬ පෙළ බවට හැරවීම (Speech-to-Text) සඳහා Android පද්ධතියේ නිල Speech Recognizer සේවාව භාවිත කෙරේ.</li>
+            </ul>
+
+            <h2>4. පසුරු පුවරුව (Clipboard Privacy & Pinned Clips)</h2>
             <p>
                 Slashboard හි ඇති ස්මාර්ට් පසුරු පුවරුව (Smart Clipboard Manager) පරිශීලකයාට පිටපත් කළ පාඨ සහ නිතර අවශ්‍ය සටහන් පහසුවෙන් භාවිත කිරීමට ඉඩ සලසයි:
             </p>
@@ -396,36 +407,46 @@
                 <li>පසුරු පුවරුවේ කිසිදු සටහනක් අන්තර්ජාලය ඔස්සේ කිසිදු පාර්ශවයකට යැවීමක් සිදු නොවේ.</li>
             </ul>
 
-            <h2>4. වචන ඉගෙනුම සහ පුද්ගලික ශබ්දකෝෂය (On-Device Dictionary)</h2>
+            <h2>5. දැනුම්දීම් ආලෝක සේවාව (Notification Listener Service - Optional)</h2>
+            <p>
+                යතුරුපුවරුව විවෘතව ඇති විට ලැබෙන දැනුම්දීම් සඳහා Edge-Light ආලෝක සංඥාවක් ලබාදීමේ විකල්ප පහසුකම:
+            </p>
+            <ul>
+                <li><strong>Disabled by Default:</strong> මෙම පහසුකම පෙරනිමියෙන් අක්‍රිය කර ඇත (Default: Disabled). පරිශීලකයා කැමති නම් පමණක් Settings මඟින් සක්‍රිය කරගත හැක.</li>
+                <li><strong>Zero Content Access:</strong> මෙම සේවාව මඟින් ලැබෙන පණිවිඩවල අන්තර්ගතය, පුද්ගලික තොරතුරු හෝ පණිවිඩකරුගේ තොරතුරු කිසිවක් කියවීමක් හෝ ගබඩා කිරීමක් සිදු නොවේ. එය ක්‍රියාත්මක වන්නේ දැනුම්දීමක් පැමිණි බවට වන පැකේජ නාමය හඳුනාගෙන ආලෝක රටාව පෙන්වීම සඳහා පමණි.</li>
+            </ul>
+
+            <h2>6. වචන ඉගෙනුම සහ පුද්ගලික ශබ්දකෝෂය (On-Device Dictionary)</h2>
             <p>
                 ඔබ නිතර ටයිප් කරන වචන ඉදිරියේදී පහසුවෙන් යෝජනා කිරීම සඳහා වන ඉගෙනුම් ක්‍රමය (Next-Word Prediction & User Dictionary) ක්‍රියාත්මක වන්නේ ඔබගේ දුරකථනයේ පමණි:
             </p>
             <ul>
                 <li>මෙම ශබ්දකෝෂ දත්ත Android Cloud Backup (Google Drive Backup) වෙතින් පවා බැහැර කර ඇත (Excluded from backups).</li>
-                <li>Settings මඟින් ඕනෑම මොහොතක "Reset Learned Words" තේරීමෙන් ඔබගේ පුද්ගලික ශබ්දකෝෂය සම්පූර්ණයෙන්ම මුකා හැරිය හැක.</li>
+                <li>Settings මඟින් ඕනෑම මොහොතක "Reset Learned Words" තේරීමෙන් ඔබගේ පුද්ගලික ශබ්දකෝෂය සම්පූර්ණයෙන්ම මකා දැමිය හැක.</li>
             </ul>
 
-            <h2>5. ළමුන්ගේ පෞද්ගලිකත්වය (Children's Privacy Protection)</h2>
+            <h2>7. ළමුන්ගේ පෞද්ගලිකත්වය (Children's Privacy Protection)</h2>
             <p>
                 අපගේ යෙදුම කිසිදු ආකාරයක පුද්ගලික හඳුනාගැනීමේ දත්ත (Personally Identifiable Information - PII) රැස් නොකරන බැවින්, ළමුන් ඇතුළු ඕනෑම වයස් කාණ්ඩයක පරිශීලකයින් සඳහා 100% ක් ආරක්ෂිත වේ. Google Play Families Policy සහ COPPA නීතිරීතිවලට පූර්ණ ලෙස අනුකූල වේ.
             </p>
 
-            <h2>6. උපාංග අවසරයන් (Device Permissions)</h2>
+            <h2>8. උපාංග අවසරයන් (Device Permissions Transparency)</h2>
             <p>
-                Slashboard ඉල්ලා සිටින්නේ යතුරුපුවරුව ක්‍රියාත්මක වීමට අවශ්‍ය අවම අවසරයන් පමණි:
+                Google Play Store ප්‍රතිපත්තිවලට අනුකූලව Slashboard භාවිතා කරන අවසරයන් පිළිබඳ පූර්ණ විස්තරය:
             </p>
             <ul>
+                <li><code>RECORD_AUDIO</code>: හඬ යතුරුකරණය (Voice Typing) සඳහා පමණි. ශ්‍රව්‍ය පට ගබඩා නොකෙරේ.</li>
                 <li><code>VIBRATE</code>: යතුරු ඔබන විට Haptic Feedback ලබා දීම සඳහා පමණි.</li>
-                <li><code>INTERNET</code>: GitHub වෙතින් යෙදුමේ නව updates පරීක්ෂා කිරීම සඳහා පමණි.</li>
-                <li><code>POST_NOTIFICATIONS</code> (Android 13+): නව update එකක් ඇති විට දැනුම් දීම සඳහා පමණි.</li>
+                <li><code>INTERNET</code> & <code>ACCESS_NETWORK_STATE</code>: පරිශීලකයා ඉල්ලන Translation සහ Google Play update පිටුව විවෘත කිරීම සඳහා පමණි.</li>
+                <li><code>POST_NOTIFICATIONS</code>: යෙදුමේ යාවත්කාලීන දැනුම්දීම් සඳහා පමණි.</li>
             </ul>
 
-            <h2>7. ප්‍රතිපත්ති සංශෝධනය කිරීම (Policy Updates)</h2>
+            <h2>9. ප්‍රතිපත්ති සංශෝධනය කිරීම (Policy Updates)</h2>
             <p>
                 අනාගතයේදී කිසියම් නව අංගයක් එක්වීම හේතුවෙන් මෙම ප්‍රතිපත්තිය සංශෝධනය කළහොත්, සංශෝධිත නව දිනය සමඟ මෙම පිටුවෙහි පළ කරනු ලැබේ.
             </p>
 
-            <h2>8. සංවර්ධකයා සම්බන්ධ කරගැනීම (Contact Developer)</h2>
+            <h2>10. සංවර්ධකයා සම්බන්ධ කරගැනීම (Contact Developer)</h2>
             <div class="contact-box">
                 <p>මෙම පෞද්ගලිකත්ව ප්‍රතිපත්තිය හෝ යෙදුමේ ආරක්ෂාව පිළිබඳව ඔබට කිසියම් ප්‍රශ්නයක් හෝ විමසීමක් ඇත්නම් සෘජුවම සංවර්ධකයා අමතන්න:</p>
                 <p><strong>සංවර්ධක (Developer):</strong> Dinush Lakmal</p>
