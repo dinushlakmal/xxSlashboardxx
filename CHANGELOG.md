@@ -4,6 +4,93 @@ All notable changes to **Slashboard Sinhala Keyboard** will be documented in thi
 
 ---
 
+## [3.0.5] - 2026-10-13
+
+### 🛡️ Direct Feedback & Crash Telemetry (සෘජු දෝෂ නිරාකරණය සහ Crash Telemetry)
+- **Silent Crash Catcher (නිහඬ Exception පාලනය හා ස්වයංක්‍රීය Recovery):**
+  - යතුරුපුවරුව තුළ කිසියම් unexpected exception එකක් මතු වුවහොත්, පරිශීලකයාට බාධාකාරී "Slashboard has stopped" පද්ධති Error Dialog එකක් නොපෙන්වා, නිහඬව keyboard service එක ආරක්ෂිතව auto-recover වී normal typing state එකට පත්වන Global Exception Handler එකක් යොදන ලදී.
+  - Crash context සහ stack trace තොරතුරු යෙදුමේ අභ්‍යන්තර safe storage එකෙහි ලොග් කර තබා ගන්නා අතර, කිසිදු සංවේදී හෝ පුද්ගලික යතුරුකරණ දත්තයක් සටහන් නොවේ.
+- **In-App Bug Reporter (Settings තුළින්ම 1-Tap Bug Reporting):**
+  - Settings තුළ නව **"Report Bug / දෝෂ වාර්තා කරන්න"** පහසුකමක් එක් කරන ලදී.
+  - පරිශීලකයා මෙම බොත්තම තට්ටු කළ විට, Device Model, Android OS Version, App Version (`v3.0.5`) සහ අදාළ Error Log / Telemetry සටහන් ස්වයංක්‍රීයව auto-fill වී සංවර්ධක විද්‍යුත් තැපෑල (`dinushlakmal01@gmail.com`) වෙත යොමු වන email draft එකක් ක්ෂණිකව විවෘත වේ.
+
+### ✨ Particle Engine & Live Preview Enhancements (අංශු ආචරණ සජීවී ක්‍රියාකාරීත්වය)
+- **Key Press Particles Live Selection Fix:**
+  - Key Particles Settings තුළ particle style (✨ Stars, ⚡ Sparks, 🫧 Bubbles, 🟩 Neon Pixels, ❤️ Hearts, 🔥 Flames, ❄️ Snowflakes, 🌸 Sakura, 💧 Water Splash) හෝ density/palette වෙනස් කළ සැනින්, එය එසැණින්ම keyboard එක තුළ select වී සක්‍රිය නොවන ගැටලුව සහ සමහර යතුරුපුවරු layout වල particles නොපෙන්වීමේ ගැටලුව 100% ක් නිරාකරණය කරන ලදී.
+  - Live preview එක ක්ෂණිකව update වන පරිදි dynamic engine binding යොදන ලදී.
+
+### 🔐 Full Multi-Scheme APK Signing & Installation Fix (APK සහතික සහ ස්ථාපන නිවැරදි කිරීම්)
+- **Comprehensive APK Signature Scheme (v1, v2, v3 & v4):**
+  - Android Package Installer (`pm install`) මඟින් streaming APK ස්ථාපනය කිරීමේදී ඇති වූ `INSTALL_PARSE_FAILED_NO_CERTIFICATES` (Attempt to get length of null array) දෝෂය සම්පූර්ණයෙන්ම විසඳන ලදී.
+  - Legacy v1 JAR signing (`META-INF/MANIFEST.MF`, `CERT.SF`, `CERT.RSA`) සහ නූතන v2, v3, v4 APK signature schemes සම්පූර්ණයෙන් සක්‍රිය කර සහතික කර ඇත.
+
+### 🚀 Performance & Stability (වේගය සහ ස්ථායිතාව)
+- IME composition life-cycle සහ thread synchronization වඩාත් ශක්තිමත් කරන ලදී.
+- Low-memory උපාංග සඳහා memory leak අවදානම් අවම කර background resource cleanup ප්‍රශස්ත කරන ලදී.
+
+---
+
+## [3.0.2] - 2026-10-07
+
+### 🌟 New Features & Enhancements (නව විශේෂාංග)
+- **WhatsApp, Apple iOS, Google & Twitter/X Emoji Style Switcher (ඉමෝජි විලාසය තේරීමේ පහසුකම):**
+  - Added support for switching between **Official WhatsApp (Meta)**, **Apple iOS (Cupertino)**, **Google Noto Color**, and **Twitter/X (Twemoji)** emoji styles.
+  - Complete modern emoji catalog integration supporting all standard emojis and variants.
+  - Clean, beautifully balanced Settings card with live preview chips and high-contrast badges with zero language mixing.
+- **AMOLED Pure Black Default Theme (පෙරනිමි AMOLED කළු තේමාව):**
+  - Set `amoled_black` as the default theme out of the box for deep, true blacks, minimal eye strain, and maximum battery savings on OLED/AMOLED screens.
+- **Interactive Key Press Particle Effects Customization (යතුරු එබීමේ අංශු ආචරණ පාලනය):**
+  - Toggling ON "Key Press Particle Effects" dynamically reveals rich customization options:
+    - 9 particle styles (✨ Stars, ⚡ Sparks, 🫧 Bubbles, 🟩 Neon Pixels, ❤️ Hearts, 🔥 Flames, ❄️ Snowflakes, 🌸 Sakura, 💧 Water Splash).
+    - 3 density presets: Low (6), Normal (12), High (18).
+    - 5 color palettes: Theme Accent, Rainbow 🌈, Gold ✨, Cyan 💠, Flame 🔥.
+  - Seamless animated expand/collapse for a clutter-free settings interface.
+- **Top-Level Per-App Accent Adaptation (යෙදුමට අනුව වර්ණය වෙනස් වීම):**
+  - Prominently positioned at the very top of Themes & Visuals settings with a default OFF state, giving users immediate control over dynamic app accent coloring (WhatsApp green, Messenger blue, YouTube red, etc.).
+- **Enlarged Emoji Bar Icons (Emoji Bar හි අයිකන ප්‍රමාණය වැඩි කිරීම):**
+  - Scaled top Emoji bar icons up to 28dp for effortless thumb tapping without increasing the compact 38dp suggestion bar height.
+- **Intelligent Auto-Adaptive Key Gap & Geometry:**
+  - Dynamic key spacing and proportions that calibrate to device display resolution, aspect ratio, and orientation.
+
+### 🐞 Critical Bug Fixes (වැදගත් දෝෂ නිවාරණ)
+- **Sinhala Cursor Jump & Sticky Delete Fix (සිංහල ටයිප් කිරීමේදී Cursor පැනීම සහ මැකීමේ දෝෂය විසඳීම):**
+  - Completely resolved the issue where editing long Sinhala sentences caused the cursor to jump into mid-sentence words or fail to delete complex ligatures.
+- **Chrome & Web Browser Number Pad Isolation (Chrome හි අංක පෑඩය OTP/Passwords වලට පමණක් සීමා කිරීම):**
+  - Fixed an issue where Chrome web forms and the URL/address bar erroneously triggered the numeric keypad. Now, general web inputs and URL address bars display the full QWERTY/Sinhala layout with symbols; numeric keypad only shows for genuine OTP, PIN, and strict password fields.
+- **Sinhala Ligature / ZWJ Emoji Bar Filtering (සිංහල වචන Emoji Bar එකේ වැටීම වැළැක්වීම):**
+  - Enhanced emoji validation to prevent Sinhala words with Zero-Width Joiners (ZWJ, e.g., යංශය, රකාරාංශය) from accidentally being logged into recent emoji suggestions.
+- **Settings UI Polish & Pure Language Separation (භාෂා සමබරතාවය):**
+  - Fixed cluttered settings text in Themes & Visuals; when English is selected, only pure English displays; when Sinhala is selected, authentic Sinhala text displays without awkward English mixing.
+
+---
+
+## [2.9.0] - 2026-09-29
+
+### ⚡ Double Space Instant Toolbar Icons (Double Space ගැසූ සැනින් Top Bar Icons පෙන්වීම)
+- **Instant Toolbar Reveal on Double Space:** Typing a word and tapping space twice immediately dismisses word predictions and surfaces the full Top Bar Toolbar (Language toggle, Font Studio, Private Cloak, Ligatures, Singlish bulk converter, Calculator, Undo/Redo, Astrology glyphs, FM convert, Themes, Emoji, Clipboard, and Settings) with zero lag or timeout delay.
+- **Persistent Toolbar Visibility:** Prevents candidate prediction loops from overwriting the toolbar when trailing double spaces are present, giving fast 1-tap access to your favorite shortcuts.
+
+### 🚀 Xiaomi & Redmi MIUI / HyperOS Lag Fix & Deep Optimization (Xiaomi / Redmi ලැග් වීම සම්පූර්ණයෙන්ම විසඳීම)
+- **High Refresh Rate (90Hz / 120Hz) Smoothness:** Completely stopped idle ValueAnimator loops and unnecessary canvas repaints, guaranteeing consistent 60–120 FPS typing on MIUI and HyperOS devices.
+- **Haptic & Audio Thread Offloading:** Prevented synchronous Android system service calls from blocking the main UI thread during intense, rapid typing.
+- **Zero Memory Bottlenecks:** Optimized prediction candidate task cancellations and reduced GC allocation pressure during continuous typing.
+
+### 📐 Classic Emoji Bar Proportions Restored (Emoji Bar එක v2.7.0 ප්‍රමාණයට සැකසීම)
+- **True v2.7.0 Compact Height:** Restored the ergonomic 38dp bar height matching the suggestion rail, eliminating the oversized row footprint.
+- **Refined Emoji Glyph Sizing:** Emoji characters remain sharp and clear within compact 36dp touch tiles without enlarging or stretching the keyboard layout.
+
+### 🎨 Rebuilt Wallpaper Studio & Dark Crop Dialog (නව Wallpaper Studio සහ Dark Crop Interface)
+- **Solid Dark Interface:** Rebuilt the wallpaper crop and adjustment dialog with an elegant, non-transparent solid dark palette (`#0F172A` / `#1E293B`) ensuring maximum contrast.
+- **Locked Live Keyboard Preview:** Fixed live keyboard preview locked securely at the top so adjustments are visible in real-time without scrolling away.
+- **Balanced 4-Action Bar:** Streamlined workflow featuring side-by-side **Discard**, **Crop**, **Save**, and **Apply** buttons.
+- **Organized Adjustments Panel:** Cleanly grouped controls for Framing & Position, Key Opacity/Dimming, and Brightness/Contrast.
+
+### 🔇 Spacebar Lighting Cleanup & Default Disabled Rhythm Bar
+- **Rhythm Sync Disabled by Default:** `typingSpeedRhythmSync` is now set to `false` by default, activating only when explicitly turned on in Settings.
+- **Pure Themed Spacebar:** Stripped out distracting rainbow flashing lights and glowing neon border artifacts from the spacebar, leaving only crisp, theme-accurate equalizer bars when enabled.
+
+---
+
 ## [2.8.0] - 2026-09-26
 
 ### 📱 Horizontal Swipe Navigation & English Default (දෙපැත්තට Slide කර Tabs මාරු කිරීම)
