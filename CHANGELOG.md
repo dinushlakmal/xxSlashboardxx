@@ -4,6 +4,72 @@ All notable changes to **Slashboard Sinhala Keyboard** will be documented in thi
 
 ---
 
+## [3.0.7] - 2026-10-28
+
+### ⚡ 0ms Instant Top Bar Reveal on Space & Suggestion Selection
+- වචනයක් ටයිප් කර **Space** යතුර තද කළ සැනින් හෝ Suggestion Bar එකෙන් වචනයක්/Emoji එකක් තේරූ සැනින්, කලින් පැවති තත්පර 1ක (`1000ms`) පමාව සම්පූර්ණයෙන්ම ඉවත් කර `0ms` ක්ෂණිකව Top Bar එක (Clipboard, Settings, Emoji, Font Studio, Translate ආදී Tools සහිත Toolbar එක) දිස්වන පරිදි සකසන ලදී.
+
+### 🛑 Auto-Space After Period (.) Disabled by Default
+- තිතක් (`.`) තැබූ විට ස්වයංක්‍රීයව `Space` එකක් එකතු වීම ඉවත් කර ඇත.
+
+### 😊 Smart Emoji Suggestions (Sinhala, Singlish & English)
+- සිංහලෙන්, Singlish වලින් හෝ English වලින් වචන ටයිප් කරන විටම අදාළ Emoji එක Suggestion Bar එකේ මුලටම ක්ෂණිකව යෝජනා වේ (O(1) Offline `EmojiDictionary`).
+
+### 📦 APK Size Compression & 120fps Ultra-Smooth Engine
+- `material-icons-extended` bloat ඉවත් කර, JSON සහ PNG assets සම්පීඩනය කර APK ප්‍රමාණය ~8MB+ කින් අඩු කරන ලදී.
+- `KeyCap`, `KeyboardPanel`, සහ `SuggestionRail` තුළ 100% View/Drawable pooling සහ zero-allocation 120fps rendering එක් කරන ලදී.
+
+### 🛡️ Rare Auto Force-Stop Fix, UI Polish & Creator Credit
+- **Auto Force-Stop / ANR / OOM Fix:** `CrashLogger` ගොනු ලිවීම background thread එකකට යොමු කර, Main Looper burst rate-limiting, `SlashboardSyncWorker` duplicate RAM වැළැක්වීම, සහ `SlashboardApp` තුළ `EmojiStyleManager` ආරම්භක ආරක්ෂාව එක් කර කලාතුරකින් සිදුවූ Force-Stop ගැටලුව සම්පූර්ණයෙන්ම විසඳන ලදී.
+- **UI Polish & Creator Credit:** Settings Dialogs වල පසුබිම් විනිවිද පෙනීම (surface bleed-through) සහ පේළි පරතරයන් නිවැරදි කර, **"Created by Dinush Lakmal | Slash Studios"** ලෙස Splash Screen, Header, About Card සහ Footer තුළ එක් කරන ලදී.
+
+---
+
+## [3.0.6] - 2026-10-16
+
+### 🔑 GitHub Action "App Not Installed" (Signature Mismatch) Permanent Fix
+- **Canonical Keystore Enforcement in CI/CD:**
+  - GitHub Actions හිදී Sideload APK එක sign කිරීමේදී canonical keystore එක (`C3:8F:7D:10:11:E9:E5:90:78:19:20:1F:1F:DC:94:D4:A3:8A:F5:26`) වෙනුවට වෙනත් secret එකක් හෝ අහඹු keystore එකක් භාවිතා වීම වැළැක්වීමට CI pipeline එක ස්වයංක්‍රීයව canonical keystore එක enforce කර SHA1 සහතිකය තහවුරු කරයි.
+  - `.gitignore` ගොනුවෙන් `!debug.keystore` un-ignore කර git repository එක තුළ සෘජුවම ආරක්ෂිතව තබා ඇත.
+
+### 🛑 Auto-Space After Period (.) Disabled by Default (තිතකට පසු ස්වයංක්‍රීය Space එකක් එක්වීම අක්‍රීය කිරීම)
+- තිතක් (`.`) හෝ විරාම ලකුණක් ටයිප් කළ සැනින් ස්වයංක්‍රීයව `Space` එකක් එකතු වීම ඉවත් කර ඇත. දැන් පරිශීලකයාට අවශ්‍ය නම් පමණක් Space යතුර භාවිතා කළ හැක (මෙය Settings -> Punctuation & Auto-Formatting තුළින්ද පාලනය කළ හැක).
+
+### ⚡ 0ms Instant Top Bar Reveal on Space & Suggestion Selection (තත්පර 1ක පමාව ඉවත් කර එසැණින්ම Top Bar පෙන්වීම)
+- වචනයක් ටයිප් කර **Space** යතුර තද කළ සැනින් හෝ Suggestion Bar එකෙන් වචනයක්/Emoji එකක් තේරූ සැනින්, කලින් පැවති තත්පර 1ක (`1000ms`) පමාව සම්පූර්ණයෙන්ම ඉවත් කර `0ms` ක්ෂණිකව Top Bar එක (Clipboard, Settings, Emoji, Font Studio, Translate ආදී Tools සහිත Toolbar එක) දිස්වන පරිදි සකසන ලදී.
+- `onUpdateSelection` මඟින් Space එබීමෙන් පසු නැවත Suggestions පෙන්වීමද නවතා, ඊළඟ වචනයේ පළමු අකුර ටයිප් කරන තුරු Top Bar එක එසැණින්ම රැඳී පවතී.
+
+### 🛡️ Zero False Positive OTP Engine
+- සාමාන්‍ය අංක, දුරකථන අංක, මුරපද හෝ කේත OTP ලෙස වැරදියට හඳුනාගැනීම සම්පූර්ණයෙන්ම ඉවත් කර, සැබෑ SMS OTP පණිවිඩයක් පැමිණි විට පමණක් `📋 Paste OTP` Chip එක පෙන්වන පරිදි context-aware detection එන්ජිම යාවත්කාලීන කරන ලදී.
+
+### 😊 Emoji Suggestions & Smart Emoji Mapping (ඉමෝජි යෝජනා පද්ධතිය)
+- **Instant Sinhala, Singlish & English Emoji Suggestions:**
+  - පරිශීලකයා සිංහලෙන්, Singlish වලින් හෝ English වලින් වචනයක් ටයිප් කරන විටම (උදා: තරහයි, taraha, angry, ගෙදර, gedara, home, ආදරෙයි, adare, love, හිනා, hina, smile, කෑම, kama, food, තේ, the, tea, කාර්, car, බයික්, bike), Suggestion Strip එකේ සාමාන්‍ය වචන සමඟම අදාළ Emoji එක කැපී පෙනෙන ලෙස (Highlight Pill සහ 21sp විශාල අකුරින්) මුලටම එකතු වී දිස්වේ.
+  - O(1) Zero-Latency Offline `EmojiDictionary` මඟින් ඉතා අඩු RAM (2GB) සහිත දුරකථන වලදී පවා කිසිදු ප්‍රමාදයකින් (lag) තොරව ක්‍රියාත්මක වේ.
+  - Suggestion Bar එකෙන් Emoji එක තට්ටු කළ විට, ටයිප් කරමින් පැවති වචනය හෝ composition එක සුමටව emoji එකට මාරු වී ඉබේම space එකක් එක් කරයි. Spacebar තද කළ විට emoji නොව සාමාන්‍ය වචනයම commit වන බැවින් ටයිප් කිරීමට කිසිදු බාධාවක් ඇති නොවේ.
+- **Settings තුළ පාලනය:**
+  - Settings -> Text Suggestions තුළින් "Emoji Suggestions / Mapping" පහසුවෙන්ම On/Off කරගත හැක.
+
+### 📦 APK Size Compression & 120fps Ultra-Smooth Engine (යෙදුමේ ප්‍රමාණය අවම කිරීම සහ සුමට ක්‍රියාකාරීත්වය)
+- **Drastic APK & DEX Size Compression (~13MB+ Reduction):**
+  - `material-icons-extended` (41MB uncompressed DEX bloat) ඉවත් කර, යෙදුමට අවශ්‍ය අයිකන පමණක් අඩංගු සැහැල්ලු `ExtendedIcons` වෙත මාරු කරන ලදී.
+  - භාවිත නොවන `com.google.android.material` transitive dependencies සහ විශාල PNG/JSON assets සම්පීඩනය (compress) කර APK ප්‍රමාණය සහ RAM භාවිතය විශාල ලෙස අඩු කරන ලදී.
+- **Zero-Jank 120fps Typing & Suggestion Pipeline:**
+  - `KeyCap`, `KeyboardPanel`, සහ `SuggestionRail` තුළ සෑම අකුරක් ටයිප් කරන විටම සිදුවූ අනවශ්‍ය View/Drawable allocations, `Paint.typeface` JNI calls, සහ `removeAllViews()` layout passes ඉවත් කර 100% view/drawable pooling යොදන ලදී.
+  - Singlish ටයිප් කිරීමේදී අනවශ්‍ය Binder IPC (`getTextBeforeCursor`) සහ Regex compilations ඉවත් කර 0ms ක්ෂණික ප්‍රතිචාර ලබා දෙන ලදී.
+
+### 🛡️ Rare Auto Force-Stop Fix, UI Polish & Creator Credit
+- **Eliminated Rare Auto Force-Stop / ANR / OOM Causes:**
+  - `CrashLogger`: Main thread මත සිදුවූ synchronous file I/O පසුබිම් thread එකකට (`SlashboardCrashLogIO`) යොමු කර, `Looper.loop()` guardian තුළ burst rate-limiting එකතු කරන ලදී. එමඟින් UI frame දෝෂයකදී 120Hz infinite loop වී ANR / Force Stop වීම සහ main thread එක නැවතී zombie process එකක් වීම සම්පූර්ණයෙන්ම වළක්වා ඇත.
+  - `SlashboardSyncWorker`: Keyboard service එක සක්‍රීයව තිබියදී පසුබිමින් දෙවන වරටත් `PredictionRepository` RAM එකට load වීම නවතා OOM (Out-of-Memory) Force Stop වීම වළක්වන ලදී.
+  - `SlashboardApp`: යෙදුම ආරම්භයේදීම `EmojiStyleManager` ස්ථාපනය කිරීමෙන් `EmojiTextView` මඟින් ඇතිවිය හැකි `IllegalStateException` දෝෂය ඉවත් කරන ලදී.
+  - `SlashboardInputMethodService` & `VoiceInputManager`: `RejectedExecutionException`, `ConcurrentModificationException`, සහ `PopupWindow` leak දෝෂ වළක්වාලීමට ආරක්ෂිත thread/lifecycle guards එක් කරන ලදී.
+- **UI Fixes & Creator Credit:**
+  - Settings තුළ සියලුම `AlertDialog` වල පසුබිම විනිවිද පෙනීම (transparent surface bleed-through) නිවැරදි කර, `SettingsChoiceRow`, `SettingsToggleRow`, සහ `HeaderAnimation` layout පරතරයන් හා පෙළ කැපී යාම් නිවැරදි කරන ලදී.
+  - **"Created by Dinush Lakmal | Slash Studios"** ලෙස Splash Screen, Settings Header, About Card සහ Footer තුළ පැහැදිලිව එක් කරන ලදී.
+
+---
+
 ## [3.0.5] - 2026-10-13
 
 ### 🛡️ Direct Feedback & Crash Telemetry (සෘජු දෝෂ නිරාකරණය සහ Crash Telemetry)

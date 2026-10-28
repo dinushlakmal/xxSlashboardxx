@@ -1,15 +1,16 @@
 # 🇱🇰 Slashboard Sinhala Keyboard (ස්ලෑෂ්බෝඩ් සිංහල යතුරුපුවරුව)
 
-[![Latest Release](https://img.shields.io/badge/Release-v3.0.1-indigo?style=for-the-badge&logo=android)](https://github.com/dinushlakmal/xxSlashboardxx/releases)
+[![Latest Release](https://img.shields.io/badge/Release-v3.0.7-indigo?style=for-the-badge&logo=android)](https://github.com/dinushlakmal/xxSlashboardxx/releases)
 [![Build & Test](https://img.shields.io/badge/Build-Passing-emerald?style=for-the-badge&logo=githubactions)](https://github.com/dinushlakmal/xxSlashboardxx/actions)
 [![Google Play Ready](https://img.shields.io/badge/Google%20Play-Target%20SDK%2036-brightgreen?style=for-the-badge&logo=googleplay)](https://play.google.com/store/apps/details?id=com.slashbord)
 [![Offline & Private](https://img.shields.io/badge/Privacy-100%25%20On--Device-blue?style=for-the-badge&logo=shield)](https://dinushlakmal.github.io/xxSlashboardxx/privacy.html)
 [![Facebook](https://img.shields.io/badge/Facebook-Follow-1877F2?style=for-the-badge&logo=facebook)](https://www.facebook.com/profile.php?id=61593856756750)
 
 Slashboard යනු Android උපාංග සඳහා විශේෂයෙන් නිර්මාණය කරන ලද, 100% On-Device සහ ආරක්ෂිත (Offline & Private) ස්වදේශික සිංහල යතුරුපුවරු යෙදුමකි (Native Sinhala IME).
+**Created by Dinush Lakmal | Slash Studios**
 
 ### 🔗 ප්‍රයෝජනවත් සබැඳි (Quick Links):
-- 📥 **Direct Download APK & AAB (v3.0.1):** [GitHub Releases](https://github.com/dinushlakmal/xxSlashboardxx/releases)
+- 📥 **Direct Download APK & AAB (v3.0.7):** [GitHub Releases](https://github.com/dinushlakmal/xxSlashboardxx/releases)
 - 🌐 **නිල වෙබ් අඩවිය (Official Website):** [https://dinushlakmal.github.io/xxSlashboardxx/](https://dinushlakmal.github.io/xxSlashboardxx/)
 - 📘 **නිල Facebook පිටුව:** [Slashboard Facebook](https://www.facebook.com/profile.php?id=61593856756750)
 - 👨‍💻 **GitHub Profile:** [@dinushlakmal](https://github.com/dinushlakmal)
@@ -17,7 +18,15 @@ Slashboard යනු Android උපාංග සඳහා විශේෂයෙ�
 
 ---
 
-## 🌟 ප්‍රධාන විශේෂාංග (Key Features - v3.0.1)
+## 🌟 ප්‍රධාන විශේෂාංග (Key Features - v3.0.7)
+
+### 0. ⚡ v3.0.7 නවතම යාවත්කාලීන (What's New in v3.0.7)
+- **0ms Instant Top Bar Reveal**: වචනයක් ටයිප් කර Space එබූ සැනින් හෝ Suggestion එකක් තේරූ සැනින් කිසිදු ප්‍රමාදයකින් තොරව (`0ms`) Top Bar එක ක්ෂණිකව දිස්වේ.
+- **Smart Emoji Suggestions (Sinhala, Singlish & English)**: සිංහල, Singlish හෝ English වචන ටයිප් කරන විටම අදාළ Emoji යෝජනා Suggestion Bar එකේ මුලටම ක්ෂණිකව දිස්වේ.
+- **No Auto-Space After Period (`.`)**: තිතක් (`.`) තැබූ විට ස්වයංක්‍රීයව අනවශ්‍ය Space එකක් එක්වීම නවතා ඇත.
+- **APK Size Compression & 120fps Engine**: APK ප්‍රමාණය ~8MB+ කින් අඩු කර, 120fps Zero-Jank යතුරුකරණ වේගයක් ලබා දී ඇත.
+- **Auto Force-Stop / ANR / OOM Fix & UI Polish**: කලාතුරකින් සිදුවූ Auto Force-Stop ගැටලුව, පසුබිම් RAM දෙගුණ වීම (OOM) සහ Dialog UI ගැටලු සම්පූර්ණයෙන්ම විසඳා ඇත.
+- **Silent Exception Recovery & 1-Tap Bug Report**: යතුරුපුවරුව තුළ අනපේක්ෂිත දෝෂයක් මතු වුවද නිහඬව normal state එකට recover වන අතර, Settings තුළින් 1-Tap මඟින් `dinushlakmal01@gmail.com` වෙත වාර්තා කළ හැක.
 
 ### 1. ⚡ Zero-Lag High Performance Typing Engine
 - **Ultra Smooth Response**: යතුරු එබීමේදී ක්ෂණික ප්‍රතිචාරය (Instant 0-latency input) ලබාදීම සඳහා බරැති පසුබිම් animations ඉවත් කර සකසා ඇත.
@@ -111,7 +120,14 @@ Slashboard යනු Android උපාංග සඳහා විශේෂයෙ�
 
 ---
 
-### 6. 🔢 සජීවී ගණිත සහ ඒකක පරිවර්තකය (Live Math & Unit Converter)
+### 6. 🔢 OTP සහ Number Fields සඳහා Auto Number Keypad (Smart Numeric Switching)
+- **Auto Numeric Keypad**: OTP, SMS Verification Codes, බැංකු PIN, දුරකථන අංක සහ Number Fields වෙත ගිය සැනින් ස්වයංක්‍රීයව Number Keypad එක විවෘත වේ.
+- **Easy ABC Switch**: "ABC" බොත්තම මඟින් ක්ෂණිකව සාමාන්‍ය අකුරු පුවරුවට මාරු වීමේ හැකියාව සහ "?123" මඟින් නැවත Number Keypad වෙත පැමිණීමේ පහසුව.
+- **Tactile Haptic Feedback**: අංක යතුරු එබීමේදී පැහැදිලි ස්පර්ශක කම්පනය සහ ක්ෂණික ප්‍රතිචාරය.
+
+---
+
+### 7. 🔢 සජීවී ගණිත සහ ඒකක පරිවර්තකය (Live Math & Unit Converter)
 - **Instant Math Solver**: වෙනම කැල්කියුලේටරයක් විවෘත නොකර යතුරුපුවරුව තුළින්ම ගණිත ගැටලු විසඳා ගැනීම (උදා: `50+25=` හෝ `125*8=` ටයිප් කළ සැනින් පිළිතුර Suggestion Bar හි දිස්වේ).
 - **Unit & Currency Conversion**: දුර, බර සහ මුදල් ඒකක පරිවර්තනය (උදා: `10 USD to LKR`, `5 KM to M`).
 - තනි ක්ලික් එකකින් ගණනය කළ පිළිතුර කෙලින්ම Input field එකට ඇතුළත් කිරීම.
