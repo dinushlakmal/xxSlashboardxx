@@ -4,6 +4,21 @@ All notable changes to **Slashboard Sinhala Keyboard** will be documented in thi
 
 ---
 
+## [4.0.0] - 2026-11-05
+
+### 🎨 Clean & Simple Age-Friendly UI + Experimental Lab Tab
+- **Age-Friendly Settings UI:** ඕනෑම වයස් මට්ටමක කෙනෙකුට පහසුවෙන් කියවා භාවිතා කළ හැකි පරිදි Slate-Navy (`#0F172A`) පසුබිම සහ පැහැදිලි කාඩ්පත් සහිතව Settings අතුරුමුහුණත ප්‍රතිනිර්මාණය කරන ලදී.
+- **Experimental Tab (අත්හදා බැලීම්):** සාමාන්‍ය පරිශීලකයින්ට එදිනෙදා අවශ්‍ය නොවන සියලුම සංකීර්ණ විකල්ප (RGB Border, Particle Effects, Hitbox AI, Per-Key Color Pickers, Gestures, Font Studio, AES-256 Cloak) වෙනම **Experimental** ටැබ් එකකට ගෙන ගොස්, එහි ප්‍රධාන ස්විචය ON කළ විට පමණක් දිස්වන ලෙස සකස් කරන ලදී.
+
+### 🧠 Memory-Efficient Singlish Typo Auto-Correction
+- Singlish ටයිප් කිරීමේදී සිදුවන අත්වැරදීම් (උදා: `kohomda` -> `කොහොමද`, `sththi` -> `ස්තූතියි`) නිවැරදිව හඳුනාගන්නා Local Dictionary-Based Auto-Correction පද්ධතිය සහ `ComponentCallbacks2` මතක පීඩන පාලනය (Memory-Pressure Trimming) එක් කරන ලදී.
+
+### 🛡️ 100% Google Play Store Policy Compliance
+- **Zero Self-Updater Violation:** Play Store ප්‍රතිපත්තිවලට 100%ක් අනුකූල වන පරිදි බාහිර APK බාගත කිරීමේ කේත ඉවත් කර නිල Google Play Store Update ප්‍රවාහය එක් කරන ලදී.
+- **Least-Privilege Permissions & Data Safety:** අනවශ්‍ය `NotificationListenerService`, `POST_NOTIFICATIONS`, සහ `MODIFY_AUDIO_SETTINGS` ඉවත් කර, Setup Card තුළ පැහැදිලි Keystroke Privacy සහතිකය එක් කරන ලදී.
+
+---
+
 ## [3.0.7] - 2026-10-28
 
 ### ⚡ 0ms Instant Top Bar Reveal on Space & Suggestion Selection

@@ -1,6 +1,6 @@
 # 🇱🇰 Slashboard Sinhala Keyboard (ස්ලෑෂ්බෝඩ් සිංහල යතුරුපුවරුව)
 
-[![Latest Release](https://img.shields.io/badge/Release-v3.0.7-indigo?style=for-the-badge&logo=android)](https://github.com/dinushlakmal/xxSlashboardxx/releases)
+[![Latest Release](https://img.shields.io/badge/Release-v4.0.0-indigo?style=for-the-badge&logo=android)](https://github.com/dinushlakmal/xxSlashboardxx/releases)
 [![Build & Test](https://img.shields.io/badge/Build-Passing-emerald?style=for-the-badge&logo=githubactions)](https://github.com/dinushlakmal/xxSlashboardxx/actions)
 [![Google Play Ready](https://img.shields.io/badge/Google%20Play-Target%20SDK%2036-brightgreen?style=for-the-badge&logo=googleplay)](https://play.google.com/store/apps/details?id=com.slashbord)
 [![Offline & Private](https://img.shields.io/badge/Privacy-100%25%20On--Device-blue?style=for-the-badge&logo=shield)](https://dinushlakmal.github.io/xxSlashboardxx/privacy.html)
@@ -10,7 +10,7 @@ Slashboard යනු Android උපාංග සඳහා විශේෂයෙ�
 **Created by Dinush Lakmal | Slash Studios**
 
 ### 🔗 ප්‍රයෝජනවත් සබැඳි (Quick Links):
-- 📥 **Direct Download APK & AAB (v3.0.7):** [GitHub Releases](https://github.com/dinushlakmal/xxSlashboardxx/releases)
+- 📥 **Direct Download APK & AAB (v4.0.0):** [GitHub Releases](https://github.com/dinushlakmal/xxSlashboardxx/releases)
 - 🌐 **නිල වෙබ් අඩවිය (Official Website):** [https://dinushlakmal.github.io/xxSlashboardxx/](https://dinushlakmal.github.io/xxSlashboardxx/)
 - 📘 **නිල Facebook පිටුව:** [Slashboard Facebook](https://www.facebook.com/profile.php?id=61593856756750)
 - 👨‍💻 **GitHub Profile:** [@dinushlakmal](https://github.com/dinushlakmal)
@@ -18,15 +18,15 @@ Slashboard යනු Android උපාංග සඳහා විශේෂයෙ�
 
 ---
 
-## 🌟 ප්‍රධාන විශේෂාංග (Key Features - v3.0.7)
+## 🌟 ප්‍රධාන විශේෂාංග (Key Features - v4.0.0)
 
-### 0. ⚡ v3.0.7 නවතම යාවත්කාලීන (What's New in v3.0.7)
-- **0ms Instant Top Bar Reveal**: වචනයක් ටයිප් කර Space එබූ සැනින් හෝ Suggestion එකක් තේරූ සැනින් කිසිදු ප්‍රමාදයකින් තොරව (`0ms`) Top Bar එක ක්ෂණිකව දිස්වේ.
-- **Smart Emoji Suggestions (Sinhala, Singlish & English)**: සිංහල, Singlish හෝ English වචන ටයිප් කරන විටම අදාළ Emoji යෝජනා Suggestion Bar එකේ මුලටම ක්ෂණිකව දිස්වේ.
-- **No Auto-Space After Period (`.`)**: තිතක් (`.`) තැබූ විට ස්වයංක්‍රීයව අනවශ්‍ය Space එකක් එක්වීම නවතා ඇත.
+### 0. ⚡ v4.0.0 නවතම යාවත්කාලීන (What's New in v4.0.0)
+- **Clean & Simple Age-Friendly UI + Experimental Lab Tab**: ඕනෑම වයස් මට්ටමක කෙනෙකුට පහසුවෙන් භාවිතා කළ හැකි පිරිසිදු Settings UI එක සහ සංකීර්ණ විකල්ප සඟවා තබන **Experimental** ටැබ් එක.
+- **Memory-Efficient Singlish Typo Auto-Correction**: Singlish ටයිප් කිරීමේ අත්වැරදීම් නිවැරදිව හඳුනාගන්නා අඩු RAM ධාරිතාවකින් ක්‍රියාත්මක වන Local Dictionary Auto-Correction පද්ධතිය.
+- **100% Google Play Store Policy Compliant**: Play Store Data Safety සහ Least-Privilege ප්‍රමිතීන්ට 100%ක් අනුකූල කරන ලදී.
+- **0ms Instant Top Bar Reveal & Smart Emoji Suggestions**: Space හෝ Suggestion එබූ සැනින් `0ms` ක්ෂණිකව Top Bar පෙන්වීම සහ සිංහල/Singlish/English ඉමෝජි යෝජනා.
 - **APK Size Compression & 120fps Engine**: APK ප්‍රමාණය ~8MB+ කින් අඩු කර, 120fps Zero-Jank යතුරුකරණ වේගයක් ලබා දී ඇත.
 - **Auto Force-Stop / ANR / OOM Fix & UI Polish**: කලාතුරකින් සිදුවූ Auto Force-Stop ගැටලුව, පසුබිම් RAM දෙගුණ වීම (OOM) සහ Dialog UI ගැටලු සම්පූර්ණයෙන්ම විසඳා ඇත.
-- **Silent Exception Recovery & 1-Tap Bug Report**: යතුරුපුවරුව තුළ අනපේක්ෂිත දෝෂයක් මතු වුවද නිහඬව normal state එකට recover වන අතර, Settings තුළින් 1-Tap මඟින් `dinushlakmal01@gmail.com` වෙත වාර්තා කළ හැක.
 
 ### 1. ⚡ Zero-Lag High Performance Typing Engine
 - **Ultra Smooth Response**: යතුරු එබීමේදී ක්ෂණික ප්‍රතිචාරය (Instant 0-latency input) ලබාදීම සඳහා බරැති පසුබිම් animations ඉවත් කර සකසා ඇත.
