@@ -5,14 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="google-site-verification" content="googlee1fc35545edd459a" />
     <meta name="google-site-verification" content="googlee1fc35545edd459a.html" />
-    <title>Slashboard Sinhala Keyboard | ස්ලෑෂ්බෝඩ් සිංහල යතුරුපුවරුව</title>
-    <meta name="description" content="Slashboard is a 100% offline, ultra-fast, and private Sinhala keyboard for Android by Dinush Lakmal with Singlish, Wijesekara, In-Keyboard Translator, and Glass Themes.">
-    <meta name="keywords" content="Slashboard, Sinhala Keyboard, Singlish Keyboard, Wijesekara Keyboard, Android Sinhala, Offline Keyboard, Dinush Lakmal">
-    
+    <title>Slashboard Sinhala Keyboard v4.2.1 | ස්ලෑෂ්බෝඩ් සුහුරු සිංහල යතුරුපුවරුව</title>
+    <meta name="description" content="Slashboard v4.2.1 is an ultra-fast, 100% on-device Sinhala keyboard for Android Phones, Tablets, and Android TV by Dinush Lakmal. Features 2GB/3GB Low-RAM Turbo Engine, Singlish, Wijesekara, Pre-installed WhatsApp & Downloadable iOS/FB/Twitter Emojis, Mini-POS Invoice Studio, and NIC Analyzer.">
+    <meta name="keywords" content="Slashboard, Sinhala Keyboard, Singlish Keyboard, Wijesekara Keyboard, Android TV Sinhala Keyboard, Low RAM Sinhala Keyboard, WhatsApp Emoji Keyboard, Mini POS Sinhala, Dinush Lakmal">
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Sinhala:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-    
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700&family=Noto+Sans+Sinhala:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
     <style>
         :root {
             --primary: #6366F1;
@@ -21,16 +21,19 @@
             --secondary: #EC4899;
             --accent: #10B981;
             --cyan: #06B6D4;
-            --bg-dark: #090D16;
-            --bg-card: rgba(18, 24, 39, 0.75);
-            --bg-card-hover: rgba(30, 41, 59, 0.85);
-            --card-border: rgba(255, 255, 255, 0.08);
-            --card-border-glow: rgba(99, 102, 241, 0.3);
+            --amber: #F59E0B;
+            --bg-dark: #060913;
+            --bg-surface: rgba(13, 19, 34, 0.78);
+            --bg-card: rgba(18, 25, 43, 0.75);
+            --bg-card-hover: rgba(26, 36, 62, 0.9);
+            --card-border: rgba(148, 163, 184, 0.12);
+            --card-border-glow: rgba(99, 102, 241, 0.45);
             --text-main: #F8FAFC;
             --text-muted: #94A3B8;
-            --radius-lg: 20px;
+            --radius-xl: 24px;
+            --radius-lg: 18px;
             --radius-md: 14px;
-            --radius-sm: 8px;
+            --radius-sm: 10px;
         }
 
         * {
@@ -41,59 +44,78 @@
             -webkit-tap-highlight-color: transparent;
         }
 
+        html {
+            scroll-behavior: smooth;
+        }
+
         body {
-            background: radial-gradient(circle at 50% 0%, #1E1B4B 0%, #090D16 65%, #05070D 100%);
+            background-color: var(--bg-dark);
+            background-image:
+                radial-gradient(circle at 15% 10%, rgba(99, 102, 241, 0.18) 0%, transparent 45%),
+                radial-gradient(circle at 85% 25%, rgba(6, 182, 212, 0.14) 0%, transparent 45%),
+                radial-gradient(circle at 50% 75%, rgba(236, 72, 153, 0.1) 0%, transparent 50%),
+                linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+            background-size: 100% 100%, 100% 100%, 100% 100%, 40px 40px, 40px 40px;
             color: var(--text-main);
             min-height: 100vh;
             line-height: 1.65;
             overflow-x: hidden;
-        }
-
-        /* Ambient Glow Background Accents */
-        .ambient-glow-1 {
-            position: absolute;
-            top: 5%;
-            left: 20%;
-            width: 450px;
-            height: 450px;
-            background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, rgba(0,0,0,0) 70%);
-            filter: blur(80px);
-            pointer-events: none;
-            z-index: 0;
-        }
-
-        .ambient-glow-2 {
-            position: absolute;
-            top: 40%;
-            right: 15%;
-            width: 500px;
-            height: 500px;
-            background: radial-gradient(circle, rgba(236, 72, 153, 0.12) 0%, rgba(0,0,0,0) 70%);
-            filter: blur(90px);
-            pointer-events: none;
-            z-index: 0;
+            padding-bottom: 72px;
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 1220px;
             margin: 0 auto;
             padding: 0 24px;
             position: relative;
             z-index: 1;
         }
 
-        /* Navigation */
+        /* Top Announcement Tech Bar */
+        .top-tech-banner {
+            background: linear-gradient(90deg, rgba(99, 102, 241, 0.18), rgba(6, 182, 212, 0.18), rgba(16, 185, 129, 0.18));
+            border-bottom: 1px solid rgba(99, 102, 241, 0.25);
+            padding: 8px 16px;
+            text-align: center;
+            font-size: 0.84rem;
+            font-weight: 600;
+            color: #E2E8F0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .pulse-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #10B981;
+            box-shadow: 0 0 10px #10B981;
+            display: inline-block;
+            animation: pulseGlow 2s infinite;
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.35); opacity: 0.65; }
+        }
+
+        /* Sticky Glass Navigation */
         nav {
-            padding: 20px 0;
+            padding: 16px 0;
             display: flex;
             justify-content: space-between;
             align-items: center;
             border-bottom: 1px solid var(--card-border);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             position: sticky;
             top: 0;
             z-index: 100;
+            background: rgba(6, 9, 19, 0.78);
         }
 
         .logo {
@@ -108,20 +130,32 @@
         }
 
         .logo-badge {
-            background: linear-gradient(135deg, #6366F1, #EC4899);
+            background: linear-gradient(135deg, #6366F1, #06B6D4);
             width: 42px;
             height: 42px;
             border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.35rem;
-            box-shadow: 0 4px 18px rgba(99, 102, 241, 0.45);
+            font-size: 1.3rem;
+            box-shadow: 0 4px 20px rgba(99, 102, 241, 0.45);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .version-chip {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.72rem;
+            background: rgba(16, 185, 129, 0.16);
+            color: #34D399;
+            border: 1px solid rgba(16, 185, 129, 0.4);
+            padding: 2px 8px;
+            border-radius: 99px;
+            font-weight: 700;
         }
 
         .nav-links {
             display: flex;
-            gap: 22px;
+            gap: 20px;
             align-items: center;
         }
 
@@ -129,9 +163,8 @@
             color: var(--text-muted);
             text-decoration: none;
             font-weight: 600;
-            font-size: 0.95rem;
+            font-size: 0.92rem;
             transition: all 0.2s ease;
-            position: relative;
         }
 
         .nav-links a:hover, .nav-links a.active {
@@ -139,36 +172,36 @@
         }
 
         .btn-cta {
-            background: linear-gradient(135deg, #6366F1, #4F46E5);
+            background: linear-gradient(135deg, #6366F1, #06B6D4);
             color: #fff !important;
             padding: 10px 20px;
             border-radius: 12px;
             text-decoration: none;
             font-weight: 700 !important;
-            font-size: 0.9rem !important;
+            font-size: 0.88rem !important;
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            box-shadow: 0 4px 16px rgba(99, 102, 241, 0.4);
-            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 4px 18px rgba(99, 102, 241, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.2);
             transition: all 0.25s ease;
         }
 
         .btn-cta:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 24px rgba(99, 102, 241, 0.6);
+            box-shadow: 0 8px 26px rgba(6, 182, 212, 0.55);
         }
 
         /* Hero Section */
         .hero {
-            padding: 85px 0 50px;
+            padding: 68px 0 40px;
             text-align: center;
         }
 
         .badge-pill-group {
             display: flex;
             justify-content: center;
-            gap: 12px;
+            gap: 10px;
             flex-wrap: wrap;
             margin-bottom: 24px;
         }
@@ -177,129 +210,148 @@
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            background: rgba(99, 102, 241, 0.15);
+            background: rgba(99, 102, 241, 0.14);
             border: 1px solid rgba(99, 102, 241, 0.35);
-            padding: 6px 16px;
+            padding: 6px 15px;
             border-radius: 99px;
             color: #C7D2FE;
-            font-size: 0.88rem;
+            font-size: 0.84rem;
             font-weight: 700;
-            letter-spacing: 0.01em;
             backdrop-filter: blur(10px);
         }
 
         .badge-pill.new {
             background: rgba(16, 185, 129, 0.15);
-            border-color: rgba(16, 185, 129, 0.4);
+            border-color: rgba(16, 185, 129, 0.45);
             color: #6EE7B7;
         }
 
+        .badge-pill.cyan {
+            background: rgba(6, 182, 212, 0.15);
+            border-color: rgba(6, 182, 212, 0.45);
+            color: #67E8F9;
+        }
+
         .hero h1 {
-            font-size: 3.4rem;
+            font-size: 3.35rem;
             font-weight: 900;
-            line-height: 1.22;
-            margin-bottom: 22px;
-            letter-spacing: -0.02em;
+            line-height: 1.2;
+            margin-bottom: 20px;
+            letter-spacing: -0.025em;
         }
 
         .gradient-text {
-            background: linear-gradient(135deg, #FFFFFF 20%, #A5B4FC 60%, #EC4899 100%);
+            background: linear-gradient(135deg, #FFFFFF 15%, #38BDF8 50%, #818CF8 80%, #EC4899 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 
         .hero p {
-            font-size: 1.22rem;
+            font-size: 1.16rem;
             color: var(--text-muted);
-            max-width: 760px;
-            margin: 0 auto 36px;
-            line-height: 1.7;
+            max-width: 820px;
+            margin: 0 auto 32px;
+            line-height: 1.72;
         }
 
         .cta-buttons {
             display: flex;
             justify-content: center;
-            gap: 16px;
+            gap: 14px;
             flex-wrap: wrap;
-            margin-bottom: 40px;
+            margin-bottom: 44px;
         }
 
         .btn-lg-primary {
             background: linear-gradient(135deg, #6366F1 0%, #4F46E5 100%);
             color: #fff;
-            padding: 15px 32px;
+            padding: 14px 28px;
             border-radius: 14px;
             text-decoration: none;
             font-weight: 700;
-            font-size: 1.05rem;
-            box-shadow: 0 10px 25px rgba(99, 102, 241, 0.45);
+            font-size: 1rem;
+            box-shadow: 0 10px 25px rgba(99, 102, 241, 0.4);
             display: inline-flex;
             align-items: center;
             gap: 10px;
-            border: 1px solid rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.18);
             transition: all 0.25s ease;
         }
 
         .btn-lg-primary:hover {
             transform: translateY(-2px);
-            box-shadow: 0 12px 30px rgba(99, 102, 241, 0.65);
+            box-shadow: 0 14px 32px rgba(99, 102, 241, 0.6);
         }
 
         .btn-lg-secondary {
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid var(--card-border);
             color: #fff;
-            padding: 15px 30px;
+            padding: 14px 24px;
             border-radius: 14px;
             text-decoration: none;
             font-weight: 600;
-            font-size: 1.05rem;
+            font-size: 0.98rem;
             backdrop-filter: blur(10px);
             display: inline-flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
             transition: all 0.25s ease;
         }
 
         .btn-lg-secondary:hover {
             background: rgba(255, 255, 255, 0.1);
-            border-color: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.25);
             transform: translateY(-2px);
         }
 
-        /* Trust Stats Bar */
+        /* High-Tech Telemetry Metrics Bar */
         .trust-bar {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             gap: 16px;
-            max-width: 960px;
-            margin: 0 auto 60px;
+            max-width: 1040px;
+            margin: 0 auto 48px;
         }
 
         .trust-item {
             background: var(--bg-card);
             border: 1px solid var(--card-border);
             border-radius: var(--radius-md);
-            padding: 18px 14px;
+            padding: 20px 16px;
             text-align: center;
-            backdrop-filter: blur(12px);
-            transition: all 0.2s ease;
+            backdrop-filter: blur(14px);
+            transition: all 0.25s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .trust-item::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--cyan), var(--primary), transparent);
+            opacity: 0.65;
         }
 
         .trust-item:hover {
             border-color: var(--card-border-glow);
-            transform: translateY(-2px);
+            transform: translateY(-3px);
         }
 
         .trust-icon {
-            font-size: 1.6rem;
+            font-size: 1.65rem;
             margin-bottom: 6px;
         }
 
         .trust-title {
-            font-weight: 700;
-            font-size: 0.95rem;
+            font-weight: 800;
+            font-size: 1rem;
             color: #F8FAFC;
+            margin-bottom: 3px;
         }
 
         .trust-sub {
@@ -307,15 +359,99 @@
             color: var(--text-muted);
         }
 
-        /* Interactive Live Typing Demo Studio */
+        /* Multi-Form-Factor Ecosystem Bar (Phone, Tablet, Android TV, Media Box) */
+        .ecosystem-showcase {
+            background: linear-gradient(145deg, rgba(18, 25, 46, 0.9), rgba(11, 16, 30, 0.94));
+            border: 1px solid rgba(6, 182, 212, 0.3);
+            border-radius: var(--radius-xl);
+            padding: 28px 32px;
+            max-width: 1040px;
+            margin: 0 auto 48px;
+            text-align: left;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
+        }
+
+        .ecosystem-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .ecosystem-tabs {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .eco-tab {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--card-border);
+            color: #CBD5E1;
+            padding: 8px 16px;
+            border-radius: 10px;
+            font-size: 0.86rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .eco-tab.active, .eco-tab:hover {
+            background: linear-gradient(135deg, rgba(6, 182, 212, 0.25), rgba(99, 102, 241, 0.25));
+            border-color: #38BDF8;
+            color: #fff;
+        }
+
+        .eco-panel {
+            display: grid;
+            grid-template-columns: 1.2fr 1fr;
+            gap: 20px;
+            align-items: center;
+            background: rgba(6, 9, 19, 0.65);
+            border: 1px solid rgba(255, 255, 255, 0.07);
+            border-radius: 16px;
+            padding: 22px;
+        }
+
+        .eco-specs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .eco-spec-pill {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.76rem;
+            background: rgba(99, 102, 241, 0.15);
+            color: #A5B4FC;
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            padding: 4px 10px;
+            border-radius: 8px;
+        }
+
+        .eco-visual-box {
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(30, 41, 59, 0.85));
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            border-radius: 14px;
+            padding: 18px;
+            text-align: center;
+            font-family: 'JetBrains Mono', monospace;
+            color: #38BDF8;
+            font-size: 0.85rem;
+        }
+
+        /* Interactive Live Typing, Math & NIC Analyzer Playground */
         .demo-studio {
-            background: linear-gradient(180deg, rgba(26, 32, 54, 0.85) 0%, rgba(15, 20, 36, 0.92) 100%);
-            border: 1px solid rgba(99, 102, 241, 0.35);
-            border-radius: 24px;
-            padding: 36px;
-            max-width: 860px;
-            margin: 0 auto 80px;
-            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.55), 0 0 30px rgba(99, 102, 241, 0.15);
+            background: linear-gradient(180deg, rgba(22, 30, 54, 0.9) 0%, rgba(12, 17, 32, 0.95) 100%);
+            border: 1px solid rgba(99, 102, 241, 0.4);
+            border-radius: var(--radius-xl);
+            padding: 34px;
+            max-width: 960px;
+            margin: 0 auto 76px;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.55), 0 0 35px rgba(99, 102, 241, 0.16);
             text-align: left;
             position: relative;
         }
@@ -336,6 +472,7 @@
             display: flex;
             align-items: center;
             gap: 10px;
+            flex-wrap: wrap;
         }
 
         .demo-mode-badge {
@@ -344,8 +481,9 @@
             border: 1px solid rgba(16, 185, 129, 0.35);
             padding: 4px 12px;
             border-radius: 99px;
-            font-size: 0.8rem;
+            font-size: 0.78rem;
             font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
         }
 
         .demo-input-box {
@@ -355,35 +493,36 @@
 
         .demo-input {
             width: 100%;
-            background: rgba(10, 14, 26, 0.95);
-            border: 1.5px solid rgba(255, 255, 255, 0.12);
+            background: rgba(6, 9, 19, 0.95);
+            border: 1.5px solid rgba(255, 255, 255, 0.14);
             border-radius: 14px;
             padding: 18px 20px;
             color: #fff;
-            font-size: 1.15rem;
+            font-size: 1.12rem;
             outline: none;
             transition: all 0.2s ease;
         }
 
         .demo-input:focus {
-            border-color: var(--primary-light);
-            box-shadow: 0 0 15px rgba(99, 102, 241, 0.35);
+            border-color: #38BDF8;
+            box-shadow: 0 0 18px rgba(56, 189, 248, 0.3);
         }
 
         .demo-output-card {
             background: rgba(99, 102, 241, 0.1);
-            border: 1.5px solid rgba(99, 102, 241, 0.3);
+            border: 1.5px solid rgba(99, 102, 241, 0.32);
             border-radius: 14px;
             padding: 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            min-height: 75px;
-            margin-bottom: 20px;
+            gap: 16px;
+            min-height: 76px;
+            margin-bottom: 18px;
         }
 
         .demo-output-text {
-            font-size: 1.7rem;
+            font-size: 1.65rem;
             color: #38BDF8;
             font-weight: 800;
             letter-spacing: 0.02em;
@@ -394,17 +533,18 @@
             background: rgba(255, 255, 255, 0.08);
             border: 1px solid var(--card-border);
             color: #F1F5F9;
-            padding: 8px 16px;
+            padding: 10px 18px;
             border-radius: 10px;
-            font-size: 0.85rem;
-            font-weight: 600;
+            font-size: 0.86rem;
+            font-weight: 700;
             cursor: pointer;
             transition: all 0.2s ease;
             white-space: nowrap;
         }
 
         .copy-btn:hover {
-            background: rgba(255, 255, 255, 0.18);
+            background: rgba(99, 102, 241, 0.3);
+            border-color: var(--primary-light);
         }
 
         .sample-chips {
@@ -415,17 +555,17 @@
         }
 
         .chip-label {
-            font-size: 0.85rem;
+            font-size: 0.84rem;
             color: var(--text-muted);
-            font-weight: 600;
+            font-weight: 700;
         }
 
         .sample-chip {
             background: rgba(255, 255, 255, 0.06);
             border: 1px solid var(--card-border);
-            padding: 5px 12px;
+            padding: 6px 13px;
             border-radius: 99px;
-            font-size: 0.85rem;
+            font-size: 0.83rem;
             color: #CBD5E1;
             cursor: pointer;
             transition: all 0.2s ease;
@@ -433,7 +573,7 @@
 
         .sample-chip:hover {
             background: rgba(99, 102, 241, 0.25);
-            border-color: rgba(99, 102, 241, 0.4);
+            border-color: rgba(99, 102, 241, 0.45);
             color: #fff;
             transform: translateY(-1px);
         }
@@ -441,41 +581,69 @@
         /* Section Headings */
         .section-header {
             text-align: center;
-            margin-bottom: 50px;
+            margin-bottom: 42px;
         }
 
         .section-tag {
             display: inline-block;
-            background: rgba(99, 102, 241, 0.15);
+            background: rgba(99, 102, 241, 0.16);
+            border: 1px solid rgba(99, 102, 241, 0.32);
             color: #A5B4FC;
-            font-size: 0.85rem;
-            font-weight: 700;
+            font-size: 0.8rem;
+            font-weight: 800;
             padding: 5px 14px;
             border-radius: 99px;
             margin-bottom: 12px;
             text-transform: uppercase;
-            letter-spacing: 0.05em;
+            letter-spacing: 0.06em;
         }
 
         .section-header h2 {
-            font-size: 2.4rem;
+            font-size: 2.35rem;
             font-weight: 900;
             letter-spacing: -0.02em;
-            margin-bottom: 14px;
+            margin-bottom: 12px;
         }
 
         .section-header p {
             color: var(--text-muted);
-            font-size: 1.1rem;
-            max-width: 680px;
+            font-size: 1.06rem;
+            max-width: 700px;
             margin: 0 auto;
+        }
+
+        /* Smart Feature Filter Bar */
+        .feature-filter-bar {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 32px;
+        }
+
+        .feat-filter-btn {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--card-border);
+            color: var(--text-muted);
+            padding: 8px 18px;
+            border-radius: 99px;
+            font-size: 0.86rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .feat-filter-btn.active, .feat-filter-btn:hover {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.3), rgba(6, 182, 212, 0.25));
+            border-color: #818CF8;
+            color: #fff;
         }
 
         /* Feature Cards Grid */
         .features-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
-            gap: 24px;
+            gap: 22px;
             margin-bottom: 80px;
         }
 
@@ -483,8 +651,8 @@
             background: var(--bg-card);
             border: 1px solid var(--card-border);
             border-radius: var(--radius-lg);
-            padding: 30px;
-            backdrop-filter: blur(12px);
+            padding: 28px;
+            backdrop-filter: blur(14px);
             transition: all 0.28s ease;
             position: relative;
             display: flex;
@@ -494,13 +662,13 @@
         .feature-card:hover {
             transform: translateY(-5px);
             border-color: var(--card-border-glow);
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+            box-shadow: 0 16px 38px rgba(0, 0, 0, 0.45);
             background: var(--bg-card-hover);
         }
 
         .feature-card.highlight {
-            border-color: rgba(99, 102, 241, 0.45);
-            background: linear-gradient(145deg, rgba(30, 38, 64, 0.85) 0%, rgba(18, 24, 39, 0.8) 100%);
+            border-color: rgba(56, 189, 248, 0.4);
+            background: linear-gradient(145deg, rgba(24, 34, 62, 0.88) 0%, rgba(14, 20, 36, 0.88) 100%);
         }
 
         .card-badge-new {
@@ -509,37 +677,38 @@
             right: 20px;
             background: linear-gradient(135deg, #10B981, #059669);
             color: #fff;
-            font-size: 0.72rem;
+            font-size: 0.7rem;
             font-weight: 800;
-            padding: 3px 9px;
+            padding: 3px 10px;
             border-radius: 99px;
             letter-spacing: 0.05em;
             text-transform: uppercase;
+            font-family: 'JetBrains Mono', monospace;
         }
 
         .feature-icon-box {
-            width: 54px;
-            height: 54px;
+            width: 52px;
+            height: 52px;
             border-radius: 14px;
             background: rgba(99, 102, 241, 0.18);
             border: 1px solid rgba(99, 102, 241, 0.35);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.75rem;
-            margin-bottom: 22px;
+            font-size: 1.65rem;
+            margin-bottom: 18px;
         }
 
         .feature-card h3 {
-            font-size: 1.35rem;
+            font-size: 1.28rem;
             font-weight: 800;
-            margin-bottom: 12px;
+            margin-bottom: 10px;
             color: #F8FAFC;
         }
 
         .feature-card p {
             color: var(--text-muted);
-            font-size: 0.96rem;
+            font-size: 0.94rem;
             line-height: 1.65;
             flex-grow: 1;
         }
@@ -551,23 +720,24 @@
         }
 
         .feature-bullet-list li {
-            font-size: 0.88rem;
+            font-size: 0.86rem;
             color: #CBD5E1;
             margin-bottom: 6px;
             display: flex;
-            align-items: center;
+            align-items: flex-start;
             gap: 8px;
         }
 
         .feature-bullet-list li::before {
-            content: "✓";
-            color: #34D399;
+            content: "✦";
+            color: #38BDF8;
             font-weight: 800;
+            flex-shrink: 0;
         }
 
         /* Comparison Table Section */
         .comparison-section {
-            padding: 50px 0 80px;
+            padding: 30px 0 80px;
         }
 
         .table-container {
@@ -585,19 +755,19 @@
         }
 
         th, td {
-            padding: 18px 24px;
+            padding: 16px 22px;
             border-bottom: 1px solid var(--card-border);
         }
 
         th {
-            background: rgba(15, 23, 42, 0.8);
+            background: rgba(15, 23, 42, 0.85);
             color: #E2E8F0;
             font-weight: 800;
-            font-size: 0.95rem;
+            font-size: 0.94rem;
         }
 
         th.highlight-col, td.highlight-col {
-            background: rgba(99, 102, 241, 0.08);
+            background: rgba(99, 102, 241, 0.09);
         }
 
         td {
@@ -615,7 +785,7 @@
 
         .check-no {
             color: #F87171;
-            font-weight: 800;
+            font-weight: 700;
             display: inline-flex;
             align-items: center;
             gap: 6px;
@@ -625,8 +795,8 @@
         .guide-section {
             background: var(--bg-card);
             border: 1px solid var(--card-border);
-            border-radius: 24px;
-            padding: 40px;
+            border-radius: var(--radius-xl);
+            padding: 38px;
             margin-bottom: 80px;
         }
 
@@ -653,8 +823,8 @@
         }
 
         .guide-tab-btn.active {
-            background: rgba(99, 102, 241, 0.2);
-            border-color: rgba(99, 102, 241, 0.4);
+            background: rgba(99, 102, 241, 0.22);
+            border-color: rgba(99, 102, 241, 0.45);
             color: #fff;
         }
 
@@ -665,83 +835,38 @@
         }
 
         .guide-item {
-            background: rgba(15, 23, 42, 0.7);
-            border: 1px solid rgba(255, 255, 255, 0.06);
+            background: rgba(10, 15, 29, 0.78);
+            border: 1px solid rgba(255, 255, 255, 0.07);
             border-radius: 10px;
             padding: 12px 16px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .guide-item:hover {
+            border-color: #38BDF8;
+            transform: translateY(-2px);
         }
 
         .guide-key {
-            color: #93C5FD;
-            font-family: monospace;
-            font-size: 1rem;
+            color: #38BDF8;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.95rem;
             font-weight: 700;
         }
 
         .guide-char {
             color: #F8FAFC;
-            font-size: 1.3rem;
+            font-size: 1.28rem;
             font-weight: 700;
-        }
-
-        /* Banner CTA */
-        .download-banner {
-            background: linear-gradient(135deg, rgba(99, 102, 241, 0.25) 0%, rgba(236, 72, 153, 0.25) 100%);
-            border: 1px solid rgba(99, 102, 241, 0.4);
-            border-radius: 24px;
-            padding: 50px 30px;
-            text-align: center;
-            margin-bottom: 80px;
-            backdrop-filter: blur(16px);
-        }
-
-        .download-banner h2 {
-            font-size: 2.2rem;
-            font-weight: 900;
-            margin-bottom: 14px;
-        }
-
-        .download-banner p {
-            font-size: 1.1rem;
-            color: #CBD5E1;
-            max-width: 600px;
-            margin: 0 auto 30px;
-        }
-
-        /* Footer */
-        footer {
-            border-top: 1px solid var(--card-border);
-            padding: 48px 0 36px;
-            text-align: center;
-            color: var(--text-muted);
-            font-size: 0.92rem;
-        }
-
-        .footer-nav {
-            display: flex;
-            justify-content: center;
-            gap: 24px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-        }
-
-        .footer-nav a {
-            color: #CBD5E1;
-            text-decoration: none;
-            font-weight: 600;
-            transition: color 0.2s ease;
-        }
-
-        .footer-nav a:hover {
-            color: var(--primary-light);
         }
 
         /* FAQ Section & Accordion Styles */
         .faq-section {
-            padding: 40px 0 80px;
+            padding: 20px 0 80px;
         }
 
         .faq-filter-bar {
@@ -749,7 +874,7 @@
             justify-content: center;
             gap: 10px;
             flex-wrap: wrap;
-            margin-bottom: 24px;
+            margin-bottom: 22px;
         }
 
         .faq-filter-btn {
@@ -758,39 +883,32 @@
             color: var(--text-muted);
             padding: 8px 18px;
             border-radius: 99px;
-            font-size: 0.88rem;
+            font-size: 0.86rem;
             font-weight: 700;
             cursor: pointer;
             transition: all 0.2s ease;
         }
 
-        .faq-filter-btn:hover {
-            background: rgba(99, 102, 241, 0.15);
-            color: #fff;
-            border-color: rgba(99, 102, 241, 0.35);
-        }
-
-        .faq-filter-btn.active {
-            background: linear-gradient(135deg, rgba(99, 102, 241, 0.35) 0%, rgba(79, 70, 229, 0.35) 100%);
+        .faq-filter-btn:hover, .faq-filter-btn.active {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.35), rgba(6, 182, 212, 0.25));
             border-color: var(--primary-light);
             color: #fff;
-            box-shadow: 0 4px 14px rgba(99, 102, 241, 0.25);
         }
 
         .faq-search-box {
             max-width: 580px;
-            margin: 0 auto 36px;
+            margin: 0 auto 32px;
             position: relative;
         }
 
         .faq-search-input {
             width: 100%;
-            background: rgba(15, 23, 42, 0.85);
+            background: rgba(15, 23, 42, 0.88);
             border: 1px solid var(--card-border);
             border-radius: 14px;
             padding: 14px 20px 14px 44px;
             color: #fff;
-            font-size: 0.96rem;
+            font-size: 0.95rem;
             outline: none;
             transition: all 0.2s ease;
         }
@@ -805,13 +923,13 @@
             left: 16px;
             top: 50%;
             transform: translateY(-50%);
-            font-size: 1.1rem;
+            font-size: 1.05rem;
             color: var(--text-muted);
             pointer-events: none;
         }
 
         .faq-accordion-container {
-            max-width: 860px;
+            max-width: 880px;
             margin: 0 auto;
             display: flex;
             flex-direction: column;
@@ -827,19 +945,14 @@
             transition: all 0.25s ease;
         }
 
-        .faq-item:hover {
-            border-color: rgba(99, 102, 241, 0.35);
-        }
-
         .faq-item.active {
             border-color: rgba(99, 102, 241, 0.55);
-            background: rgba(22, 29, 49, 0.92);
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+            background: rgba(20, 28, 48, 0.94);
         }
 
         .faq-question {
             width: 100%;
-            padding: 20px 24px;
+            padding: 18px 22px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -847,19 +960,10 @@
             background: transparent;
             border: none;
             color: #F8FAFC;
-            font-size: 1.05rem;
+            font-size: 1.02rem;
             font-weight: 700;
             text-align: left;
             cursor: pointer;
-            transition: color 0.2s ease;
-        }
-
-        .faq-question:hover {
-            color: var(--primary-light);
-        }
-
-        .faq-item.active .faq-question {
-            color: #A5B4FC;
         }
 
         .faq-q-content {
@@ -870,11 +974,10 @@
         }
 
         .faq-tag {
-            font-size: 0.72rem;
+            font-size: 0.7rem;
             font-weight: 800;
             padding: 3px 9px;
             border-radius: 99px;
-            letter-spacing: 0.03em;
             text-transform: uppercase;
             white-space: nowrap;
         }
@@ -898,30 +1001,29 @@
         }
 
         .faq-icon {
-            width: 32px;
-            height: 32px;
+            width: 30px;
+            height: 30px;
             border-radius: 50%;
-            background: rgba(255, 255, 255, 0.05);
+            background: rgba(255, 255, 255, 0.06);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.2rem;
+            font-size: 1.15rem;
             color: var(--text-muted);
             transition: all 0.3s ease;
             flex-shrink: 0;
-            line-height: 1;
         }
 
         .faq-item.active .faq-icon {
             transform: rotate(45deg);
-            background: rgba(99, 102, 241, 0.25);
-            color: var(--primary-light);
+            background: rgba(99, 102, 241, 0.28);
+            color: #fff;
         }
 
         .faq-answer {
             max-height: 0;
             overflow: hidden;
-            transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
+            transition: max-height 0.35s ease, opacity 0.3s ease;
             opacity: 0;
         }
 
@@ -930,16 +1032,11 @@
         }
 
         .faq-answer-inner {
-            padding: 0 24px 22px;
+            padding: 16px 22px 20px;
             color: #CBD5E1;
-            font-size: 0.96rem;
-            line-height: 1.75;
-            border-top: 1px solid rgba(255, 255, 255, 0.05);
-            padding-top: 16px;
-        }
-
-        .faq-answer-inner strong {
-            color: #F8FAFC;
+            font-size: 0.95rem;
+            line-height: 1.72;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
         }
 
         .faq-answer-inner ul, .faq-answer-inner ol {
@@ -955,61 +1052,134 @@
             color: #93C5FD;
             padding: 2px 7px;
             border-radius: 6px;
-            font-family: monospace;
-            font-size: 0.9em;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.88em;
         }
 
         .faq-empty-state {
             display: none;
             text-align: center;
-            padding: 40px;
+            padding: 36px;
             color: var(--text-muted);
-            font-size: 1rem;
             background: var(--bg-card);
             border: 1px dashed var(--card-border);
             border-radius: var(--radius-md);
         }
 
-        @media (max-width: 900px) {
-            .trust-bar {
-                grid-template-columns: repeat(2, 1fr);
-            }
-            .hero h1 {
-                font-size: 2.6rem;
-            }
+        /* Banner CTA */
+        .download-banner {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.22) 0%, rgba(6, 182, 212, 0.2) 50%, rgba(236, 72, 153, 0.2) 100%);
+            border: 1px solid rgba(99, 102, 241, 0.4);
+            border-radius: var(--radius-xl);
+            padding: 48px 28px;
+            text-align: center;
+            margin-bottom: 70px;
+            backdrop-filter: blur(16px);
+        }
+
+        .download-banner h2 {
+            font-size: 2.15rem;
+            font-weight: 900;
+            margin-bottom: 12px;
+        }
+
+        .download-banner p {
+            font-size: 1.06rem;
+            color: #CBD5E1;
+            max-width: 620px;
+            margin: 0 auto 28px;
+        }
+
+        /* Footer */
+        footer {
+            border-top: 1px solid var(--card-border);
+            padding: 44px 0 36px;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .footer-nav {
+            display: flex;
+            justify-content: center;
+            gap: 22px;
+            margin-bottom: 18px;
+            flex-wrap: wrap;
+        }
+
+        .footer-nav a {
+            color: #CBD5E1;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.2s ease;
+        }
+
+        .footer-nav a:hover {
+            color: #38BDF8;
         }
 
         /* Share Button */
         .btn-share {
-            background: rgba(255, 255, 255, 0.08);
+            background: rgba(255, 255, 255, 0.07);
             color: #E2E8F0;
-            padding: 8px 16px;
+            padding: 8px 15px;
             border-radius: 12px;
             border: 1px solid rgba(255, 255, 255, 0.16);
             font-weight: 600;
-            font-size: 0.88rem;
+            font-size: 0.86rem;
             cursor: pointer;
             display: inline-flex;
             align-items: center;
             gap: 7px;
             transition: all 0.25s ease;
-            font-family: inherit;
         }
 
         .btn-share:hover {
-            background: rgba(99, 102, 241, 0.22);
+            background: rgba(99, 102, 241, 0.24);
             border-color: rgba(99, 102, 241, 0.5);
             color: #FFFFFF;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 14px rgba(99, 102, 241, 0.35);
-        }
-
-        .btn-share:active {
-            transform: translateY(0);
         }
 
         .nav-mobile-actions {
             display: none;
+        }
+
+        /* Smart Mobile Bottom Dock Bar */
+        .mobile-bottom-dock {
+            display: none;
+            position: fixed;
+            bottom: 12px;
+            left: 16px;
+            right: 16px;
+            background: rgba(11, 16, 30, 0.92);
+            border: 1px solid rgba(99, 102, 241, 0.35);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 18px;
+            padding: 8px 12px;
+            z-index: 998;
+            justify-content: space-around;
+            align-items: center;
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.65);
+        }
+
+        .dock-link {
+            color: #CBD5E1;
+            text-decoration: none;
+            font-size: 0.74rem;
+            font-weight: 700;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+            padding: 4px 8px;
+            border-radius: 10px;
+        }
+
+        .dock-link.primary-dock {
+            background: linear-gradient(135deg, #10B981, #059669);
+            color: #fff;
+            padding: 6px 14px;
         }
 
         /* Floating Back to Top Button */
@@ -1017,13 +1187,13 @@
             position: fixed;
             bottom: 28px;
             right: 28px;
-            width: 50px;
-            height: 50px;
+            width: 48px;
+            height: 48px;
             border-radius: 50%;
-            background: linear-gradient(135deg, #6366F1, #4F46E5);
+            background: linear-gradient(135deg, #6366F1, #06B6D4);
             color: #FFFFFF;
             border: 1.5px solid rgba(255, 255, 255, 0.25);
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5), 0 0 20px rgba(99, 102, 241, 0.45);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -1032,7 +1202,7 @@
             opacity: 0;
             visibility: hidden;
             transform: translateY(20px) scale(0.85);
-            transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.3s, box-shadow 0.3s;
+            transition: all 0.3s ease;
         }
 
         .back-to-top.visible {
@@ -1041,42 +1211,43 @@
             transform: translateY(0) scale(1);
         }
 
-        .back-to-top:hover {
-            transform: translateY(-4px) scale(1.08);
-            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6), 0 0 30px rgba(99, 102, 241, 0.7);
-        }
-
-        .back-to-top:active {
-            transform: translateY(-1px) scale(0.98);
-        }
-
-        /* Share Toast Notification */
         .share-toast {
             position: fixed;
-            bottom: 32px;
+            bottom: 84px;
             left: 50%;
             transform: translateX(-50%) translateY(60px);
             background: #1E293B;
             color: #F8FAFC;
             padding: 12px 24px;
             border-radius: 99px;
-            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.6), 0 0 24px rgba(99, 102, 241, 0.45);
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.6);
             border: 1px solid rgba(99, 102, 241, 0.45);
-            font-size: 0.92rem;
+            font-size: 0.9rem;
             font-weight: 600;
             display: flex;
             align-items: center;
             gap: 10px;
             opacity: 0;
             pointer-events: none;
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.3s ease;
             z-index: 10000;
         }
 
         .share-toast.show {
             transform: translateX(-50%) translateY(0);
             opacity: 1;
-            pointer-events: auto;
+        }
+
+        @media (max-width: 900px) {
+            .trust-bar {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .eco-panel {
+                grid-template-columns: 1fr;
+            }
+            .hero h1 {
+                font-size: 2.5rem;
+            }
         }
 
         @media (max-width: 768px) {
@@ -1088,34 +1259,26 @@
                 align-items: center;
                 gap: 8px;
             }
-            .hero h1 {
-                font-size: 2.2rem;
+            .mobile-bottom-dock {
+                display: flex;
             }
-            .demo-studio {
-                padding: 24px;
+            .hero h1 {
+                font-size: 2.15rem;
+            }
+            .demo-studio, .ecosystem-showcase, .guide-section {
+                padding: 22px;
             }
             .features-grid {
                 grid-template-columns: 1fr;
-            }
-            .trust-bar {
-                grid-template-columns: 1fr 1fr;
-            }
-            .faq-question {
-                padding: 16px 18px;
-                font-size: 0.98rem;
             }
             .faq-q-content {
                 flex-direction: column;
                 align-items: flex-start;
                 gap: 6px;
             }
-            .faq-answer-inner {
-                padding: 0 18px 18px;
-                font-size: 0.92rem;
-            }
             .back-to-top {
-                bottom: 20px;
-                right: 20px;
+                bottom: 82px;
+                right: 18px;
                 width: 44px;
                 height: 44px;
             }
@@ -1124,8 +1287,11 @@
 </head>
 <body>
 
-    <div class="ambient-glow-1"></div>
-    <div class="ambient-glow-2"></div>
+    <!-- Top High-Tech Announcement Banner -->
+    <div class="top-tech-banner">
+        <span class="pulse-dot"></span>
+        <span><strong>NEW v4.2.1 RELEASE:</strong> 2GB/3GB Low-RAM Turbo Engine • Pre-installed WhatsApp + Downloadable iOS/FB/Twitter Emojis • Phone, Tablet & Android TV Support!</span>
+    </div>
 
     <div class="container">
         <!-- Navigation -->
@@ -1133,39 +1299,25 @@
             <a href="index.html" class="logo">
                 <div class="logo-badge">⌨️</div>
                 <span>Slashboard</span>
+                <span class="version-chip">v4.2.1</span>
             </a>
             <div class="nav-links">
                 <a href="index.html" class="active">මුල් පිටුව (Home)</a>
+                <a href="home.html">උපදෙස් (Guide)</a>
                 <a href="#features">විශේෂාංග (Features)</a>
-                <a href="#guide">ටයිප් කරන හැටි (Guide)</a>
-                <a href="#faq">ප්‍රශ්න සහ පිළිතුරු (FAQ)</a>
-                <a href="https://www.facebook.com/profile.php?id=61593856756750" target="_blank" style="color: #60A5FA;">📘 Facebook</a>
-                <a href="https://github.com/dinushlakmal" target="_blank">GitHub</a>
-                <a href="privacy.html">පෞද්ගලිකත්වය (Privacy)</a>
-                <a href="terms.html">කොන්දේසි (Terms)</a>
-                <button type="button" class="btn-share" id="navShareBtn" onclick="shareApp()" aria-label="Share Slashboard App" title="යෙදුම බෙදාගන්න (Share App)">
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="18" cy="5" r="3"></circle>
-                        <circle cx="6" cy="12" r="3"></circle>
-                        <circle cx="18" cy="19" r="3"></circle>
-                        <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
-                        <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
-                    </svg>
-                    <span>Share App</span>
+                <a href="#devices">උපාංග (Devices)</a>
+                <a href="#faq">FAQ</a>
+                <a href="privacy.html">Privacy</a>
+                <a href="terms.html">Terms</a>
+                <button type="button" class="btn-share" id="navShareBtn" onclick="shareApp()" aria-label="Share Slashboard App">
+                    <span>🔗 Share</span>
                 </button>
-                <a href="https://github.com/dinushlakmal/xxSlashboardxx/releases" target="_blank" class="btn-cta">බාගත කරන්න 🚀</a>
+                <a href="https://play.google.com/store/apps/details?id=com.slashbord" target="_blank" class="btn-cta">Play Store 🚀</a>
             </div>
-            <!-- Mobile nav quick actions -->
             <div class="nav-mobile-actions">
-                <button type="button" class="btn-share" onclick="shareApp()" aria-label="Share Slashboard App" title="යෙදුම බෙදාගන්න (Share App)">
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="18" cy="5" r="3"></circle>
-                        <circle cx="6" cy="12" r="3"></circle>
-                        <circle cx="18" cy="19" r="3"></circle>
-                        <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
-                        <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
-                    </svg>
-                    <span>Share</span>
+                <a href="home.html" class="btn-share" style="text-decoration: none;">📖 Guide</a>
+                <button type="button" class="btn-share" onclick="shareApp()" aria-label="Share Slashboard App">
+                    <span>🔗 Share</span>
                 </button>
             </div>
         </nav>
@@ -1174,7 +1326,10 @@
         <section class="hero" id="hero">
             <div class="badge-pill-group">
                 <div class="badge-pill new">
-                    ✨ Version 2.8.0 Released
+                    ⚡ Version 4.2.1 — Low-RAM Turbo Engine
+                </div>
+                <div class="badge-pill cyan">
+                    📱📺 Phone • Tablet • Android TV • Media Box
                 </div>
                 <div class="badge-pill">
                     🇱🇰 100% On-Device & Zero Data Logging
@@ -1182,70 +1337,101 @@
             </div>
 
             <h1>
-                වේගවත්, සුපිරිසිදු සහ වඩාත් ආරක්ෂිත<br>
-                <span class="gradient-text">සිංහල යතුරුපුවරුව</span>
+                සුහුරු තාක්ෂණයෙන් බලගැන්වූ වේගවත්ම<br>
+                <span class="gradient-text">සිංහල යතුරුපුවරුව (v4.2.1)</span>
             </h1>
 
             <p>
-                Android උපාංග සඳහා විශේෂයෙන්ම නිර්මාණය කරන ලද, කිසිදු අන්තර්ජාල සම්බන්ධතාවයකින් තොරව 100% ඔබගේ දුරකථනය තුළම ක්‍රියාත්මක වන ස්වදේශික (Native) සිංහල යතුරුපුවරුව.
+                2GB/3GB RAM දුරකථනවල සිට Flagship Phones, Tablets, Android TV සහ Media Boxes දක්වා කිසිදු හිරවීමකින් (Zero-Lag) තොරව 100% ඔබගේ උපාංගය තුළම ක්‍රියාත්මක වන අතිනවීන සිංහල යතුරුපුවරුව.
             </p>
 
             <div class="cta-buttons">
-                <a href="https://play.google.com/store/apps/details?id=com.slashbord" target="_blank" class="btn-lg-primary" style="background: linear-gradient(135deg, #10B981 0%, #059669 100%); box-shadow: 0 4px 20px rgba(16, 185, 129, 0.4);">
-                    ▶ Google Play Store
+                <a href="https://play.google.com/store/apps/details?id=com.slashbord" target="_blank" class="btn-lg-primary" style="background: linear-gradient(135deg, #10B981 0%, #059669 100%); box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);">
+                    ▶ Google Play Store (v4.2.1)
                 </a>
                 <a href="https://github.com/dinushlakmal/xxSlashboardxx/releases" target="_blank" class="btn-lg-primary">
-                    📥 Direct Download APK & AAB (v4.0.0)
+                    📥 Direct Download APK & AAB
                 </a>
                 <a href="#demo" class="btn-lg-secondary">
-                    ⚡ Live Typing අත්හදා බලන්න
+                    ⚡ Smart Playground අත්හදා බලන්න
                 </a>
-                <a href="https://www.facebook.com/profile.php?id=61593856756750" target="_blank" class="btn-lg-secondary" style="border-color: rgba(96, 165, 250, 0.4); color: #93C5FD;">
-                    📘 Facebook Page
-                </a>
-                <a href="privacy.html" class="btn-lg-secondary">
-                    🛡️ Privacy Policy
+                <a href="home.html" class="btn-lg-secondary">
+                    📘 සම්පූර්ණ භාවිත උපදෙස්
                 </a>
             </div>
 
-            <!-- Trust Bar Stats -->
+            <!-- High-Tech Telemetry Bar -->
             <div class="trust-bar">
                 <div class="trust-item">
-                    <div class="trust-icon">⚡</div>
-                    <div class="trust-title">0ms Zero-Lag</div>
-                    <div class="trust-sub">ක්ෂණිකව විවෘත වන සුමට ක්‍රියාකාරිත්වය</div>
+                    <div class="trust-icon">🚀</div>
+                    <div class="trust-title">2GB/3GB RAM Turbo</div>
+                    <div class="trust-sub">Bitmap Recycling & WeakRef Engine</div>
                 </div>
                 <div class="trust-item">
-                    <div class="trust-icon">🔒</div>
+                    <div class="trust-icon">😍</div>
+                    <div class="trust-title">5 Emoji Style Packs</div>
+                    <div class="trust-sub">WhatsApp Pre-Installed + iOS/FB/X</div>
+                </div>
+                <div class="trust-item">
+                    <div class="trust-icon">📺</div>
+                    <div class="trust-title">Multi-Device Ready</div>
+                    <div class="trust-sub">Phone, Tablet, Android TV & D-Pad</div>
+                </div>
+                <div class="trust-item">
+                    <div class="trust-icon">🛡️</div>
                     <div class="trust-title">100% On-Device</div>
-                    <div class="trust-sub">ටයිප් කරන කිසිවක් පිටතට නොයයි</div>
-                </div>
-                <div class="trust-item">
-                    <div class="trust-icon">⌨️</div>
-                    <div class="trust-title">Layouts 3ක්</div>
-                    <div class="trust-sub">Singlish, විජේසේකර, English</div>
-                </div>
-                <div class="trust-item">
-                    <div class="trust-icon">🎨</div>
-                    <div class="trust-title">Glass & Themes</div>
-                    <div class="trust-sub">පාරදෘශ්‍ය Glass, RGB සහ OLED</div>
+                    <div class="trust-sub">Zero Cloud Keystroke Logging</div>
                 </div>
             </div>
 
-            <!-- Live Interactive Singlish Studio -->
+            <!-- Interactive Multi-Device Form-Factor Explorer -->
+            <div class="ecosystem-showcase" id="devices">
+                <div class="ecosystem-header">
+                    <div>
+                        <span class="section-tag" style="margin-bottom: 4px;">🔌 Universal Android Ecosystem</span>
+                        <h3 style="font-size: 1.35rem; font-weight: 800; color: #F8FAFC;">ඕනෑම Android උපාංගයකට ස්වයංක්‍රීයව හැඩගැසෙන තාක්ෂණය</h3>
+                    </div>
+                    <div class="ecosystem-tabs">
+                        <button class="eco-tab active" onclick="switchDeviceMode('phone', this)">📱 Smartphones (2GB–16GB)</button>
+                        <button class="eco-tab" onclick="switchDeviceMode('tablet', this)">💻 Tablets & Foldables</button>
+                        <button class="eco-tab" onclick="switchDeviceMode('tv', this)">📺 Android TV & Media Box</button>
+                    </div>
+                </div>
+                <div class="eco-panel" id="ecoPanelContent">
+                    <div>
+                        <h4 id="ecoTitle" style="font-size: 1.2rem; color: #38BDF8; margin-bottom: 8px;">📱 Smartphones & 2GB/3GB Low-RAM Turbo Mode</h4>
+                        <p id="ecoDesc" style="color: #CBD5E1; font-size: 0.95rem;">
+                            Xiaomi (MIUI/HyperOS), Samsung OneUI, Vivo සහ Oppo වැනි 2GB/3GB RAM දුරකථනවල පසුබිම් මතක පීඩනය (zRAM swapping) හඳුනාගෙන, යතුරුපුවරුව වැසෙන සැනින් Bitmap මතකය ස්වයංක්‍රීයව නිදහස් කර 0ms වේගයෙන් නැවත විවෘත වේ.
+                        </p>
+                        <div class="eco-specs" id="ecoSpecs">
+                            <span class="eco-spec-pill">Auto Bitmap Recycle</span>
+                            <span class="eco-spec-pill">WeakReference Tasks</span>
+                            <span class="eco-spec-pill">RGB_565 Low-RAM Decode</span>
+                            <span class="eco-spec-pill">120Hz Smooth Scroll</span>
+                        </div>
+                    </div>
+                    <div class="eco-visual-box" id="ecoVisual">
+                        <div style="font-size: 2rem; margin-bottom: 6px;">📱⚡</div>
+                        <div style="color: #6EE7B7; font-weight: 700;">RAM Footprint: &lt; 28 MB Idle</div>
+                        <div style="color: #94A3B8; font-size: 0.78rem; margin-top: 4px;">Zero Frame Drops • Instant Popup</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Live Interactive Singlish + Math + Sri Lankan NIC Playground -->
             <div class="demo-studio" id="demo">
                 <div class="demo-header">
                     <div class="demo-title">
-                        <span>⚡ Singlish Live Typing Playground</span>
-                        <span class="demo-mode-badge">Phonetic v4.0.0 Engine</span>
+                        <span>⚡ Smart Live Playground (Singlish • Math • NIC Analyzer)</span>
+                        <span class="demo-mode-badge">v4.2.1 Neural Phonetic</span>
                     </div>
-                    <div style="font-size: 0.85rem; color: var(--text-muted);">
-                        කැමති වාක්‍යයක් පහතින් ඉංග්‍රීසි අකුරින් ටයිප් කරන්න
+                    <div style="font-size: 0.84rem; color: var(--text-muted);">
+                        Singlish වාක්‍යයක්, ගණිත ගැටලුවක් (<code>125*8=</code>) හෝ ජාතික හැඳුනුම්පත් අංකයක් (NIC) ටයිප් කරන්න
                     </div>
                 </div>
 
                 <div class="demo-input-box">
-                    <input type="text" id="singlishInput" class="demo-input" placeholder="Type in Singlish (e.g. ammaa, sri lankaa, oyaata aadhareyi, 50+25=)..." value="mama oyaata aadhareyi">
+                    <input type="text" id="singlishInput" class="demo-input" placeholder="Type Singlish (mama oyaata aadhareyi), Math (250*12=), or NIC (199812501234)..." value="mama oyaata aadhareyi">
                 </div>
 
                 <div class="demo-output-card">
@@ -1254,196 +1440,180 @@
                 </div>
 
                 <div class="sample-chips">
-                    <span class="chip-label">Quick samples:</span>
-                    <button class="sample-chip" onclick="setSample('ammaa')">අම්මා (ammaa)</button>
-                    <button class="sample-chip" onclick="setSample('sri lankaa')">ශ්‍රී ලංකා (sri lankaa)</button>
-                    <button class="sample-chip" onclick="setSample('mama oyaata aadhareyi')">මම ඔයාට ආදරෙයි</button>
-                    <button class="sample-chip" onclick="setSample('krikat')">ක්‍රිකට් (krikat)</button>
-                    <button class="sample-chip" onclick="setSample('khandhaya')">කන්ද (khandhaya)</button>
-                    <button class="sample-chip" onclick="setSample('125*8=')">ගණිත ගැටළු (125*8=)</button>
+                    <span class="chip-label">Try Smart Demos:</span>
+                    <button class="sample-chip" onclick="setSample('mama oyaata aadhareyi')">💬 මම ඔයාට ආදරෙයි</button>
+                    <button class="sample-chip" onclick="setSample('sri lankaa')">🇱🇰 ශ්‍රී ලංකා</button>
+                    <button class="sample-chip" onclick="setSample('Tharindu')">🔤 Th=ථ (Tharindu)</button>
+                    <button class="sample-chip" onclick="setSample('125*8=')">🔢 Math (125*8=)</button>
+                    <button class="sample-chip" onclick="setSample('199813501234')">🪪 NIC Analyzer (199813501234)</button>
+                    <button class="sample-chip" onclick="setSample('962541234V')">🪪 Old NIC (962541234V)</button>
                 </div>
             </div>
         </section>
 
         <!-- What's New & Flagship Features Grid -->
-        <section id="features" style="padding-top: 30px;">
+        <section id="features" style="padding-top: 20px;">
             <div class="section-header">
-                <div class="section-tag">✨ Flagship Capabilities</div>
-                <h2>සුවිශේෂී නවතම විශේෂාංග (v4.0.0)</h2>
-                <p>ඔබගේ දෛනික සිංහල යතුරුකරණය වඩාත් වේගවත්, නිරවද්‍ය සහ විනෝදජනක කරන අතිනවීන තාක්ෂණය</p>
+                <div class="section-tag">✨ Next-Gen Architecture</div>
+                <h2>Slashboard v4.2.1 නවතම සුහුරු විශේෂාංග</h2>
+                <p>ඔබගේ දෛනික සිංහල යතුරුකරණය, ව්‍යාපාරික බිල්පත්කරණය සහ උපාංග කාර්යක්ෂමතාව ඉහළම තලයකට ගෙන එන තාක්ෂණය</p>
             </div>
 
-            <div class="features-grid">
-                <!-- Feature 0A: Silent Crash Catcher & In-App Bug Reporter -->
-                <div class="feature-card highlight">
-                    <span class="card-badge-new">v4.0.0 නවතම</span>
-                    <div class="feature-icon-box">🛡️</div>
-                    <h3>Silent Crash Catcher & 1-Tap Bug Reporter</h3>
-                    <p>යතුරුපුවරුව කිසිවිටෙකත් Crash වී නතර නොවීමට Silent Auto-Recovery සහ Settings තුළින්ම 1-ක්ලික් ඊමේල් දෝෂ වාර්තාකරණය.</p>
+            <!-- Category Filter for Features -->
+            <div class="feature-filter-bar">
+                <button class="feat-filter-btn active" onclick="filterFeatures('all', this)">සියල්ල (All 14 Features)</button>
+                <button class="feat-filter-btn" onclick="filterFeatures('performance', this)">⚡ වේගය සහ Low-RAM</button>
+                <button class="feat-filter-btn" onclick="filterFeatures('smart', this)">🧠 සුහුරු මෙවලම් (Smart Tools)</button>
+                <button class="feat-filter-btn" onclick="filterFeatures('style', this)">🎨 Emoji, Fonts & Themes</button>
+            </div>
+
+            <div class="features-grid" id="featuresGrid">
+                <!-- 1: Low-RAM Custom Memory Management -->
+                <div class="feature-card highlight" data-feat-cat="performance">
+                    <span class="card-badge-new">v4.2.1 TURBO</span>
+                    <div class="feature-icon-box">🚀</div>
+                    <h3>2GB/3GB Low-RAM Custom Memory Engine</h3>
+                    <p>අඩු RAM ධාරිතාවක් ඇති දුරකථනවල පවා කිසිදු හිරවීමකින් තොරව ක්‍රියාත්මක වීමට නිර්මාණය කළ විශේෂිත Memory Management සහ Bitmap Recycling තාක්ෂණය.</p>
                     <ul class="feature-bullet-list">
-                      <li>"Slashboard has stopped" පද්ධති දෝෂ Dialog ඉවත් කර නිහඬව recover වීම</li>
-                      <li>Settings තුළින් <code>dinushlakmal01@gmail.com</code> වෙත ස්වයංක්‍රීයව Device logs යැවීම</li>
-                      <li>100% On-Device ආරක්ෂිත Telemetry</li>
+                        <li>යතුරුපුවරුව වැසෙන සැනින් Theme හා Emoji Strip Bitmaps ස්වයංක්‍රීයව Recycle වීම</li>
+                        <li>Background tasks සඳහා <code>WeakReference</code> මතක ආරක්ෂණය</li>
+                        <li>Settings Tabs මාරු කිරීමේදී හිරවීම් වළක්වන Viewport Caching</li>
                     </ul>
                 </div>
 
-                <!-- Feature 0B: Key Press Particles Instant Engine -->
-                <div class="feature-card highlight">
-                    <span class="card-badge-new">v4.0.0 නවතම</span>
-                    <div class="feature-icon-box">✨</div>
-                    <h3>Key Press Particles Live Engine</h3>
-                    <p>යතුරු එබීමේදී විහිදෙන අංශු (Particles) තේරූ සැනින් ක්ෂණිකව සක්‍රිය වී ක්‍රියාත්මක වීමේ නවතම එන්ජිම.</p>
+                <!-- 2: Emoji Style Hub -->
+                <div class="feature-card highlight" data-feat-cat="style">
+                    <span class="card-badge-new">v4.2.1 NEW</span>
+                    <div class="feature-icon-box">😍</div>
+                    <h3>WhatsApp Pre-Installed & Downloadable Emojis</h3>
+                    <p>WhatsApp Emoji විලාසිතාව App එක තුළම Pre-installed ලෙස අන්තර්ගත වන අතර, තවත් ජනප්‍රිය Emoji පැකේජ 4ක් යෙදුම තුළින්ම බාගත කරගත හැක.</p>
                     <ul class="feature-bullet-list">
-                      <li>විලාසිතා 9ක්: Stars ✨, Sparks ⚡, Bubbles 🫧, Pixels 🟩, Hearts ❤️ ආදී</li>
-                      <li>Density (Low, Normal, High) & 5 Color Palettes සජීවීව වෙනස් වීම</li>
-                      <li>සියලුම Screen Resolutions සඳහා සුමට 120Hz Animations</li>
+                        <li><strong>Pre-installed:</strong> WhatsApp Emoji Style (100% Offline, 0MB extra download)</li>
+                        <li><strong>Downloadable:</strong> iOS (Apple), Facebook, Twitter (X), සහ Google Noto Emojis</li>
+                        <li>සිංහල සහ Singlish වචන ටයිප් කරන විට ස්වයංක්‍රීය Emoji Suggestions</li>
                     </ul>
                 </div>
 
-                <!-- Feature 1: Zero-Lag High Performance Engine -->
-                <div class="feature-card highlight">
-                    <span class="card-badge-new">v4.0.0 නවතම</span>
-                    <div class="feature-icon-box">⚡</div>
-                    <h3>Zero-Lag High Performance Engine</h3>
-                    <p>ටයිප් කිරීමේදී කිසිදු latency එකක් හෝ ප්‍රමාදයක් නැතිව අතිශය සුමට ටයිපිං අත්දැකීමක් ලබාදීම සඳහා සම්පූර්ණයෙන්ම ප්‍රතිනිර්මාණය කළ එන්ජිම.</p>
+                <!-- 3: Multi-Device Support (Phone, Tablet, TV) -->
+                <div class="feature-card highlight" data-feat-cat="performance">
+                    <span class="card-badge-new">v4.2.1 NEW</span>
+                    <div class="feature-icon-box">📺</div>
+                    <h3>Phone, Tablet, Android TV & Media Box Support</h3>
+                    <p>ජංගම දුරකථන පමණක් නොව Tablets, Android Smart TV සහ TV Box උපාංග සඳහාද පූර්ණ අනුකූලතාවය සහ Remote Control සහාය.</p>
                     <ul class="feature-bullet-list">
-                        <li>Water ripple animations ඉවත් කර 0ms instant response</li>
-                        <li>2GB සහ 4GB RAM දුරකථන සඳහා විශේෂිත Low-End RAM Boost</li>
-                        <li>අඛණ්ඩ වේගවත් යතුරු ලිවීම සහ තත්පරයකට වචන වැඩි ප්‍රමාණයක්</li>
+                        <li>Android TV Remote (D-Pad Arrow Keys + OK/Select) මගින් අකුරු තේරීමේ හැකියාව</li>
+                        <li>Landscape තිරයේදී මුළු තිරයම ආවරණය නොවන Non-Fullscreen Mode</li>
+                        <li>Android TV Home Screen සඳහා නිල Leanback Banner සහාය</li>
                     </ul>
                 </div>
 
-                <!-- Feature 2: Precision Key Gaps & Spacing -->
-                <div class="feature-card highlight">
-                    <span class="card-badge-new">v4.0.0 නවතම</span>
-                    <div class="feature-icon-box">📐</div>
-                    <h3>Precision Key Gaps & Ergonomics</h3>
-                    <p>යතුරු අතර හරස් (Horizontal) සහ සිරස් (Vertical) පරතරය තමාගේ ඇඟිලිවල ප්‍රමාණයට ගැළපෙන සේ සකසා ගැනීමේ පූර්ණ නිදහස.</p>
+                <!-- 4: In-Keyboard Mini-POS & Invoice Studio -->
+                <div class="feature-card highlight" data-feat-cat="smart">
+                    <span class="card-badge-new">v4.2.1 PRO</span>
+                    <div class="feature-icon-box">🧾</div>
+                    <h3>In-Keyboard Mini-POS & Invoice Studio</h3>
+                    <p>ඔන්ලයින් ව්‍යාපාරිකයින් සඳහා යතුරුපුවරුව තුළින්ම තත්පර කිහිපයකින් වෘත්තීය මට්ටමේ බිල්පත් (Invoices & Thermal Receipts) සාදා WhatsApp වෙත යැවීමේ හැකියාව.</p>
                     <ul class="feature-bullet-list">
-                        <li>Default Horizontal Gap: 0.5dp (පැති පරතරය)</li>
-                        <li>Default Vertical Gap: 5.8dp (සිරස් පරතරය)</li>
-                        <li>Settings තුළ සජීවී Visual Preview එකක් සහිතව පහසුවෙන් වෙනස් කිරීම</li>
+                        <li>Clipboard එකෙන් පාරිභෝගික නම, දුරකථන අංකය සහ ලිපිනය ස්වයංක්‍රීයව හඳුනාගැනීම</li>
+                        <li>Thermal POS, Modern Minimalist, Corporate Blue සහ Dark Luxury බිල්පත් තේමා 4ක්</li>
+                        <li>භාණ්ඩ තොග (Products), පාරිභෝගික ලැයිස්තු සහ PDF/Image බිල්පත් බෙදාගැනීම</li>
                     </ul>
                 </div>
 
-                <!-- Feature 3: Natural Th & Tha Transliteration -->
-                <div class="feature-card highlight">
-                    <span class="card-badge-new">v4.0.0 නවතම</span>
-                    <div class="feature-icon-box">🔤</div>
-                    <h3>Th = ථ් සහ Tha = ථ ස්වභාවික නීති</h3>
-                    <p>සිංග්ලිෂ් යතුරුකරණයේ වඩාත්ම ඉල්ලූ නීතිය: <code>Th</code> මගින් <strong>ථ්</strong> ද, <code>Tha</code> මගින් <strong>ථ</strong> ද ස්වයංක්‍රීයව සකසයි.</p>
+                <!-- 5: Curated Top 50 Font Studio & FM Converter -->
+                <div class="feature-card highlight" data-feat-cat="style">
+                    <span class="card-badge-new">v4.2.1 FAST</span>
+                    <div class="feature-icon-box">✒️</div>
+                    <h3>Top 50 Rated Font Studio & FM Converter</h3>
+                    <p>ලොව වැඩිම පිරිසක් ප්‍රිය කරන ලස්සනම Font Styles 50ක් සහ පැරණි FM Abhaya අකුරු යුනිකෝඩ් බවට පත් කරන 1-Tap පරිවර්තකය.</p>
                     <ul class="feature-bullet-list">
-                        <li><code>Th</code> ➔ ථ්, <code>Tha</code> ➔ ථ, <code>TH</code> ➔ ථ්, <code>tH</code> ➔ ථ්</li>
-                        <li><code>th</code> ➔ ත්, <code>tha</code> ➔ ත (අල්පප්‍රාණ හා මහාප්‍රාණ නිරවුල් භාවය)</li>
-                        <li>ස්වභාවික ශබ්ද උච්චාරණයට 100% ක් ගැළපෙන පරිවර්තනය</li>
+                        <li>අනවශ්‍ය බරැති ෆොන්ට් ඉවත් කර වේගවත් කළ Top 50 Unicode & Stylish Fonts</li>
+                        <li>යතුරුපුවරුව තුළින්ම Unicode ⇄ FM Abhaya / Isiwara ක්ෂණික පරිවර්තනය</li>
+                        <li>WhatsApp, Bio, Facebook Posts සහ TikTok Captions සඳහා සෘජුවම ටයිප් කිරීම</li>
                     </ul>
                 </div>
 
-                <!-- Feature 4: Live Math & Unit Converter -->
-                <div class="feature-card">
+                <!-- 6: Sri Lankan NIC Analyzer & Number to Words -->
+                <div class="feature-card" data-feat-cat="smart">
+                    <div class="feature-icon-box">🪪</div>
+                    <h3>Sri Lankan NIC Analyzer & Number-to-Words</h3>
+                    <p>ඕනෑම ශ්‍රී ලාංකික ජාතික හැඳුනුම්පත් අංකයක් (පැරණි හෝ නව) ටයිප් කළ සැනින් උපන්දිනය සහ ස්ත්‍රී/පුරුෂ භාවය Suggestion Bar එකේ පෙන්වයි.</p>
+                    <ul class="feature-bullet-list">
+                        <li>පැරණි (<code>962541234V</code>) සහ නව ඉලක්කම් 12 (<code>199625401234</code>) NIC විශ්ලේෂණය</li>
+                        <li>ඉලක්කම් ටයිප් කළ විට සිංහල වචනයෙන් (උදා: <code>1500</code> ➔ <code>එක්දහස් පන්සියය</code>) පෙන්වීම</li>
+                        <li>බැංකු සහ කාර්යාලයීය කටයුතු සඳහා අතිශය ප්‍රයෝජනවත්</li>
+                    </ul>
+                </div>
+
+                <!-- 7: Live Math & Unit Converter -->
+                <div class="feature-card" data-feat-cat="smart">
                     <div class="feature-icon-box">🔢</div>
-                    <h3>Live Math & Unit Converter</h3>
+                    <h3>Live Math Evaluator & Unit Converter</h3>
                     <p>වෙනම කැල්කියුලේටර් ඇප් විවෘත නොකර යතුරුපුවරුව තුළින්ම ගණිත ගැටලු විසඳා ගැනීම සහ ඒකක පරිවර්තනය.</p>
                     <ul class="feature-bullet-list">
                         <li><code>50+25=</code> හෝ <code>125*8=</code> ටයිප් කළ සැනින් ක්ෂණික පිළිතුර</li>
-                        <li><code>10 USD to LKR</code>, <code>5 KM to M</code> ඒකක පරිවර්තනය</li>
-                        <li>Suggestion Bar එකෙන් සෘජුවම ක්ලික් කර ඇතුළත් කිරීම</li>
+                        <li><code>10 USD to LKR</code>, <code>5 KM to M</code>, <code>100 KG to LB</code> ඒකක පරිවර්තනය</li>
+                        <li>Suggestion Bar එකෙන් තනි ටැප් එකකින් පිළිතුර ඇතුළත් කිරීම</li>
                     </ul>
                 </div>
 
-                <!-- Feature 5: Intelligent Sinhala Pillam Engine -->
-                <div class="feature-card">
+                <!-- 8: Natural Th & Tha + Intelligent Pillam Engine -->
+                <div class="feature-card" data-feat-cat="smart">
                     <div class="feature-icon-box">🪄</div>
-                    <h3>Intelligent Sinhala Pillam Engine</h3>
-                    <p>පිල්ලම් වැරදීමකින් තොරව ස්වයංක්‍රීයව හැඩගැසෙන සුහුරු ඇල්ගොරිතමය සහ සංකීර්ණ අක්ෂර සහාය.</p>
+                    <h3>Smart Singlish, Pillam & Typo Auto-Fix</h3>
+                    <p>වේගයෙන් Singlish ටයිප් කරන විට සිදුවන අත්වැරදීම් ස්වයංක්‍රීයව හඳුනාගෙන නිවැරදි සිංහල වචනය යෝජනා කරන බුද්ධිමත් එන්ජිම.</p>
                     <ul class="feature-bullet-list">
-                        <li>දෙවරක් ටැප් කිරීමෙන් දීර්ඝ පිල්ලම් (<code>ි</code>+<code>ි</code> ➔ <code>ී</code>, <code>ු</code>+<code>ු</code> ➔ <code>ූ</code>)</li>
-                        <li>රකාරාංශය (<code>kra</code> ➔ <code>ක්‍ර</code>, <code>dro</code> ➔ <code>ඩ්‍රො</code>), යංශය (<code>kya</code> ➔ <code>ක්‍ය</code>)</li>
-                        <li>බඳි අකුරු / සඤ්ඤක (<code>nd</code> ➔ <code>ඳ</code>, <code>nnd</code> ➔ <code>ඬ</code>, <code>mb</code> ➔ <code>ඹ</code>)</li>
+                        <li><code>Th</code> ➔ <strong>ථ්</strong>, <code>Tha</code> ➔ <strong>ථ</strong>, <code>th</code> ➔ <strong>ත්</strong>, <code>tha</code> ➔ <strong>ත</strong> ස්වභාවික නීති</li>
+                        <li>Top Ligature Bar මගින් <code>ක්‍ර</code>, <code>ප්‍ර</code>, <code>ත්‍ර</code>, <code>න්ද</code>, <code>න්ධ</code> තනි ටැප් එකෙන්</li>
+                        <li>වචන 38,000+ ක On-Device සිංහල හා ඉංග්‍රීසි ශබ්දකෝෂය</li>
                     </ul>
                 </div>
 
-                <!-- Feature 6: National SLS 1134 Wijesekara -->
-                <div class="feature-card">
+                <!-- 9: National SLS 1134 Wijesekara -->
+                <div class="feature-card" data-feat-cat="smart">
                     <div class="feature-icon-box">🏛️</div>
-                    <h3>ශ්‍රී ලංකා ජාතික විජේසේකර Layout</h3>
-                    <p>පරිගණක විජේසේකර යතුරුපුවරුවට හුරු වූවන්ට ඒ ආකාරයෙන්ම Android දුරකථනයෙන් ටයිප් කිරීමේ SLS 1134 සම්මත Layout එක.</p>
+                    <h3>ශ්‍රී ලංකා ජාතික විජේසේකර Layout (SLS 1134)</h3>
+                    <p>පරිගණක විජේසේකර යතුරුපුවරුවට හුරු වූවන්ට ඒ ආකාරයෙන්ම Android දුරකථනයෙන් සහ ටැබ්ලටයෙන් ටයිප් කිරීමේ සම්මත Layout එක.</p>
                     <ul class="feature-bullet-list">
-                        <li>නිල විජේසේකර සම්මතයට 100% අනුකූලතාවය</li>
-                        <li>Shift හා Alt Gr යතුරු මගින් සියලුම විශේෂ අක්ෂර</li>
-                        <li>ස්වදේශික රාජ්‍ය හා ලේඛන කටයුතු සඳහා උපරිම පහසුව</li>
+                        <li>නිල SLS 1134 විජේසේකර සම්මතයට 100% අනුකූලතාවය</li>
+                        <li>ස්වයංක්‍රීය කොම්බුව (<code>ෙ</code>) හැසිරවීම සහ බැඳි අකුරු සහාය</li>
+                        <li>Globe (🌐) යතුරෙන් Singlish, විජේසේකර හා English අතර ක්ෂණික මාරුව</li>
                     </ul>
                 </div>
 
-                <!-- Feature 7: In-Keyboard Instant Translator -->
-                <div class="feature-card">
+                <!-- 10: In-Keyboard Instant Translator -->
+                <div class="feature-card" data-feat-cat="smart">
                     <div class="feature-icon-box">🌐</div>
                     <h3>In-Keyboard Instant Translator</h3>
-                    <p>WhatsApp, Telegram හෝ Messenger අතනොහැර යතුරුපුවරුව තුළින්ම සිංහලෙන් ඉංග්‍රීසියට සහ ඉංග්‍රීසියෙන් සිංහලට පරිවර්තනය.</p>
+                    <p>WhatsApp, Telegram හෝ Messenger අතනොහැර යතුරුපුවරුව තුළින්ම සිංහලෙන් ඉංග්‍රීසියට සහ ඉංග්‍රීසියෙන් සිංහලට ක්ෂණික පරිවර්තනය.</p>
                     <ul class="feature-bullet-list">
-                        <li>In-Keyboard Translate Bar පහසුකම</li>
-                        <li>සිංහල ⇄ English ක්ෂණික පරිවර්තනය</li>
-                        <li>තනි තට්ටුවෙන් පරිවර්තිත වාක්‍යය Message එකට එක් කිරීම</li>
+                        <li>යතුරුපුවරුව තුළම විවෘත වන Translate Board පහසුකම</li>
+                        <li>සිංහල ⇄ English ක්ෂණික ද්වි-මාර්ග පරිවර්තනය</li>
+                        <li>තනි තට්ටුවෙන් පරිවර්තිත වාක්‍යය Chat එකට ඇතුළත් කිරීම</li>
                     </ul>
                 </div>
 
-                <!-- Feature 8: Smart Pinned Clipboard Manager -->
-                <div class="feature-card">
-                    <div class="feature-icon-box">📋</div>
-                    <h3>Smart Pinned Clipboard Manager</h3>
-                    <p>නිතර අවශ්‍ය වන බැංකු ගිණුම් අංක, ලිපින, දුරකථන අංක සහ වාක්‍ය Pin කර තබා ගැනීමේ ආරක්ෂිත පසුරු පුවරුව.</p>
-                    <ul class="feature-bullet-list">
-                        <li>පිටපත් කළ සටහන් ඉතිහාසය (Clipboard History)</li>
-                        <li>වැදගත් සටහන් මැකී නොයන පරිදි Pin කිරීමේ හැකියාව</li>
-                        <li>100% On-Device Local Storage (දුරකථනය තුළ පමණි)</li>
-                    </ul>
-                </div>
-
-                <!-- Feature 9: Glassmorphism & RGB Themes -->
-                <div class="feature-card">
+                <!-- 11: Glassmorphism, Per-App Accent & Custom Themes -->
+                <div class="feature-card" data-feat-cat="style">
                     <div class="feature-icon-box">🎨</div>
-                    <h3>Glassmorphism, RGB & Custom Themes</h3>
-                    <p>පාරදෘශ්‍ය Glass Themes, Dynamic Material You, OLED True Black, Neon RGB සහ ඔබගේම ඡායාරූප පසුබිමට එක් කිරීමේ පහසුකම.</p>
+                    <h3>Glass Themes, Per-App Accent & Particles</h3>
+                    <p>පාරදෘශ්‍ය Glass Themes, OLED True Black, Custom Photo Wallpapers සහ ඔබ භාවිතා කරන App එකේ පාටට හැඩගැසෙන තේමා පද්ධතිය.</p>
                     <ul class="feature-bullet-list">
-                        <li>Translucent Glass Keyboard (පසුබිම පෙනෙන විනිවිද යතුරුපුවරුව)</li>
-                        <li>Android 12+ Material You Dynamic පාට පද්ධතිය</li>
-                        <li>RGB Flow Keypress Particle ආලෝක ආචරණ</li>
+                        <li>WhatsApp, Facebook, YouTube, Telegram අනුව වෙනස් වන Per-App Accent</li>
+                        <li>Key Press Particles විලාසිතා 9ක් (Stars, Sparks, Bubbles, Neon, Hearts)</li>
+                        <li>Key Opacity, Key Borders සහ RGB Sound Effects පූර්ණ පාලනය</li>
                     </ul>
                 </div>
 
-                <!-- Feature 10: 100% Offline & Absolute Privacy -->
-                <div class="feature-card">
-                    <div class="feature-icon-box">🔒</div>
-                    <h3>100% Offline & Absolute Privacy</h3>
-                    <p>ඔබ ටයිප් කරන කිසිදු වචනයක්, පණිවිඩයක් හෝ මුරපදයක් කිසිම සර්වර් එකකට නොයවන, බාහිර SDK වලින් තොර පිරිසිදු යෙදුමකි.</p>
+                <!-- 12: Smart OTP Auto-Fill & Pinned Clipboard -->
+                <div class="feature-card" data-feat-cat="smart">
+                    <div class="feature-icon-box">📋</div>
+                    <h3>Smart OTP Auto-Fill & Pinned Clipboard</h3>
+                    <p>SMS හෝ Notification මගින් ලැබෙන OTP කේත ස්වයංක්‍රීයව හඳුනාගෙන තනි ටැප් එකකින් ඇතුළත් කිරීම සහ ආරක්ෂිත පසුරු පුවරුව.</p>
                     <ul class="feature-bullet-list">
-                        <li>කිසිදු Analytics හෝ Telemetry Tracker එකක් නොමැත</li>
-                        <li>මුරපද (Password) fields වලදී ඉගෙනුම ස්වයංක්‍රීයව අක්‍රිය වේ</li>
-                        <li>Cloud Backup මගින් පවා Personal Dictionary ආරක්ෂා කර ඇත</li>
-                    </ul>
-                </div>
-
-                <!-- Feature 11: Undo / Redo Protection -->
-                <div class="feature-card">
-                    <div class="feature-icon-box">↩️</div>
-                    <h3>Undo / Redo (ආපසු ගැනීමේ ආරක්ෂාව)</h3>
-                    <p>දිගු ලිපියක් හෝ පණිවිඩයක් ලියන විට වැරදීමකින් මැකුණු ඕනෑම දෙයක් යළි ක්ෂණිකව ලබා ගැනීමට පහසු Undo/Redo යතුරු.</p>
-                    <ul class="feature-bullet-list">
-                        <li>යතුරුපුවරුවේ ඉහළ තීරුවේ පහසු Undo / Redo බොත්තම්</li>
-                        <li>විශාල ඡේද වැරදීමකින් select වී මැකී යාමෙන් වැළකීම</li>
-                        <li>පූර්ණ ලේඛන ආරක්ෂාව සහ පහසුව</li>
-                    </ul>
-                </div>
-
-                <!-- Feature 12: In-App Direct OTA Updates -->
-                <div class="feature-card">
-                    <div class="feature-icon-box">🔄</div>
-                    <h3>In-App Direct OTA Updates</h3>
-                    <p>යෙදුම තුළින්ම නවතම නිකුතු සහ අලුත්වැඩියාවන් (Updates) සෘජුවම පරීක්ෂා කර බාගත කර ගැනීමේ හැකියාව.</p>
-                    <ul class="feature-bullet-list">
-                        <li>In-App Auto Update Checker</li>
-                        <li>නව features සහ bug fixes ක්ෂණිකව ලබා ගැනීම</li>
-                        <li>වෙනත් වෙබ් අඩවි වල සෙවීමට අවශ්‍ය නොවන පහසු ක්‍රමය</li>
+                        <li>OTP සහ PIN ක්ෂේත්‍ර සඳහා ස්වයංක්‍රීයව විවෘත වන Number Keypad</li>
+                        <li>වැදගත් ලිපින, ගිණුම් අංක සහ Text Snippets Pin කර තබා ගැනීම</li>
+                        <li>Password ක්ෂේත්‍රවලදී ස්වයංක්‍රීයව සක්‍රිය වන Incognito ආරක්ෂාව</li>
                     </ul>
                 </div>
             </div>
@@ -1452,9 +1622,9 @@
         <!-- Comparison Table Section -->
         <section class="comparison-section">
             <div class="section-header">
-                <div class="section-tag">⚡ The Slashboard Advantage</div>
-                <h2>වෙනත් යතුරුපුවරු සහ Slashboard සංසන්දනය</h2>
-                <p>ඔබගේ දත්ත වලට ගරු කරන, වේගවත්ම ස්වදේශික සිංහල යතුරුපුවරුව</p>
+                <div class="section-tag">⚡ Technical Benchmark</div>
+                <h2>වෙනත් යතුරුපුවරු සහ Slashboard v4.2.1 සංසන්දනය</h2>
+                <p>ඔබගේ උපාංගයේ RAM මතකයට සහ පෞද්ගලිකත්වයට ගරු කරන ස්වදේශික සිංහල යතුරුපුවරුව</p>
             </div>
 
             <div class="table-container">
@@ -1462,50 +1632,40 @@
                     <thead>
                         <tr>
                             <th>විශේෂාංගය (Feature)</th>
-                            <th class="highlight-col" style="color: #818CF8; font-size: 1.05rem;">Slashboard Sinhala Keyboard</th>
+                            <th class="highlight-col" style="color: #38BDF8; font-size: 1.02rem;">Slashboard v4.2.1</th>
                             <th>සාමාන්‍ය වෙනත් සිංහල යතුරුපුවරු</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
-                            <td><strong>100% On-Device පෞද්ගලිකත්වය</strong></td>
-                            <td class="highlight-col"><span class="check-yes">✓ 100% Offline (කිසිදු Cloud Tracking එකක් නැත)</span></td>
-                            <td><span class="check-no">✗ බාහිර Analytics & Ads සර්වර් වෙත දත්ත යැවීම</span></td>
+                            <td><strong>2GB / 3GB Low-RAM Turbo Engine</strong></td>
+                            <td class="highlight-col"><span class="check-yes">✓ Auto Bitmap Recycling & WeakRef Tasks</span></td>
+                            <td><span class="check-no">✗ අධික RAM භාවිතය නිසා දුරකථනය Lag වේ</span></td>
                         </tr>
                         <tr>
-                            <td><strong>Globe Key (කමාව අසල 1-Tap මාරුවීම)</strong></td>
-                            <td class="highlight-col"><span class="check-yes">✓ ඔව්, කමාවට වම් පසින් සමබරව පිහිටා ඇත</span></td>
-                            <td><span class="check-no">✗ නැත / දිගු වේලාවක් ඔබාගෙන සිටිය යුතුය</span></td>
+                            <td><strong>Emoji Styles (WhatsApp + iOS/FB/X/Google)</strong></td>
+                            <td class="highlight-col"><span class="check-yes">✓ WhatsApp Pre-installed + 4 Downloadable Packs</span></td>
+                            <td><span class="check-no">✗ සාමාන්‍ය පද්ධති Emoji පමණි</span></td>
                         </tr>
                         <tr>
-                            <td><strong>IME & Gesture Bar Space Adjuster</strong></td>
-                            <td class="highlight-col"><span class="check-yes">✓ 0dp සිට 48dp දක්වා Live Slider එකකින් සකසන්න</span></td>
-                            <td><span class="check-no">✗ වෙනස් කළ නොහැක</span></td>
+                            <td><strong>Phone, Tablet & Android TV (D-Pad Remote)</strong></td>
+                            <td class="highlight-col"><span class="check-yes">✓ සියලුම තිර සහ TV Remote සඳහා පූර්ණ සහාය</span></td>
+                            <td><span class="check-no">✗ දුරකථන සඳහා පමණක් සීමා වේ</span></td>
                         </tr>
                         <tr>
-                            <td><strong>Cursor Jump & Sync ආරක්ෂාව</strong></td>
-                            <td class="highlight-col"><span class="check-yes">✓ Atomic Batch Sync මගින් කර්සරය නොපනී</span></td>
-                            <td><span class="check-no">✗ වේගයෙන් ටයිප් කරන විට කර්සරය පනියි</span></td>
+                            <td><strong>In-Keyboard Mini-POS & Invoice Studio</strong></td>
+                            <td class="highlight-col"><span class="check-yes">✓ යතුරුපුවරුව තුළින්ම බිල්පත් සහ PDF සෑදීම</span></td>
+                            <td><span class="check-no">✗ නැත</span></td>
                         </tr>
                         <tr>
-                            <td><strong>Live Math & Unit Converter</strong></td>
-                            <td class="highlight-col"><span class="check-yes">✓ යතුරුපුවරුවේම සෘජු ගණනය කිරීම් (50+25=)</span></td>
-                            <td><span class="check-no">✗ වෙනම ඇප් එකකට යා යුතුය</span></td>
+                            <td><strong>Live Math, Unit & NIC Analyzer</strong></td>
+                            <td class="highlight-col"><span class="check-yes">✓ ගණිත ගැටලු, ඒකක සහ NIC විශ්ලේෂණය</span></td>
+                            <td><span class="check-no">✗ වෙනම ඇප් භාවිතා කළ යුතුය</span></td>
                         </tr>
                         <tr>
-                            <td><strong>In-Keyboard Instant Translator</strong></td>
-                            <td class="highlight-col"><span class="check-yes">✓ යතුරුපුවරුවේදීම සිංහල ⇄ English</span></td>
-                            <td><span class="check-no">✗ බාහිර ඇප් අවශ්‍ය වේ</span></td>
-                        </tr>
-                        <tr>
-                            <td><strong>පාරදෘශ්‍ය Glass & RGB Themes</strong></td>
-                            <td class="highlight-col"><span class="check-yes">✓ Glassmorphism, RGB Glow සහ Custom Wallpaper</span></td>
-                            <td><span class="check-no">✗ සීමිත මූලික තේමා පමණි</span></td>
-                        </tr>
-                        <tr>
-                            <td><strong>වෙළඳ දැන්වීම් (Advertisements)</strong></td>
-                            <td class="highlight-col"><span class="check-yes">✓ 0% දැන්වීම් (සම්පූර්ණයෙන්ම Ads-Free)</span></td>
-                            <td><span class="check-no">✗ කරදරකාරී දැන්වීම් සහිතයි</span></td>
+                            <td><strong>100% On-Device Privacy & Ads-Free</strong></td>
+                            <td class="highlight-col"><span class="check-yes">✓ 0% දැන්වීම් • 0% Keystroke Tracking</span></td>
+                            <td><span class="check-no">✗ කරදරකාරී දැන්වීම් සහ Analytics SDK සහිතයි</span></td>
                         </tr>
                     </tbody>
                 </table>
@@ -1514,10 +1674,10 @@
 
         <!-- Interactive Typing Guide Cheat Sheet -->
         <section class="guide-section" id="guide">
-            <div class="section-header" style="margin-bottom: 30px;">
+            <div class="section-header" style="margin-bottom: 28px;">
                 <div class="section-tag">📖 Singlish Rules & Guide</div>
-                <h2>සිංග්ලිෂ් යතුරුකරණ උපදෙස්</h2>
-                <p>ඉංග්‍රීසි අකුරුවලින් පහසුවෙන් නිවැරදි සිංහල වචන ටයිප් කරන ආකාරය</p>
+                <h2>සිංග්ලිෂ් යතුරුකරණ උපදෙස් (Click to Test)</h2>
+                <p>ඕනෑම අකුරක් මත ක්ලික් කර ඉහළ ඇති Live Playground එකෙහි ක්ෂණිකව පරීක්ෂා කරන්න</p>
             </div>
 
             <div class="guide-tabs">
@@ -1528,300 +1688,160 @@
                 <button class="guide-tab-btn" onclick="switchTab('combos', this)">පිල්ලම් (Combinations)</button>
             </div>
 
-            <div id="guideContent" class="guide-grid">
-                <!-- Dynamically filled by JS -->
-            </div>
+            <div id="guideContent" class="guide-grid"></div>
         </section>
 
-        <!-- FAQ Section with Clean Accordion Design -->
+        <!-- FAQ Section -->
         <section class="faq-section" id="faq">
             <div class="section-header">
-                <div class="section-tag">❓ Common Questions & Help</div>
+                <div class="section-tag">❓ Smart Knowledge Base</div>
                 <h2>නිතර අසන ප්‍රශ්න සහ පිළිතුරු (FAQ)</h2>
-                <p>Slashboard සිංහල යතුරුපුවරුව, ස්ථාපනය, ටයිප් කිරීම සහ දත්ත ආරක්ෂාව පිළිබඳ ඔබගේ සියලු ගැටලුවලට සවිස්තරාත්මක පිළිතුරු</p>
+                <p>Slashboard v4.2.1 ස්ථාපනය, Emoji Packs, Low-RAM Mode, Android TV සහ දත්ත ආරක්ෂාව පිළිබඳ සියලු විස්තර</p>
             </div>
 
-            <!-- Category Filter Bar -->
             <div class="faq-filter-bar">
-                <button class="faq-filter-btn active" data-category="all" onclick="filterFaq('all', this)">සියල්ල (All Questions)</button>
-                <button class="faq-filter-btn" data-category="install" onclick="filterFaq('install', this)">⚙️ ස්ථාපනය සහ ගැටලු (Installation)</button>
-                <button class="faq-filter-btn" data-category="usage" onclick="filterFaq('usage', this)">⌨️ සිංහල ටයිපිං (Keyboard Usage)</button>
-                <button class="faq-filter-btn" data-category="privacy" onclick="filterFaq('privacy', this)">🔒 පෞද්ගලිකත්වය සහ ආරක්ෂාව (Privacy)</button>
+                <button class="faq-filter-btn active" data-category="all" onclick="filterFaq('all', this)">සියල්ල (All)</button>
+                <button class="faq-filter-btn" data-category="install" onclick="filterFaq('install', this)">⚙️ ස්ථාපනය සහ Low-RAM</button>
+                <button class="faq-filter-btn" data-category="usage" onclick="filterFaq('usage', this)">⌨️ Emoji, TV සහ ටයිපිං</button>
+                <button class="faq-filter-btn" data-category="privacy" onclick="filterFaq('privacy', this)">🔒 පෞද්ගලිකත්වය (Privacy)</button>
             </div>
 
-            <!-- Realtime Search Box -->
             <div class="faq-search-box">
                 <span class="faq-search-icon">🔍</span>
-                <input type="text" id="faqSearch" class="faq-search-input" placeholder="ප්‍රශ්න සොයන්න (e.g. singlish, warning, password, xiaomi, offline)..." oninput="searchFaq(this.value)">
+                <input type="text" id="faqSearch" class="faq-search-input" placeholder="ප්‍රශ්න සොයන්න (e.g. emoji, whatsapp, low ram, tv, invoice, privacy)..." oninput="searchFaq(this.value)">
             </div>
 
-            <!-- Accordion List -->
             <div class="faq-accordion-container" id="faqList">
-
-                <!-- Q1: Installation & Activation -->
+                <!-- Q1 -->
                 <div class="faq-item active" data-category="install">
                     <button class="faq-question" aria-expanded="true" onclick="toggleFaq(this)">
                         <div class="faq-q-content">
-                            <span class="faq-tag install">ස්ථාපනය</span>
-                            <span>Slashboard Keyboard එක Android දුරකථනයේ සක්‍රීය (Enable & Set as Default) කරන්නේ කෙසේද?</span>
+                            <span class="faq-tag install">Low-RAM Turbo</span>
+                            <span>2GB හෝ 3GB RAM දුරකථනවල Slashboard v4.2.1 හිරවීමකින් (Lag) තොරව ක්‍රියා කරන්නේ කෙසේද?</span>
                         </div>
                         <div class="faq-icon">+</div>
                     </button>
                     <div class="faq-answer" style="max-height: 500px;">
                         <div class="faq-answer-inner">
-                            <p>Slashboard ඉතා පහසුවෙන් පියවර 4කින් ඔබගේ දුරකථනයේ ප්‍රධාන යතුරුපුවරුව බවට පත් කරගත හැක:</p>
-                            <ol>
-                                <li><strong>APK එක බාගත කර ස්ථාපනය කරන්න:</strong> නිල <a href="https://github.com/dinushlakmal/xxSlashboardxx/releases" target="_blank" style="color: var(--primary-light); text-decoration: underline;">GitHub Releases</a> පිටුවෙන් නවතම APK එක බාගත කර Install කරගන්න.</li>
-                                <li><strong>Slashboard Settings ඇප් එක විවෘත කරන්න:</strong> යෙදුම විවෘත කළ විට දිස්වන මඟපෙන්වීම අනුගමනය කරන්න. නැතහොත් දුරකථනයේ <code>Settings > System > Languages & Input > On-screen Keyboard</code> (හෝ General Management) වෙත යන්න.</li>
-                                <li><strong>Slashboard සක්‍රීය (Enable) කරන්න:</strong> "Manage Keyboards" ලැයිස්තුවේ ඇති <em>Slashboard Sinhala Keyboard</em> ඉදිරියෙන් ඇති ස්විචය සක්‍රීය (ON) කරන්න.</li>
-                                <li><strong>Default Keyboard එක ලෙස තෝරන්න:</strong> ඕනෑම Text Box එකක් මත Tap කළ විට පහළ Navigation තීරුවේ දිස්වන Keyboard Icon එකෙන් හෝ Notification Bar එකෙන් <em>Slashboard</em> තෝරන්න.</li>
-                            </ol>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Q2: System Warning Explanation -->
-                <div class="faq-item" data-category="install">
-                    <button class="faq-question" aria-expanded="false" onclick="toggleFaq(this)">
-                        <div class="faq-q-content">
-                            <span class="faq-tag install">ආරක්ෂක පණිවිඩ</span>
-                            <span>ස්ථාපනයේදී "This input method may be able to collect all text you type..." පෙන්වන්නේ ඇයි?</span>
-                        </div>
-                        <div class="faq-icon">+</div>
-                    </button>
-                    <div class="faq-answer">
-                        <div class="faq-answer-inner">
-                            <p>මෙය Android මෙහෙයුම් පද්ධතිය (Google Android OS) විසින් Play Store එකෙන් පිටතින් හෝ වෙනත් ඕනෑම තෙවන පාර්ශවීය (3rd-party) යතුරුපුවරුවක් සක්‍රීය කරන විට <strong>පද්ධතිය මඟින් ස්වයංක්‍රීයව පෙන්වන සම්මත ආරක්ෂක පණිවිඩයකි (Default Android Warning)</strong>.</p>
+                            <p>Slashboard v4.2.1 හි හඳුන්වා දුන් <strong>Custom Low-RAM Memory Strategy</strong> මගින් 2GB/3GB RAM සහිත Xiaomi, Samsung, Vivo, Oppo උපාංගවල පවා උපරිම වේගයක් ලබා දෙයි:</p>
                             <ul>
-                                <li><strong>100% On-Device විශ්වාසය:</strong> Slashboard යනු සම්පූර්ණයෙන්ම ඔබගේ දුරකථනය තුළ පමණක් ක්‍රියාත්මක වන (Offline) යෙදුමකි.</li>
-                                <li><strong>කිසිදු සර්වර් එකකට දත්ත නොයයි:</strong> ඔබ ටයිප් කරන කිසිදු අකුරක්, පාස්වර්ඩ් එකක් හෝ පණිවිඩයක් කිසිදු Cloud Server එකකට සම්ප්‍රේෂණය නොවේ.</li>
-                                <li>එබැවින් මෙම Android සම්මත පණිවිඩයට කිසිදු සැකයකින් තොරව <strong>"OK"</strong> ලබා දී ඉදිරියට යා හැක.</li>
+                                <li><strong>Explicit Bitmap Recycling:</strong> යතුරුපුවරුව වැසෙන සැනින් (`onWindowHidden`) Theme පසුබිම් පින්තූර සහ Emoji Sprite Sheets මතකයෙන් නිදහස් කර RAM එක ඉතිරි කරයි.</li>
+                                <li><strong>WeakReference Background Tasks:</strong> ශබ්දකෝෂ සහ දත්ත ගබඩා කටයුතු `WeakReference` හරහා ක්‍රියාත්මක වන බැවින් අනවශ්‍ය ලෙස RAM මතකය රඳවා නොගනී.</li>
+                                <li>Settings තුළින් <strong>Low-RAM Mode</strong> ස්වයංක්‍රීයව හෝ ඔබට අවශ්‍ය පරිදි සක්‍රිය කරගත හැක.</li>
                             </ul>
                         </div>
                     </div>
                 </div>
 
-                <!-- Q3: Xiaomi/Samsung Background Killing Fix -->
-                <div class="faq-item" data-category="install">
-                    <button class="faq-question" aria-expanded="false" onclick="toggleFaq(this)">
-                        <div class="faq-q-content">
-                            <span class="faq-tag install">ගැටලු විසඳීම</span>
-                            <span>Xiaomi (MIUI/HyperOS), Vivo, Oppo හෝ Samsung වල යතුරුපුවරුව ඉබේ Switch වීම හෝ වැසී යාම වළක්වන්නේ කෙසේද?</span>
-                        </div>
-                        <div class="faq-icon">+</div>
-                    </button>
-                    <div class="faq-answer">
-                        <div class="faq-answer-inner">
-                            <p>සමහර චීන සහ Custom Android උපාංගවල ඇති අතිශය දැඩි Battery Saving (Task Killer) පද්ධති නිසා පසුබිමේ ඇති යතුරුපුවරුව අක්‍රිය විය හැක. ඒ සඳහා පහත පියවර අනුගමනය කරන්න:</p>
-                            <ul>
-                                <li><strong>Battery Optimization ඉවත් කරන්න:</strong> දුරකථන <code>Settings > Apps > Slashboard > Battery</code> වෙත ගොස් <strong>"No restrictions"</strong> හෝ <strong>"Don't optimize"</strong> තෝරන්න.</li>
-                                <li><strong>Autostart අවසරය ලබා දෙන්න:</strong> Xiaomi / Vivo / Realme දුරකථන වල <code>Security > Manage Apps > Slashboard</code> වෙත ගොස් <strong>Autostart</strong> සක්‍රීය (ON) කරන්න.</li>
-                                <li><strong>Recent Apps හි Lock කරන්න:</strong> Recent Apps (විවෘත කර ඇති යෙදුම්) තිරයට ගොස් Slashboard කාඩ්පත මත දිගු වේලාවක් ඔබාගෙන සිට 🔒 <strong>Lock</strong> අයිකනය තෝරන්න.</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Q4: Switching Layouts -->
+                <!-- Q2 -->
                 <div class="faq-item" data-category="usage">
                     <button class="faq-question" aria-expanded="false" onclick="toggleFaq(this)">
                         <div class="faq-q-content">
-                            <span class="faq-tag usage">භාවිතය</span>
-                            <span>Singlish, විජේසේකර සහ English අතර ඉක්මනින් මාරු වන්නේ කෙසේද?</span>
+                            <span class="faq-tag usage">Emoji Packs</span>
+                            <span>WhatsApp, iOS, Facebook සහ Twitter Emoji Styles භාවිතා කරන්නේ කෙසේද?</span>
                         </div>
                         <div class="faq-icon">+</div>
                     </button>
                     <div class="faq-answer">
                         <div class="faq-answer-inner">
-                            <p>Slashboard හි භාෂා සහ Layouts මාරු කිරීම ක්ෂණිකව සහ ඉතා පහසුවෙන් කළ හැක:</p>
+                            <p>Slashboard Settings හි ඇති <strong>Emoji Style</strong> ටැබ් එක වෙත යන්න:</p>
                             <ul>
-                                <li><strong>Globe Key (🌐):</strong> Space Bar එකට වම් පසින්, කමාවට (<code> , </code>) යාබදව පිහිටි Globe Icon එක මත එකවරක් තට්ටු කිරීමෙන් (1-Tap) Singlish, විජේසේකර හා English අතර ක්ෂණිකව මාරු විය හැක.</li>
-                                <li><strong>Top Toolbar Pill:</strong> යතුරුපුවරුවේ ඉහළ Suggestion Bar එකෙහි වම් කෙළවරේ ඇති <code>සිං | EN</code> ලේබලය මත තට්ටු කිරීමෙන්ද ක්ෂණිකව මාරු විය හැක.</li>
-                                <li><strong>Settings මඟින්:</strong> Slashboard Settings > Keyboard Layouts වෙතින් ඔබට නිතර අවශ්‍ය වන ප්‍රධාන පෙරනිමි Layout එක (Default Layout) තෝරාගත හැක.</li>
+                                <li><strong>WhatsApp Emoji Style:</strong> යෙදුම සමඟම Pre-installed ලෙස ලැබෙන බැවින් අන්තර්ජාලය නොමැතිව වුවද ක්ෂණිකව භාවිතා කළ හැක.</li>
+                                <li><strong>iOS, Facebook, Twitter (X) සහ Google Emojis:</strong> ඔබ කැමති Emoji පැකේජය ඉදිරියෙන් ඇති <strong>Download</strong> බොත්තම ඔබා තත්පර කිහිපයකින් බාගත කර සක්‍රිය කරගත හැක.</li>
                             </ul>
                         </div>
                     </div>
                 </div>
 
-                <!-- Q5: Complex Sinhala typing, Bandi & Pillam -->
+                <!-- Q3 -->
                 <div class="faq-item" data-category="usage">
                     <button class="faq-question" aria-expanded="false" onclick="toggleFaq(this)">
                         <div class="faq-q-content">
-                            <span class="faq-tag usage">සිංහල ටයිපිං</span>
-                            <span>සංකීර්ණ සිංහල අකුරු, බැඳි අකුරු (සඤ්ඤක), යංශය සහ රකාරාංශය ටයිප් කරන්නේ කෙසේද?</span>
+                            <span class="faq-tag usage">Android TV</span>
+                            <span>Android TV සහ TV Box වල Remote Control එකෙන් සිංහල ටයිප් කරන්නේ කෙසේද?</span>
                         </div>
                         <div class="faq-icon">+</div>
                     </button>
                     <div class="faq-answer">
                         <div class="faq-answer-inner">
-                            <p>Slashboard හි ඇති සුහුරු Phonetic Engine එක මඟින් පහසුවෙන්ම සියලුම සිංහල අක්ෂර නිවැරදිව ටයිප් කළ හැක:</p>
+                            <p>Slashboard v4.2.1 දැන් Android TV, Google TV සහ Android Media Boxes සඳහා පූර්ණ සහාය දක්වයි:</p>
                             <ul>
-                                <li><strong>දීර්ඝ පිල්ලම්:</strong> කෙටි පිල්ලම් අකුර දෙවරක් ටයිප් කරන්න — උදා: <code>ii</code> ➔ <code>ී</code> (කි ➔ කී), <code>uu</code> ➔ <code>ූ</code> (කු ➔ කූ), <code>ee</code> ➔ <code>ේ</code> (කෙ ➔ කේ), <code>oo</code> ➔ <code>ෝ</code> (කො ➔ කෝ).</li>
-                                <li><strong>රකාරාංශය:</strong> අකුරට පසු <code>r</code> යොදන්න — උදා: <code>kra</code> ➔ <code>ක්‍ර</code>, <code>pra</code> ➔ <code>ප්‍ර</code>, <code>sri</code> ➔ <code>ශ්‍රී</code>, <code>tri</code> ➔ <code>ත්‍රී</code>.</li>
-                                <li><strong>යංශය:</strong> අකුරට පසු <code>y</code> යොදන්න — උදා: <code>kya</code> ➔ <code>ක්‍ය</code>, <code>vya</code> ➔ <code>ව්‍ය</code>, <code>sya</code> ➔ <code>ශ්‍ය</code>.</li>
-                                <li><strong>සඤ්ඤක / බඳි අකුරු:</strong> <code>nd</code> හෝ <code>zdha</code> ➔ <code>ඳ</code>, <code>nnd</code> හෝ <code>zda</code> ➔ <code>ඬ</code>, <code>mb</code> ➔ <code>ඹ</code>, <code>ng</code> ➔ <code>ඟ</code>, <code>gna</code> ➔ <code>ඥ</code>, <code>nya</code> ➔ <code>ඤ</code>.</li>
-                                <li><strong>මහාප්‍රාණ අක්ෂර:</strong> Capital අකුරින් හෝ <code>h</code> සමඟ — උදා: <code>K</code> / <code>kha</code> ➔ <code>ඛ</code>, <code>G</code> / <code>gha</code> ➔ <code>ඝ</code>, <code>Th</code> ➔ <code>ඨ</code>, <code>thha</code> ➔ <code>ථ</code>, <code>dhha</code> ➔ <code>ධ</code>, <code>sha</code> ➔ <code>ශ</code>, <code>Sha</code> ➔ <code>ෂ</code>.</li>
+                                <li>TV Remote එකෙහි <strong>Arrow Keys (ඉහළ, පහළ, වම, දකුණ)</strong> මගින් යතුරුපුවරුවේ අකුරු මත ගමන් කළ හැක (දීප්තිමත් Focus Ring එකකින් තෝරාගත් යතුර පෙන්වයි).</li>
+                                <li><strong>OK / Center බොත්තම</strong> එබීමෙන් අදාළ අකුර ටයිප් වේ.</li>
+                                <li>Landscape තිරයේදී පිටුපස ඇති ඇප් එක සම්පූර්ණයෙන්ම දර්ශනය වන පරිදි Non-Fullscreen ලෙස ක්‍රියාත්මක වේ.</li>
                             </ul>
                         </div>
                     </div>
                 </div>
 
-                <!-- Q6: Cursor Jump Permanent Fix -->
+                <!-- Q4 -->
                 <div class="faq-item" data-category="usage">
                     <button class="faq-question" aria-expanded="false" onclick="toggleFaq(this)">
                         <div class="faq-q-content">
-                            <span class="faq-tag usage">කර්සරය</span>
-                            <span>වේගයෙන් ටයිප් කිරීමේදී Cursor එක ඉබේ වෙනත් තැනකට පැනීම (Cursor Jump) විසඳා තිබේද?</span>
+                            <span class="faq-tag usage">Mini-POS</span>
+                            <span>යතුරුපුවරුව තුළින්ම පාරිභෝගික බිල්පත් (Mini-POS Invoices) සාදන්නේ කෙසේද?</span>
                         </div>
                         <div class="faq-icon">+</div>
                     </button>
                     <div class="faq-answer">
                         <div class="faq-answer-inner">
-                            <p><strong>ඔව්! Slashboard v2.6 හි මෙම ගැටලුව 100%ක් ස්ථිරවම විසඳා ඇත.</strong></p>
+                            <p>යතුරුපුවරුවේ ඉහළ Toolbar එකෙහි ඇති <strong>🧾 Invoice / POS</strong> අයිකනය හෝ Slashboard Settings හි ඇති <strong>Mini-POS</strong> ටැබ් එක විවෘත කරන්න:</p>
                             <ul>
-                                <li><strong>Atomic Batch Synchronization:</strong> පෙර පැවති සිංහල යතුරුපුවරුවල සංයුක්ත අක්ෂර (Composition) සැකසීමේදී Cursor එක කලින් ස්ථානයට පැනීම හෝ "ගෙගියාදර" ආදී අකුරු පෙරලීම් වැළැක්වීමට නව ආරක්ෂිත තාක්ෂණයක් යොදා ඇත.</li>
-                                <li><strong>Spacebar Trackpad Slide:</strong> කර්සරය අවශ්‍ය තැනකට පහසුවෙන් ගෙන යාමට Space bar එක මත ඇඟිල්ල වමට හෝ දකුණට Slide කර (ලිස්සා යවා) අකුරෙන් අකුරට කර්සරය ගෙනයාමේ සුපිරි පහසුකමද මෙහි අඩංගුය.</li>
+                                <li>ඔබේ ව්‍යාපාරයේ නම, ලාංඡනය (Logo), සහ බැංකු විස්තර එක් වරක් ඇතුළත් කරන්න.</li>
+                                <li>WhatsApp පණිවිඩයකින් පාරිභෝගිකයාගේ නම සහ ලිපිනය Copy කළ සැනින් යතුරුපුවරුව එය ස්වයංක්‍රීයව හඳුනාගනී.</li>
+                                <li>භාණ්ඩ සහ මිල ගණන් තෝරා තනි ක්ලික් එකකින් PDF හෝ Image බිල්පතක් ලෙස පාරිභෝගිකයාට යැවිය හැක.</li>
                             </ul>
                         </div>
                     </div>
                 </div>
 
-                <!-- Q7: Keyboard Height and IME Space Adjuster -->
-                <div class="faq-item" data-category="usage">
-                    <button class="faq-question" aria-expanded="false" onclick="toggleFaq(this)">
-                        <div class="faq-q-content">
-                            <span class="faq-tag usage">සැකසුම්</span>
-                            <span>යතුරුපුවරුවේ උස (Height) සහ යට ඇති Navigation Gesture Bar පරතරය වෙනස් කරන්නේ කෙසේද?</span>
-                        </div>
-                        <div class="faq-icon">+</div>
-                    </button>
-                    <div class="faq-answer">
-                        <div class="faq-answer-inner">
-                            <p>ඔබගේ ඇඟිලිවලට වඩාත් පහසු පරිදි යතුරුපුවරුව සම්පූර්ණයෙන්ම සකසාගත හැක:</p>
-                            <ul>
-                                <li><strong>Keyboard Height (උස):</strong> Slashboard Settings > <code>Appearance & Layout > Keyboard Size</code> වෙත ගොස් Short, Medium, Normal, Tall ආදී කැමති උසක් තෝරාගත හැක.</li>
-                                <li><strong>Dynamic IME Space Adjuster:</strong> Android Gesture Navigation භාවිතා කරන විට යතුරුපුවරුව දුරකථනයේ යටටම ගෑවී ටයිප් කිරීමට අපහසු වීම වැළැක්වීමට, <strong>0dp සිට 48dp දක්වා Live Slider එකකින්</strong> පහළ පරතරය සකසා ගත හැක.</li>
-                                <li>යතුරුපුවරුවේ Toolbar එකෙහි ඇති <code>📏</code> අයිකනය මත තට්ටු කිරීමෙන්ද මෙය ක්ෂණිකව සකස් කළ හැක.</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Q8: Live Math & Unit Converter -->
-                <div class="faq-item" data-category="usage">
-                    <button class="faq-question" aria-expanded="false" onclick="toggleFaq(this)">
-                        <div class="faq-q-content">
-                            <span class="faq-tag usage">ස්මාර්ට් මෙවලම්</span>
-                            <span>යතුරුපුවරුව තුළින්ම ගණිත ගැටලු විසඳන්නේ සහ ඒකක පරිවර්තනය කරන්නේ කෙසේද?</span>
-                        </div>
-                        <div class="faq-icon">+</div>
-                    </button>
-                    <div class="faq-answer">
-                        <div class="faq-answer-inner">
-                            <p>වෙනම කැල්කියුලේටර් ඇප් විවෘත නොකර යතුරුපුවරුව තුළින්ම ක්ෂණික ගණනය කිරීම් සිදු කළ හැක:</p>
-                            <ul>
-                                <li><strong>Live Math Evaluator:</strong> ඕනෑම Text Field එකක <code>50+25=</code> හෝ <code>125*8=</code> හෝ <code>(2500-450)/2=</code> ලෙස සමීකරණය අගට <code>=</code> ලකුණ ටයිප් කළ සැනින් Suggestion Bar එකෙහි පිළිතුර දිස්වේ.</li>
-                                <li>එම පිළිතුර මත තට්ටු කළ විට සම්පූර්ණ පිළිතුර ක්ෂණිකව පණිවිඩයට ඇතුළත් වේ.</li>
-                                <li><strong>Unit Converter:</strong> <code>10 USD to LKR</code>, <code>5 KM to M</code>, <code>100 C to F</code> ආදී ඒකක පරිවර්තනයන්ද යතුරුපුවරුව තුළින්ම සෘජුවම සිදු කරගත හැක.</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Q9: Privacy Guarantee & Zero Data Logging -->
+                <!-- Q5 -->
                 <div class="faq-item" data-category="privacy">
                     <button class="faq-question" aria-expanded="false" onclick="toggleFaq(this)">
                         <div class="faq-q-content">
                             <span class="faq-tag privacy">පෞද්ගලිකත්වය</span>
-                            <span>Slashboard මඟින් මගේ Passwords, බැංකු කාඩ්පත් හෝ පෞද්ගලික පණිවිඩ කිසිවක් සර්වර් වලට යවනවාද?</span>
+                            <span>Slashboard මඟින් මගේ Passwords, බැංකු තොරතුරු හෝ පෞද්ගලික පණිවිඩ සර්වර් වලට යවනවාද?</span>
                         </div>
                         <div class="faq-icon">+</div>
                     </button>
                     <div class="faq-answer">
                         <div class="faq-answer-inner">
-                            <p><strong>නැත! කිසිසේත්ම නැත.</strong> Slashboard යනු 100% ඔබගේ පෞද්ගලිකත්වය සුරකින ස්වාධීන යෙදුමකි:</p>
+                            <p><strong>කිසිසේත්ම නැත!</strong> Slashboard 100% ඔබගේ උපාංගය තුළ පමණක් ක්‍රියාත්මක වේ:</p>
                             <ul>
-                                <li><strong>Zero Cloud Telemetry:</strong> Slashboard තුළ ඔබගේ යතුරු ලකුණු (Keystrokes) එකතු කරන කිසිදු Cloud Server සම්බන්ධතාවයක්, Analytics හෝ Tracking SDK එකක් (Firebase Analytics, Facebook Graph SDK, Flurry ආදී) අඩංගු නොවේ.</li>
-                                <li><strong>Strict Password Protection:</strong> මුරපද (Password / PIN) හෝ සංවේදී අංක ඇතුළත් කරන Text Fields හඳුනාගත් සැනින් යතුරුපුවරුව ස්වයංක්‍රීයව <strong>Incognito / Secure Mode</strong> එකට මාරු වන අතර කිසිදු වචනයක් ශබ්දකෝෂයට හෝ මතකයට එක් කර නොගනී.</li>
-                                <li>ඔබගේ පෞද්ගලිකත්වය පිළිබඳ වැඩිදුර විස්තර අපගේ <a href="privacy.html" style="color: var(--primary-light); text-decoration: underline;">Privacy Policy</a> පිටුවෙන් කියවිය හැක.</li>
+                                <li>කිසිදු Cloud Server එකකට ඔබ ටයිප් කරන අකුරු හෝ මුරපද යැවීමක් සිදු නොවේ.</li>
+                                <li>Password සහ බැංකු PIN ක්ෂේත්‍රවලදී ස්වයංක්‍රීයවම වචන ඉගෙනුම (Learning) සහ Clipboard History අක්‍රිය වේ.</li>
+                                <li>වැඩිදුර තොරතුරු සඳහා අපගේ <a href="privacy.html" style="color: #38BDF8;">Privacy Policy</a> පිටුව කියවන්න.</li>
                             </ul>
                         </div>
                     </div>
                 </div>
-
-                <!-- Q10: Clipboard Manager Security -->
-                <div class="faq-item" data-category="privacy">
-                    <button class="faq-question" aria-expanded="false" onclick="toggleFaq(this)">
-                        <div class="faq-q-content">
-                            <span class="faq-tag privacy">පසුරු පුවරුව</span>
-                            <span>Clipboard Manager එකේ පිටපත් කරන තොරතුරු සහ Personal Dictionary කොතරම් දුරට ආරක්ෂිතද?</span>
-                        </div>
-                        <div class="faq-icon">+</div>
-                    </button>
-                    <div class="faq-answer">
-                        <div class="faq-answer-inner">
-                            <p>ඔබ පිටපත් කරන (Copy) සියලුම පාඨ සහ නිතර භාවිතා වන පුද්ගලික ශබ්දකෝෂය (Personal Dictionary) ආරක්ෂා කිරීමට විශේෂ පියවර ගෙන ඇත:</p>
-                            <ul>
-                                <li><strong>100% On-Device Local SQLite Storage:</strong> Clipboard ඉතිහාසය ගබඩා වන්නේ ඔබගේ දුරකථනයේ පමණක් වන අතර කිසි විටෙකත් අන්තර්ජාලයට හෝ බාහිර පාර්ශවයකට යැවීමක් සිදු නොවේ.</li>
-                                <li><strong>Smart Sensitive Data Filtering:</strong> බැංකු OTPs සහ Passwords වැනි සංවේදී තොරතුරු ස්වයංක්‍රීයව හඳුනාගෙන ඒවා ක්ලිප්බෝඩ් ඉතිහාසයේ ස්ථිරව රැඳවීම වළක්වයි.</li>
-                                <li><strong>One-Tap Clear History:</strong> අවශ්‍ය ඕනෑම අවස්ථාවක Clipboard Manager හි ඇති කුණු කූඩයේ අයිකනය (Delete All) මඟින් මුළු ඉතිහාසයම තනි තට්ටුවෙන් සම්පූර්ණයෙන්ම මකා දැමිය හැක.</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Q11: 100% Offline Capability -->
-                <div class="faq-item" data-category="privacy">
-                    <button class="faq-question" aria-expanded="false" onclick="toggleFaq(this)">
-                        <div class="faq-q-content">
-                            <span class="faq-tag privacy">නොබැඳි භාවිතය</span>
-                            <span>මෙම යතුරුපුවරුව භාවිතා කිරීමට අන්තර්ජාල සම්බන්ධතාවයක් (Mobile Data / Wi-Fi) අවශ්‍යද?</span>
-                        </div>
-                        <div class="faq-icon">+</div>
-                    </button>
-                    <div class="faq-answer">
-                        <div class="faq-answer-inner">
-                            <p><strong>නැත. Slashboard හි සියලුම ප්‍රධාන කාර්යයන් 100% Offline (නොබැඳිව) ක්‍රියාත්මක වේ.</strong></p>
-                            <ul>
-                                <li>සම්පූර්ණ සිංහල ශබ්දකෝෂය (Sinhala Dictionary), Singlish Phonetic Transliteration Engine, අකුරු නිවැරදි කිරීම්, Live Math Evaluator සහ සියලුම Themes ඔබගේ දුරකථනය තුළම අන්තර්ගත කර ඇත.</li>
-                                <li>දුරකථනයේ Mobile Data හෝ Wi-Fi අක්‍රිය කර තිබුණද, නැතහොත් Airplane Mode එකේදී පවා ඔබට කිසිදු බාධාවකින් තොරව සිංහල ටයිප් කළ හැක.</li>
-                                <li><em>සටහන:</em> යතුරුපුවරුවේ Toolbar එකෙන් සෘජුවම විවෘත වන "In-Keyboard Translate Bar" මඟින් භාෂා පරිවර්තනය කරන විට පමණක් පරිවර්තන API සඳහා අන්තර්ජාලය අවශ්‍ය වේ.</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-
             </div>
 
-            <!-- Empty State for Search -->
             <div class="faq-empty-state" id="faqEmpty">
-                <div style="font-size: 2.2rem; margin-bottom: 10px;">🔍</div>
-                <div style="font-weight: 700; color: #F8FAFC; margin-bottom: 6px;">ප්‍රශ්න කිසිවක් හමු නොවීය</div>
-                <p>ඔබ සොයන වචනයට අදාළ ප්‍රශ්නයක් ලැයිස්තුවේ නොමැත. කරුණාකර වෙනත් සෙවුම් පදයක් භාවිතා කරන්න.</p>
+                <div style="font-size: 2rem; margin-bottom: 8px;">🔍</div>
+                <div style="font-weight: 700; color: #F8FAFC;">ප්‍රශ්න කිසිවක් හමු නොවීය</div>
+                <p>කරුණාකර වෙනත් සෙවුම් පදයක් භාවිතා කරන්න.</p>
             </div>
         </section>
 
         <!-- Bottom Download Call to Action -->
         <section class="download-banner" id="download">
-            <h2>Slashboard අදම ඔබගේ දුරකථනයට ලබාගන්න</h2>
+            <h2>Slashboard v4.2.1 අදම ලබාගන්න</h2>
             <p>
-                100% නොමිලේ, කිසිදු දැන්වීමකින් තොරව, ඔබේ පෞද්ගලිකත්වය සුරකිමින් අලුත්ම අත්දැකීම ලබාගන්න.
+                100% නොමිලේ, කිසිදු දැන්වීමකින් තොරව, 2GB/3GB දුරකථනවල සිට Android TV දක්වා සුපිරිම සිංහල යතුරුකරණ අත්දැකීම.
             </p>
             <div class="cta-buttons" style="margin-bottom: 0;">
-                <a href="https://play.google.com/store/apps/details?id=com.slashbord" target="_blank" class="btn-lg-primary" style="background: linear-gradient(135deg, #10B981 0%, #059669 100%); box-shadow: 0 4px 20px rgba(16, 185, 129, 0.4);">
+                <a href="https://play.google.com/store/apps/details?id=com.slashbord" target="_blank" class="btn-lg-primary" style="background: linear-gradient(135deg, #10B981 0%, #059669 100%);">
                     ▶ Google Play Store
                 </a>
                 <a href="https://github.com/dinushlakmal/xxSlashboardxx/releases" target="_blank" class="btn-lg-primary">
                     📥 Direct Download (GitHub Releases)
                 </a>
-                <a href="https://www.facebook.com/profile.php?id=61593856756750" target="_blank" class="btn-lg-secondary" style="background: rgba(24, 119, 242, 0.15); border-color: rgba(24, 119, 242, 0.4); color: #93C5FD;">
-                    📘 Facebook Page එකට එක්වන්න
-                </a>
-                <a href="https://github.com/dinushlakmal" target="_blank" class="btn-lg-secondary">
-                    💻 GitHub Profile (Dinush Lakmal)
+                <a href="https://www.facebook.com/profile.php?id=61593856756750" target="_blank" class="btn-lg-secondary" style="border-color: rgba(96, 165, 250, 0.4); color: #93C5FD;">
+                    📘 Facebook Page
                 </a>
                 <a href="privacy.html" class="btn-lg-secondary">
-                    🔒 Privacy Policy කියවන්න
+                    🛡️ Privacy Policy
                 </a>
             </div>
         </section>
@@ -1830,30 +1850,131 @@
         <footer>
             <div class="footer-nav">
                 <a href="index.html">Home (මුල් පිටුව)</a>
+                <a href="home.html">User Guide (උපදෙස්)</a>
                 <a href="#features">Features (විශේෂාංග)</a>
-                <a href="#guide">Typing Guide (උපදෙස්)</a>
                 <a href="#faq">FAQ (ප්‍රශ්නෝත්තර)</a>
-                <a href="https://github.com/dinushlakmal/xxSlashboardxx/releases" target="_blank" style="color: #A5B4FC; font-weight: 700;">Direct Download (APK)</a>
+                <a href="https://github.com/dinushlakmal/xxSlashboardxx/releases" target="_blank" style="color: #38BDF8; font-weight: 700;">Direct Download (APK)</a>
                 <a href="https://www.facebook.com/profile.php?id=61593856756750" target="_blank" style="color: #60A5FA;">Facebook Page</a>
                 <a href="https://github.com/dinushlakmal" target="_blank">GitHub Profile</a>
-                <a href="privacy.html">Privacy Policy (පෞද්ගලිකත්වය)</a>
-                <a href="terms.html">Terms of Service (කොන්දේසි)</a>
+                <a href="privacy.html">Privacy Policy</a>
+                <a href="terms.html">Terms of Service</a>
             </div>
-            <p>© 2026 Slashboard Sinhala Keyboard. Crafted with ❤️ for Sri Lanka 🇱🇰 by <strong>Dinush Lakmal</strong>.</p>
-            <p style="margin-top: 6px; font-size: 0.85rem; color: #64748B;">
-                All rights reserved. 100% Offline, Open Architecture, Private Android Input Method.
+            <p>© 2026 Slashboard Sinhala Keyboard v4.2.1. Crafted with ❤️ for Sri Lanka 🇱🇰 by <strong>Dinush Lakmal | Slash Studios</strong>.</p>
+            <p style="margin-top: 6px; font-size: 0.84rem; color: #64748B;">
+                100% On-Device • Low-RAM Turbo Engine • Phone, Tablet & Android TV Compatible
             </p>
         </footer>
     </div>
 
-    <!-- Client-Side Engine for Live Preview -->
+    <!-- Mobile Bottom Quick Dock -->
+    <div class="mobile-bottom-dock">
+        <a href="#hero" class="dock-link"><span>🏠</span><span>Home</span></a>
+        <a href="#demo" class="dock-link"><span>⚡</span><span>Try Live</span></a>
+        <a href="#features" class="dock-link"><span>✨</span><span>Features</span></a>
+        <a href="home.html" class="dock-link"><span>📖</span><span>Guide</span></a>
+        <a href="https://play.google.com/store/apps/details?id=com.slashbord" target="_blank" class="dock-link primary-dock"><span>▶</span><span>Install</span></a>
+    </div>
+
+    <!-- Floating Back to Top Button -->
+    <button type="button" id="backToTopBtn" class="back-to-top" aria-label="Back to Top" title="Back to Top">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="18 15 12 9 6 15"></polyline>
+        </svg>
+    </button>
+
+    <!-- Share Toast Notification -->
+    <div id="shareToast" class="share-toast" role="status" aria-live="polite">
+        <span id="shareToastIcon">📋</span>
+        <span id="shareToastMsg">Releases සබැඳිය පිටපත් කරගන්නා ලදී! (Link copied)</span>
+    </div>
+
     <script>
+        // Multi-Device Form-Factor Switcher
+        const deviceModes = {
+            phone: {
+                title: "📱 Smartphones & 2GB/3GB Low-RAM Turbo Mode",
+                desc: "Xiaomi (MIUI/HyperOS), Samsung OneUI, Vivo සහ Oppo වැනි 2GB/3GB RAM දුරකථනවල පසුබිම් මතක පීඩනය (zRAM swapping) හඳුනාගෙන, යතුරුපුවරුව වැසෙන සැනින් Bitmap මතකය ස්වයංක්‍රීයව නිදහස් කර 0ms වේගයෙන් නැවත විවෘත වේ.",
+                specs: ["Auto Bitmap Recycle", "WeakReference Tasks", "RGB_565 Low-RAM Decode", "120Hz Smooth Scroll"],
+                icon: "📱⚡",
+                metric: "RAM Footprint: < 28 MB Idle",
+                sub: "Zero Frame Drops • Instant Popup"
+            },
+            tablet: {
+                title: "💻 Tablets, Foldables & Large Screens",
+                desc: "විශාල තිර සහිත Android Tablets සහ Foldables සඳහා ස්වයංක්‍රීයව හැඩගැසෙන පළල, Precision Key Gaps සහ Landscape තිරයේදී පූර්ණ තිරය අවහිර නොකරන (Non-Fullscreen) සුවපහසු Layout එක.",
+                specs: ["Adaptive Key Scaling", "Non-Blocking Landscape", "Split-Ergonomic Ready", "Hardware Keyboard Passthrough"],
+                icon: "💻✨",
+                metric: "Adaptive DPI & Multi-Window Ready",
+                sub: "Full Screen Visibility in Landscape"
+            },
+            tv: {
+                title: "📺 Android TV, Google TV & Media Boxes",
+                desc: "Android TV සහ TV Box වල Remote Control එකෙහි Arrow Keys (ඉහළ, පහළ, වම, දකුණ) සහ OK/Select බොත්තම මගින් සිංහල, Singlish සහ ඉංග්‍රීසි පහසුවෙන් ටයිප් කිරීමේ හැකියාව.",
+                specs: ["D-Pad Arrow Navigation", "High-Contrast Focus Ring", "Leanback TV Launcher Banner", "Physical USB Keyboard Support"],
+                icon: "📺🎮",
+                metric: "100% Remote D-Pad Compatible",
+                sub: "Arrow Keys + Center/OK Selection"
+            }
+        };
+
+        function switchDeviceMode(modeKey, btnEl) {
+            document.querySelectorAll('.eco-tab').forEach(b => b.classList.remove('active'));
+            btnEl.classList.add('active');
+            const data = deviceModes[modeKey] || deviceModes.phone;
+            document.getElementById('ecoTitle').textContent = data.title;
+            document.getElementById('ecoDesc').textContent = data.desc;
+            document.getElementById('ecoSpecs').innerHTML = data.specs.map(s => `<span class="eco-spec-pill">${s}</span>`).join('');
+            document.getElementById('ecoVisual').innerHTML = `
+                <div style="font-size: 2rem; margin-bottom: 6px;">${data.icon}</div>
+                <div style="color: #6EE7B7; font-weight: 700;">${data.metric}</div>
+                <div style="color: #94A3B8; font-size: 0.78rem; margin-top: 4px;">${data.sub}</div>
+            `;
+        }
+
+        // Feature Category Filter
+        function filterFeatures(cat, btnEl) {
+            document.querySelectorAll('.feat-filter-btn').forEach(b => b.classList.remove('active'));
+            btnEl.classList.add('active');
+            document.querySelectorAll('#featuresGrid .feature-card').forEach(card => {
+                const cardCat = card.getAttribute('data-feat-cat');
+                card.style.display = (cat === 'all' || cardCat === cat) ? 'flex' : 'none';
+            });
+        }
+
+        // Sri Lankan NIC Analyzer for Live Playground
+        function analyzeSriLankanNic(raw) {
+            const clean = raw.trim().toUpperCase();
+            let year = 0, dayOfYear = 0;
+            if (/^\d{9}[VX]$/.test(clean)) {
+                year = 1900 + parseInt(clean.substring(0, 2), 10);
+                dayOfYear = parseInt(clean.substring(2, 5), 10);
+            } else if (/^\d{12}$/.test(clean)) {
+                year = parseInt(clean.substring(0, 4), 10);
+                dayOfYear = parseInt(clean.substring(4, 7), 10);
+            } else {
+                return null;
+            }
+            const isFemale = dayOfYear > 500;
+            if (isFemale) dayOfYear -= 500;
+            if (dayOfYear < 1 || dayOfYear > 366) return null;
+
+            const monthDays = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+            const monthNames = ["ජනවාරි", "පෙබරවාරි", "මාර්තු", "අප්‍රේල්", "මැයි", "ජූනි", "ජූලි", "අගෝස්තු", "සැප්තැම්බර්", "ඔක්තෝබර්", "නොවැම්බර්", "දෙසැම්බර්"];
+            let m = 0, d = dayOfYear;
+            while (m < 12 && d > monthDays[m]) {
+                d -= monthDays[m];
+                m++;
+            }
+            const genderSi = isFemale ? "ස්ත්‍රී (Female)" : "පුරුෂ (Male)";
+            return `🪪 උපන්දිනය: ${year} ${monthNames[m]} ${d} | ${genderSi}`;
+        }
+
         const consonants = {
             "chha": "ඡ", "thha": "ථ", "dhha": "ධ", "zdha": "ඳ", "zqa": "ඳ", "ndha": "ඳ",
             "nnda": "ඬ", "nda": "ඳ", "zda": "ඬ", "zga": "ඟ", "nga": "ඟ", "zja": "ඦ",
             "zka": "ඤ", "kna": "ඤ", "nya": "ඤ", "zha": "ඥ", "gna": "ඥ", "mba": "ඹ",
             "kha": "ඛ", "gha": "ඝ", "pha": "ඵ", "bha": "භ", "jha": "ඣ", "sha": "ශ",
-            "Sha": "ෂ", "Tha": "ඨ", "Dha": "ඪ", "cha": "ච", "tha": "ත", "dha": "ද",
+            "Sha": "ෂ", "Tha": "ථ", "Dha": "ඪ", "cha": "ච", "tha": "ත", "dha": "ද",
             "qa": "ද", "ka": "ක", "ga": "ග", "ca": "ච", "ja": "ජ", "ta": "ට",
             "da": "ඩ", "na": "න", "Na": "ණ", "pa": "ප", "ba": "බ", "Ba": "ඹ",
             "ma": "ම", "ya": "ය", "ra": "ර", "la": "ල", "La": "ළ", "wa": "ව",
@@ -1880,12 +2001,14 @@
         ];
 
         function transliterate(str) {
-            // Live math evaluation if expression ends with '='
+            const nicResult = analyzeSriLankanNic(str);
+            if (nicResult) return nicResult;
+
             if (/^[\d\s+\-*/.%()]+=\s*$/.test(str)) {
                 try {
                     const expr = str.replace('=', '').trim();
                     const res = Function('"use strict";return (' + expr + ')')();
-                    return str + " " + res;
+                    return "🔢 " + str + " " + res;
                 } catch (e) {}
             }
 
@@ -1957,7 +2080,6 @@
             });
         }
 
-        // Interactive Guide Tab Data
         const guideData = {
             vowels: [
                 { k: "a", s: "අ" }, { k: "aa", s: "ආ" }, { k: "ae / A", s: "ඇ" }, { k: "Aa / aee", s: "ඈ" },
@@ -1966,27 +2088,26 @@
                 { k: "oo", s: "ඕ" }, { k: "au / ou", s: "ඖ" }, { k: "R", s: "ඍ" }
             ],
             consonants: [
-                { k: "ka / k", s: "ක / ක්" }, { k: "ga", s: "ග" }, { k: "ca / cha", s: "ච" }, { k: "ja", s: "ජ" },
-                { k: "ta", s: "ට" }, { k: "da", s: "ඩ" }, { k: "tha", s: "ත" }, { k: "dha / qa", s: "ද" },
+                { k: "ka", s: "ක" }, { k: "ga", s: "ග" }, { k: "cha", s: "ච" }, { k: "ja", s: "ජ" },
+                { k: "ta", s: "ට" }, { k: "da", s: "ඩ" }, { k: "tha", s: "ත" }, { k: "dha", s: "ද" },
                 { k: "na", s: "න" }, { k: "Na", s: "ණ" }, { k: "pa", s: "ප" }, { k: "ba", s: "බ" },
                 { k: "ma", s: "ම" }, { k: "ya", s: "ය" }, { k: "ra", s: "ර" }, { k: "la", s: "ල" },
-                { k: "La", s: "ළ" }, { k: "wa / va", s: "ව" }, { k: "sa", s: "ස" }, { k: "ha", s: "හ" },
-                { k: "fa", s: "ෆ" }
+                { k: "La", s: "ළ" }, { k: "wa", s: "ව" }, { k: "sa", s: "ස" }, { k: "ha", s: "හ" }
             ],
             mahaprana: [
-                { k: "kha / Ka", s: "ඛ" }, { k: "gha / Ga", s: "ඝ" }, { k: "chha / Ca", s: "ඡ" }, { k: "jha / Ja", s: "ඣ" },
-                { k: "Tha", s: "ඨ" }, { k: "Dha", s: "ඪ" }, { k: "thha", s: "ථ" }, { k: "dhha", s: "ධ" },
-                { k: "pha / Pa", s: "ඵ" }, { k: "bha", s: "භ" }, { k: "sha", s: "ශ" }, { k: "Sha / Sa", s: "ෂ" }
+                { k: "Tha", s: "ථ" }, { k: "Th", s: "ථ්" }, { k: "kha", s: "ඛ" }, { k: "gha", s: "ඝ" },
+                { k: "chha", s: "ඡ" }, { k: "jha", s: "ඣ" }, { k: "Ta", s: "ඨ" }, { k: "Dha", s: "ඪ" },
+                { k: "dhha", s: "ධ" }, { k: "pha", s: "ඵ" }, { k: "bha", s: "භ" }, { k: "Sha", s: "ෂ" }
             ],
             bandi: [
-                { k: "zga / nga", s: "ඟ (සඤ්ඤක)" }, { k: "zja", s: "ඦ" }, { k: "zda / nnda", s: "ඬ (සඤ්ඤක)" },
-                { k: "zdha / ndha", s: "ඳ (සඤ්ඤක)" }, { k: "mba / Ba", s: "ඹ (සඤ්ඤක)" }, { k: "zka / kna", s: "ඤ" },
-                { k: "zha / gna", s: "ඥ" }, { k: "Lu", s: "ළු" }
+                { k: "nga", s: "ඟ" }, { k: "zja", s: "ඦ" }, { k: "nnda", s: "ඬ" },
+                { k: "ndha", s: "ඳ" }, { k: "mba", s: "ඹ" }, { k: "nya", s: "ඤ" },
+                { k: "gna", s: "ඥ" }, { k: "Lu", s: "ළු" }
             ],
             combos: [
-                { k: "kaa", s: "කා" }, { k: "ki / kii", s: "කි / කී" }, { k: "ku / kuu", s: "කු / කූ" },
-                { k: "ke / kee", s: "කෙ / කේ" }, { k: "ko / koo", s: "කො / කෝ" }, { k: "kru", s: "කෘ (ගැටය සහිත)" },
-                { k: "kya", s: "ක්‍ය (යංශය)" }, { k: "kra", s: "ක්‍ර (රකාරාංශය)" }, { k: "kax", s: "කං (අනුස්වාරය)" }
+                { k: "kaa", s: "කා" }, { k: "kii", s: "කී" }, { k: "kuu", s: "කූ" },
+                { k: "kee", s: "කේ" }, { k: "koo", s: "කෝ" }, { k: "kru", s: "කෘ" },
+                { k: "kya", s: "ක්‍ය" }, { k: "kra", s: "ක්‍ර" }, { k: "sri", s: "ශ්‍රී" }
             ]
         };
 
@@ -1999,24 +2120,24 @@
         function renderGuideItems(tabKey) {
             const container = document.getElementById('guideContent');
             const items = guideData[tabKey] || [];
-            container.innerHTML = items.map(it => `
-                <div class="guide-item">
+            container.innerHTML = items.map(it => {
+                const sampleKey = it.k.split('/')[0].trim();
+                return `
+                <div class="guide-item" onclick="setSample('${sampleKey}')">
                     <span class="guide-key">${it.k}</span>
                     <span class="guide-char">${it.s}</span>
                 </div>
-            `).join('');
+            `;
+            }).join('');
         }
 
-        // Initialize default tab
         renderGuideItems('vowels');
 
-        // FAQ Accordion Toggle Function
         function toggleFaq(btn) {
             const item = btn.closest('.faq-item');
             const answer = item.querySelector('.faq-answer');
             const wasActive = item.classList.contains('active');
 
-            // Close other items for a clean single-accordion experience
             document.querySelectorAll('.faq-item').forEach(other => {
                 if (other !== item && other.classList.contains('active')) {
                     other.classList.remove('active');
@@ -2037,17 +2158,13 @@
             }
         }
 
-        // FAQ Category Filter
         function filterFaq(category, btn) {
             document.querySelectorAll('.faq-filter-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
-
             const searchInput = document.getElementById('faqSearch');
-            const query = searchInput ? searchInput.value : '';
-            applyFaqFilter(category, query);
+            applyFaqFilter(category, searchInput ? searchInput.value : '');
         }
 
-        // FAQ Search
         function searchFaq(query) {
             const activeBtn = document.querySelector('.faq-filter-btn.active');
             const category = activeBtn ? activeBtn.getAttribute('data-category') : 'all';
@@ -2062,7 +2179,6 @@
             items.forEach(item => {
                 const itemCategory = item.getAttribute('data-category');
                 const text = item.textContent.toLowerCase();
-
                 const matchesCat = (category === 'all' || itemCategory === category);
                 const matchesQuery = !cleanQuery || text.includes(cleanQuery);
 
@@ -2071,12 +2187,6 @@
                     visibleCount++;
                 } else {
                     item.style.display = 'none';
-                    if (item.classList.contains('active')) {
-                        item.classList.remove('active');
-                        item.querySelector('.faq-answer').style.maxHeight = null;
-                        const btn = item.querySelector('.faq-question');
-                        if (btn) btn.setAttribute('aria-expanded', 'false');
-                    }
                 }
             });
 
@@ -2086,15 +2196,12 @@
             }
         }
 
-        // ==========================================
-        // Web Share API & Clipboard Fallback
-        // ==========================================
         const GITHUB_RELEASE_URL = "https://github.com/dinushlakmal/xxSlashboardxx/releases";
 
         async function shareApp() {
             const shareData = {
-                title: "Slashboard Sinhala Keyboard",
-                text: "🇱🇰 Slashboard v4.0.0 - වේගවත්, ආරක්ෂිත 100% On-Device ස්වදේශික සිංහල යතුරුපුවරුව. දැන්ම බාගත කරගන්න:\n",
+                title: "Slashboard Sinhala Keyboard v4.2.1",
+                text: "🇱🇰 Slashboard v4.2.1 - 2GB/3GB Low-RAM Turbo Engine, WhatsApp/iOS Emojis, Mini-POS සහ Android TV සහාය සහිත වේගවත්ම සිංහල යතුරුපුවරුව:\n",
                 url: GITHUB_RELEASE_URL
             };
 
@@ -2103,9 +2210,7 @@
                     await navigator.share(shareData);
                     showShareToast("බෙදාගැනීම සාර්ථකයි! (Shared successfully)", "🎉");
                 } catch (err) {
-                    if (err.name !== 'AbortError') {
-                        copyReleaseUrlFallback();
-                    }
+                    if (err.name !== 'AbortError') copyReleaseUrlFallback();
                 }
             } else {
                 copyReleaseUrlFallback();
@@ -2116,26 +2221,8 @@
             if (navigator.clipboard && navigator.clipboard.writeText) {
                 navigator.clipboard.writeText(GITHUB_RELEASE_URL).then(() => {
                     showShareToast("Releases සබැඳිය පිටපත් කරගන්නා ලදී! (Link copied)", "📋");
-                }).catch(() => {
-                    promptCopyFallback();
                 });
-            } else {
-                promptCopyFallback();
             }
-        }
-
-        function promptCopyFallback() {
-            const tempInput = document.createElement("input");
-            tempInput.value = GITHUB_RELEASE_URL;
-            document.body.appendChild(tempInput);
-            tempInput.select();
-            try {
-                document.execCommand("copy");
-                showShareToast("Releases සබැඳිය පිටපත් කරගන්නා ලදී! (Link copied)", "📋");
-            } catch (e) {
-                window.open(GITHUB_RELEASE_URL, '_blank');
-            }
-            document.body.removeChild(tempInput);
         }
 
         let toastTimeout;
@@ -2144,42 +2231,24 @@
             const msgEl = document.getElementById("shareToastMsg");
             const iconEl = document.getElementById("shareToastIcon");
             if (!toast) return;
-
             if (msgEl) msgEl.textContent = message;
             if (iconEl) iconEl.textContent = icon;
-
             toast.classList.add("show");
             clearTimeout(toastTimeout);
-            toastTimeout = setTimeout(() => {
-                toast.classList.remove("show");
-            }, 3200);
+            toastTimeout = setTimeout(() => toast.classList.remove("show"), 3200);
         }
 
-        // ==========================================
-        // Floating Back to Top Button
-        // ==========================================
         function initBackToTop() {
             const backToTopBtn = document.getElementById("backToTopBtn");
             if (!backToTopBtn) return;
-
             const toggleBackToTop = () => {
-                if (window.scrollY > 300) {
-                    backToTopBtn.classList.add("visible");
-                } else {
-                    backToTopBtn.classList.remove("visible");
-                }
+                if (window.scrollY > 300) backToTopBtn.classList.add("visible");
+                else backToTopBtn.classList.remove("visible");
             };
-
             window.addEventListener("scroll", toggleBackToTop, { passive: true });
             toggleBackToTop();
-
             backToTopBtn.addEventListener("click", () => {
-                const hero = document.getElementById("hero") || document.querySelector(".hero");
-                if (hero && hero.scrollIntoView) {
-                    hero.scrollIntoView({ behavior: "smooth", block: "start" });
-                } else {
-                    window.scrollTo({ top: 0, behavior: "smooth" });
-                }
+                window.scrollTo({ top: 0, behavior: "smooth" });
             });
         }
 
@@ -2189,18 +2258,5 @@
             initBackToTop();
         }
     </script>
-
-    <!-- Floating Back to Top Button -->
-    <button type="button" id="backToTopBtn" class="back-to-top" aria-label="Back to Top" title="මුල් පිටුවේ ඉහළට (Back to Top)">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="18 15 12 9 6 15"></polyline>
-        </svg>
-    </button>
-
-    <!-- Share Toast Notification -->
-    <div id="shareToast" class="share-toast" role="status" aria-live="polite">
-        <span id="shareToastIcon">📋</span>
-        <span id="shareToastMsg">Releases සබැඳිය පිටපත් කරගන්නා ලදී! (Link copied)</span>
-    </div>
 </body>
 </html>

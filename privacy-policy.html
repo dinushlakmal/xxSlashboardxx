@@ -1,469 +1,161 @@
 <!DOCTYPE html>
-<html lang="si">
+<html lang="en" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="google-site-verification" content="googlee1fc35545edd459a" />
     <meta name="google-site-verification" content="googlee1fc35545edd459a.html" />
-    <title>Privacy Policy (පෞද්ගලිකත්ව ප්‍රතිපත්තිය) | Slashboard Sinhala Keyboard</title>
-    <meta name="description" content="Official Privacy Policy for Slashboard Sinhala Keyboard Android Application by Dinush Lakmal. 100% On-Device, Offline, and Zero Data Collection Guarantee.">
-    <meta name="keywords" content="Slashboard Privacy Policy, Sinhala Keyboard Privacy, Offline Android IME, Zero Data Collection, Dinush Lakmal">
-    
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Sinhala:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-    
+    <title>Privacy Policy - Slashboard v4.2.1 Sinhala Keyboard</title>
+    <meta name="description" content="Official Privacy Policy for Slashboard v4.2.1 Sinhala Keyboard. 100% On-Device typing, offline voice recognition, local SQLite Mini-POS storage, and transparent permissions." />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Noto+Sans+Sinhala:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --primary: #6366F1;
-            --primary-light: #818CF8;
-            --accent-green: #10B981;
-            --bg-dark: #090D16;
-            --bg-card: rgba(18, 24, 39, 0.85);
-            --card-border: rgba(255, 255, 255, 0.08);
-            --card-border-glow: rgba(99, 102, 241, 0.3);
-            --text-main: #F8FAFC;
-            --text-muted: #94A3B8;
-            --radius: 18px;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Plus Jakarta Sans', 'Noto Sans Sinhala', sans-serif;
-            -webkit-tap-highlight-color: transparent;
-        }
-
         body {
-            background: radial-gradient(circle at 50% 0%, #17153B 0%, #090D16 60%, #05070D 100%);
-            color: var(--text-main);
-            min-height: 100vh;
-            line-height: 1.75;
-            overflow-x: hidden;
+            font-family: 'Plus Jakarta Sans', 'Noto Sans Sinhala', sans-serif;
+            background-color: #060913;
+            color: #f8fafc;
         }
-
-        .ambient-glow {
-            position: absolute;
-            top: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 700px;
-            height: 400px;
-            background: radial-gradient(circle, rgba(99, 102, 241, 0.12) 0%, rgba(0,0,0,0) 70%);
-            filter: blur(90px);
-            pointer-events: none;
-            z-index: 0;
+        .font-mono-tech {
+            font-family: 'JetBrains Mono', monospace;
         }
-
-        .container {
-            max-width: 920px;
-            margin: 0 auto;
-            padding: 0 24px;
-            position: relative;
-            z-index: 1;
+        .tech-grid-bg {
+            background-size: 42px 42px;
+            background-image: 
+                linear-gradient(to right, rgba(99, 102, 241, 0.05) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(6, 182, 212, 0.05) 1px, transparent 1px);
         }
-
-        /* Navbar */
-        nav {
-            padding: 20px 0;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid var(--card-border);
+        .glass-card {
+            background: rgba(15, 23, 42, 0.7);
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
-            position: sticky;
-            top: 0;
-            z-index: 100;
+            border: 1px solid rgba(148, 163, 184, 0.12);
         }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            text-decoration: none;
-            color: #fff;
-            font-weight: 800;
-            font-size: 1.35rem;
-        }
-
-        .logo-badge {
-            background: linear-gradient(135deg, #6366F1, #EC4899);
-            width: 40px;
-            height: 40px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.3rem;
-            box-shadow: 0 4px 16px rgba(99, 102, 241, 0.4);
-        }
-
-        .nav-links {
-            display: flex;
-            gap: 20px;
-            align-items: center;
-        }
-
-        .nav-links a {
-            color: var(--text-muted);
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 0.95rem;
-            transition: color 0.2s;
-        }
-
-        .nav-links a:hover, .nav-links a.active {
-            color: #fff;
-        }
-
-        /* Policy Card Wrapper */
-        .policy-container {
-            background: var(--bg-card);
-            border: 1px solid var(--card-border);
-            border-radius: var(--radius);
-            padding: 48px;
-            margin: 40px 0 60px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.45);
-            backdrop-filter: blur(14px);
-        }
-
-        .badge-verified {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            background: rgba(16, 185, 129, 0.15);
-            border: 1px solid rgba(16, 185, 129, 0.4);
-            color: #34D399;
-            padding: 8px 18px;
-            border-radius: 99px;
-            font-weight: 700;
-            font-size: 0.92rem;
-            margin-bottom: 24px;
-        }
-
-        h1 {
-            font-size: 2.5rem;
-            font-weight: 900;
-            line-height: 1.25;
-            margin-bottom: 10px;
-            background: linear-gradient(135deg, #FFFFFF 30%, #C7D2FE 70%, #818CF8 100%);
+        .gradient-text {
+            background: linear-gradient(135deg, #38bdf8 0%, #818cf8 50%, #34d399 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
-
-        .last-updated {
-            color: #818CF8;
-            font-size: 0.95rem;
-            font-weight: 600;
-            margin-bottom: 32px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        /* Quick Facts Box */
-        .quick-facts {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-            gap: 16px;
-            background: rgba(15, 23, 42, 0.7);
-            border: 1px solid rgba(99, 102, 241, 0.25);
-            border-radius: 14px;
-            padding: 24px;
-            margin-bottom: 36px;
-        }
-
-        .fact-item {
-            display: flex;
-            align-items: flex-start;
-            gap: 12px;
-        }
-
-        .fact-icon {
-            font-size: 1.4rem;
-            line-height: 1;
-            margin-top: 2px;
-        }
-
-        .fact-title {
-            font-weight: 700;
-            color: #F1F5F9;
-            font-size: 0.95rem;
-            margin-bottom: 3px;
-        }
-
-        .fact-desc {
-            font-size: 0.85rem;
-            color: var(--text-muted);
-            line-height: 1.45;
-        }
-
-        h2 {
-            font-size: 1.45rem;
-            font-weight: 800;
-            color: #F1F5F9;
-            margin: 38px 0 14px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            border-left: 4px solid var(--primary);
-            padding-left: 14px;
-        }
-
-        p, li {
-            color: #CBD5E1;
-            font-size: 1.02rem;
-            margin-bottom: 14px;
-            line-height: 1.75;
-        }
-
-        strong {
-            color: #F8FAFC;
-        }
-
-        ul {
-            padding-left: 26px;
-            margin-bottom: 20px;
-        }
-
-        li {
-            margin-bottom: 8px;
-        }
-
-        .callout-box {
-            background: rgba(99, 102, 241, 0.1);
-            border: 1px solid rgba(99, 102, 241, 0.25);
-            border-radius: 12px;
-            padding: 20px;
-            margin: 20px 0;
-        }
-
-        .contact-box {
-            background: rgba(15, 23, 42, 0.8);
-            border: 1px solid var(--card-border);
-            border-radius: 14px;
-            padding: 26px;
-            margin-top: 28px;
-        }
-
-        .contact-box p {
-            margin-bottom: 8px;
-        }
-
-        .contact-box a {
-            color: #818CF8;
-            text-decoration: none;
-            font-weight: 600;
-        }
-
-        .contact-box a:hover {
-            text-decoration: underline;
-        }
-
-        footer {
-            margin-top: 40px;
-            padding: 36px 0;
-            border-top: 1px solid var(--card-border);
-            text-align: center;
-            color: var(--text-muted);
-            font-size: 0.92rem;
-        }
-
-        footer a {
-            color: #818CF8;
-            text-decoration: none;
-            font-weight: 600;
-        }
-
-        footer a:hover {
-            text-decoration: underline;
-        }
-
-        @media (max-width: 768px) {
-            .policy-container {
-                padding: 28px 20px;
-            }
-            h1 {
-                font-size: 2rem;
-            }
-            .nav-links {
-                display: none;
-            }
-            .quick-facts {
-                grid-template-columns: 1fr;
-            }
-        }
     </style>
 </head>
-<body>
+<body class="antialiased selection:bg-cyan-500 selection:text-slate-950 tech-grid-bg pb-20 md:pb-0">
 
-    <div class="ambient-glow"></div>
-
-    <div class="container">
-        <!-- Navigation -->
-        <nav>
-            <a href="index.html" class="logo">
-                <div class="logo-badge">⌨️</div>
-                <span>Slashboard</span>
-            </a>
-            <div class="nav-links">
-                <a href="index.html">මුල් පිටුව (Home)</a>
-                <a href="home.html">විශේෂාංග සහ උපදෙස්</a>
-                <a href="index.html#faq">FAQ (ප්‍රශ්නෝත්තර)</a>
-                <a href="https://www.facebook.com/profile.php?id=61593856756750" target="_blank" style="color: #60A5FA;">Facebook</a>
-                <a href="https://github.com/dinushlakmal" target="_blank">Developer</a>
-                <a href="privacy.html" class="active">පෞද්ගලිකත්වය (Privacy)</a>
-                <a href="terms.html">කොන්දේසි (Terms)</a>
-                <a href="https://github.com/dinushlakmal/xxSlashboardxx/releases" target="_blank" style="background: var(--primary); color: #fff; padding: 6px 14px; border-radius: 99px;">Download 🚀</a>
-            </div>
-        </nav>
-
-        <div class="policy-container">
-            <div class="badge-verified">
-                🛡️ 100% On-Device & Zero Data Collection Guarantee
-            </div>
-
-            <h1>Privacy Policy (පෞද්ගලිකත්ව ප්‍රතිපත්තිය)</h1>
-            <div class="last-updated">
-                <span>📅 Last Updated: November 2026 (v4.0.0) | යාවත්කාලීන කළ දිනය: නොවැම්බර් 2026 (v4.0.0)</span>
-            </div>
-
-            <p>
-                <strong>Slashboard Sinhala Keyboard</strong> ("අප", "අපගේ යෙදුම", "Slashboard") ඔබගේ පෞද්ගලිකත්වය සහ දත්තවල උපරිම ආරක්ෂාව තහවුරු කිරීමට දැඩි ලෙස බැඳී සිටී. <strong>Dinush Lakmal | Slash Studios</strong> විසින් නිර්මාණය කරන ලද මෙම යතුරුපුවරු යෙදුම සම්පූර්ණයෙන්ම ක්‍රියාත්මක වන්නේ ඔබගේ දුරකථනය තුළම පමණි (100% On-Device & Offline).
-            </p>
-
-            <!-- Key Commitments Quick Facts -->
-            <div class="quick-facts">
-                <div class="fact-item">
-                    <div class="fact-icon">🔒</div>
+    <!-- Top Navigation -->
+    <nav class="sticky top-0 w-full z-40 bg-slate-950/85 backdrop-blur-xl border-b border-slate-800/80">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <a href="index.html" class="flex items-center space-x-3">
+                    <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-cyan-500 to-indigo-600 flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-cyan-500/20">සි</div>
                     <div>
-                        <div class="fact-title">Zero Keystroke Logging</div>
-                        <div class="fact-desc">ඔබ ටයිප් කරන කිසිදු අකුරක්, වචනයක් හෝ පණිවිඩයක් සටහන් කර නොගනී.</div>
+                        <span class="font-bold text-lg tracking-tight text-white">Slashboard</span>
+                        <span class="ml-2 text-[10px] font-mono-tech uppercase px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">v4.2.1 Privacy</span>
                     </div>
+                </a>
+                <div class="flex items-center space-x-5 text-sm font-medium text-slate-300">
+                    <a href="index.html" class="hover:text-cyan-400 transition">Home</a>
+                    <a href="home.html" class="hover:text-cyan-400 transition hidden sm:inline">User Guide</a>
+                    <a href="terms.html" class="hover:text-cyan-400 transition">Terms</a>
                 </div>
-                <div class="fact-item">
-                    <div class="fact-icon">🚫</div>
-                    <div>
-                        <div class="fact-title">No Ads or Trackers</div>
-                        <div class="fact-desc">කිසිදු Analytics SDK, Facebook Pixel හෝ දැන්වීම් ජාල අඩංගු නොවේ.</div>
-                    </div>
-                </div>
-                <div class="fact-item">
-                    <div class="fact-icon">🔑</div>
-                    <div>
-                        <div class="fact-title">Password Safety</div>
-                        <div class="fact-desc">මුරපද ටයිප් කිරීමේදී වචන ඉගෙනුම ස්වයංක්‍රීයව අක්‍රිය වේ.</div>
-                    </div>
-                </div>
-                <div class="fact-item">
-                    <div class="fact-icon">🔄</div>
-                    <div>
-                        <div class="fact-title">OTA Updates Only</div>
-                        <div class="fact-desc">අන්තර්ජාලය භාවිතා කරන්නේ යෙදුමේ නව සංස්කරණ පරීක්ෂා කිරීමට පමණි.</div>
-                    </div>
-                </div>
-            </div>
-
-            <h2>1. අන්තර්ජාල භාවිතය සහ එහි සීමාව (Internet Access Policy)</h2>
-            <p>
-                Slashboard යතුරුපුවරුවේ මූලික යතුරුකරණ කාර්යයන් සියල්ල 100% ක් අන්තර්ජාලය රහිතව ඔබගේ දුරකථනය තුළම පමණක් සිදුවේ (100% Offline & On-Device). යෙදුම තුළ ඇති අන්තර්ජාල අවසරය (Internet Permission) භාවිතා වන්නේ පරිශීලකයා විසින් සක්‍රියව සිදුකරන පහත අරමුණු සඳහා <strong>පමණි</strong>:
-            </p>
-            <ul>
-                <li><strong>In-Keyboard Online Translation:</strong> පරිශීලකයා විසින් යතුරුපුවරුවේ ඇති Translate Bar එක භාවිතයෙන් සිංහලෙන් ඉංග්‍රීසියට හෝ ඉංග්‍රීසියෙන් සිංහලට පරිවර්තනය ඉල්ලා සිටින අවස්ථාවේදී පමණක් එම නිශ්චිත පාඨය පරිවර්තන සේවාව වෙත යොමු කෙරේ.</li>
-                <li><strong>Play Store Safe Updates (යාවත්කාලීන පරීක්ෂාව):</strong> යෙදුමේ නව v4.0.0+ සංස්කරණ පරීක්ෂා කර පරිශීලකයා නිල Google Play Store පිටුව වෙත යොමු කිරීම සඳහා.</li>
-            </ul>
-            <div class="callout-box">
-                <strong>පෞද්ගලිකත්ව සහතිකය:</strong> Slashboard තුළ කිසිදු තෙවන පාර්ශවීය දැන්වීම් ජාල (AdMob, Meta Ads) හෝ පරිශීලක හැසිරීම් නිරීක්ෂණය කරන Tracking/Telemetry SDK (Firebase, Flurry) අඩංගු නොවේ. ඔබ ටයිප් කරන කිසිදු අකුරක් හෝ මුරපදයක් අපගේ හෝ වෙනත් කිසිදු Server එකකට කිසිවිටෙකත් යැවීමක් සිදු නොවේ.
-            </div>
-
-            <h2>2. ඔබ ටයිප් කරන දත්ත සහ මුරපද ආරක්ෂාව (Keystrokes & Passwords)</h2>
-            <p>
-                ඔබ ටයිප් කරන කිසිදු පෙළක් (Text), පෞද්ගලික පණිවිඩයක්, බැංකු තොරතුරක් හෝ මුරපදයක් (Passwords) කිසිදු බාහිර Server එකකට යැවීමක් හෝ දුරකථනයෙන් පිටතට රැගෙන යාමක් සිදු නොවේ.
-            </p>
-            <ul>
-                <li><strong>Strict Password Protection:</strong> ඔබ මුරපදයක් ටයිප් කරන විට (Password/Pin Fields) යතුරුපුවරුවේ ස්වයංක්‍රීය වචන යෝජනා (Word Suggestions) සහ ශබ්දකෝෂ ඉගෙනුම (Personal Learning) සම්පූර්ණයෙන්ම අක්‍රිය වේ.</li>
-                <li><strong>Incognito Mode:</strong> පුද්ගලික බ්‍රවුසින් හෝ රහස්‍ය ක්ෂේත්‍රවලදී කිසිදු දත්තයක් තාවකාලික මතකයට හෝ සටහන් නොකෙරේ.</li>
-            </ul>
-
-            <h2>3. හඬ යතුරුකරණය සහ මයික්‍රෆෝනය (Voice Typing & Microphone Privacy)</h2>
-            <p>
-                Slashboard හි ඇති හඬ යතුරුකරණ විශේෂාංගය (Voice Typing) භාවිතා කිරීම සඳහා <code>RECORD_AUDIO</code> අවසරය අවශ්‍ය වේ:
-            </p>
-            <ul>
-                <li><strong>Strict Purpose:</strong> මයික්‍රෆෝනය ක්‍රියාත්මක වන්නේ ඔබ යතුරුපුවරුවේ ඇති මයික්‍රෆෝන බොත්තම ඔබා හඬ යතුරුකරණය ආරම්භ කළ විට පමණි.</li>
-                <li><strong>No Audio Storage:</strong> ඔබ කතා කරන ශ්‍රව්‍ය පට (Voice/Audio recordings) ඔබගේ දුරකථනයේ හෝ කිසිදු Server එකක සුරැකීමක් සිදු නොකෙරේ. හඬ හඳුනාගැනීමෙන් අනතුරුව එම ශ්‍රව්‍ය දත්ත ක්ෂණිකව මතකයෙන් ඉවත් කරනු ලැබේ.</li>
-                <li><strong>System Speech Recognition:</strong> හඬ පෙළ බවට හැරවීම (Speech-to-Text) සඳහා Android පද්ධතියේ නිල Speech Recognizer සේවාව භාවිත කෙරේ.</li>
-            </ul>
-
-            <h2>4. පසුරු පුවරුව (Clipboard Privacy & Pinned Clips)</h2>
-            <p>
-                Slashboard හි ඇති ස්මාර්ට් පසුරු පුවරුව (Smart Clipboard Manager) පරිශීලකයාට පිටපත් කළ පාඨ සහ නිතර අවශ්‍ය සටහන් පහසුවෙන් භාවිත කිරීමට ඉඩ සලසයි:
-            </p>
-            <ul>
-                <li>පිටපත් කරගත් පාඨ ගබඩා වන්නේ ඔබගේ උපාංගයේ අභ්‍යන්තර SQLite දත්තගබඩාවේ පමණි.</li>
-                <li>සැකසුම් (Settings) හෝ Clipboard පුවරුවේ ඇති 🗑️ 'Clear All' බොත්තම මඟින් ඕනෑම මොහොතක සම්පූර්ණ පසුරු පුවරු ඉතිහාසය මැකීමට පරිශීලකයාට පූර්ණ බලය ඇත.</li>
-                <li>පසුරු පුවරුවේ කිසිදු සටහනක් අන්තර්ජාලය ඔස්සේ කිසිදු පාර්ශවයකට යැවීමක් සිදු නොවේ.</li>
-            </ul>
-
-            <h2>5. වචන ඉගෙනුම සහ Singlish ස්වයංක්‍රීය අක්ෂර නිවැරදි කිරීම (On-Device Dictionary & Auto-Correction)</h2>
-            <p>
-                ඔබ නිතර ටයිප් කරන වචන යෝජනා කිරීම සහ Singlish අක්ෂර වින්‍යාස නිවැරදි කිරීම (Local Dictionary Auto-Correction) 100% ක්ම ක්‍රියාත්මක වන්නේ ඔබගේ දුරකථනයේ පමණි:
-            </p>
-            <ul>
-                <li>මෙම ශබ්දකෝෂ දත්ත Android Cloud Backup (Google Drive Backup) වෙතින් පවා බැහැර කර ඇත (Excluded from backups).</li>
-                <li>Settings මඟින් ඕනෑම මොහොතක "Reset Learned Words" තේරීමෙන් ඔබගේ පුද්ගලික ශබ්දකෝෂය සම්පූර්ණයෙන්ම මකා දැමිය හැක.</li>
-            </ul>
-
-            <h2>6. ළමුන්ගේ පෞද්ගලිකත්වය (Children's Privacy Protection)</h2>
-            <p>
-                අපගේ යෙදුම කිසිදු ආකාරයක පුද්ගලික හඳුනාගැනීමේ දත්ත (Personally Identifiable Information - PII) රැස් නොකරන බැවින්, ළමුන් ඇතුළු ඕනෑම වයස් කාණ්ඩයක පරිශීලකයින් සඳහා 100% ක් ආරක්ෂිත වේ. Google Play Families Policy සහ COPPA නීතිරීතිවලට පූර්ණ ලෙස අනුකූල වේ.
-            </p>
-
-            <h2>7. උපාංග අවසරයන් (Device Permissions Transparency - Least Privilege)</h2>
-            <p>
-                Google Play Store ප්‍රතිපත්තිවලට 100%ක් අනුකූලව Slashboard v4.0.0 භාවිතා කරන්නේ අවම අත්‍යවශ්‍ය අවසරයන් පමණි:
-            </p>
-            <ul>
-                <li><code>RECORD_AUDIO</code>: හඬ යතුරුකරණය (Voice Typing) සඳහා පමණි. ශ්‍රව්‍ය පට ගබඩා නොකෙරේ.</li>
-                <li><code>VIBRATE</code>: යතුරු ඔබන විට Haptic Feedback ලබා දීම සඳහා පමණි.</li>
-                <li><code>INTERNET</code> & <code>ACCESS_NETWORK_STATE</code>: පරිශීලකයා ඉල්ලන Translation, තේමා Wallpapers සහ Google Play update පිටුව විවෘත කිරීම සඳහා පමණි.</li>
-            </ul>
-
-            <h2>8. ප්‍රතිපත්ති සංශෝධනය කිරීම (Policy Updates)</h2>
-            <p>
-                අනාගතයේදී කිසියම් නව අංගයක් එක්වීම හේතුවෙන් මෙම ප්‍රතිපත්තිය සංශෝධනය කළහොත්, සංශෝධිත නව දිනය සමඟ මෙම පිටුවෙහි පළ කරනු ලැබේ.
-            </p>
-
-            <h2>9. සංවර්ධකයා සම්බන්ධ කරගැනීම (Contact Developer)</h2>
-            <div class="contact-box">
-                <p>මෙම පෞද්ගලිකත්ව ප්‍රතිපත්තිය හෝ යෙදුමේ ආරක්ෂාව පිළිබඳව ඔබට කිසියම් ප්‍රශ්නයක් හෝ විමසීමක් ඇත්නම් සෘජුවම සංවර්ධකයා අමතන්න:</p>
-                <p><strong>සංවර්ධක (Developer):</strong> Created by Dinush Lakmal | Slash Studios</p>
-                <p><strong>යෙදුම (Application):</strong> Slashboard Sinhala Keyboard (Android)</p>
-                <p><strong>විද්‍යුත් තැපෑල (Email):</strong> <a href="mailto:dinushlakmal01@gmail.com">dinushlakmal01@gmail.com</a></p>
-                <p><strong>Facebook Page:</strong> <a href="https://www.facebook.com/profile.php?id=61593856756750" target="_blank">Slashboard on Facebook</a></p>
-                <p><strong>GitHub Profile:</strong> <a href="https://github.com/dinushlakmal" target="_blank">github.com/dinushlakmal</a></p>
-                <p><strong>Direct Download (Releases):</strong> <a href="https://github.com/dinushlakmal/xxSlashboardxx/releases" target="_blank">Releases APK Download</a></p>
-                <p><strong>රට (Country):</strong> ශ්‍රී ලංකාව (Sri Lanka 🇱🇰)</p>
             </div>
         </div>
+    </nav>
 
-        <!-- Footer -->
-        <footer>
-            <p>© 2026 Slashboard Sinhala Keyboard. Developed with ❤️ for Sri Lanka by <strong>Dinush Lakmal</strong>.</p>
-            <p style="margin-top: 8px;">
-                <a href="index.html">Home</a> • 
-                <a href="home.html">Features & Guide</a> • 
-                <a href="index.html#faq">FAQ</a> • 
-                <a href="https://github.com/dinushlakmal/xxSlashboardxx/releases" target="_blank" style="color: #A5B4FC; font-weight: 700;">Direct Download</a> • 
-                <a href="https://www.facebook.com/profile.php?id=61593856756750" target="_blank" style="color: #60A5FA;">Facebook Page</a> • 
-                <a href="https://github.com/dinushlakmal" target="_blank">GitHub Profile</a> • 
-                <a href="privacy.html">Privacy Policy</a> • 
-                <a href="terms.html">Terms of Service</a>
-            </p>
-        </footer>
+    <!-- Main Content -->
+    <main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div class="glass-card rounded-3xl p-6 sm:p-10 shadow-2xl">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs font-mono-tech mb-4">
+                <span>🔒 ZERO KEYLOGGING • 100% ON-DEVICE TYPING ENGINE</span>
+            </div>
+            <h1 class="text-3xl sm:text-4xl font-extrabold mb-2 gradient-text">Privacy Policy</h1>
+            <p class="text-slate-400 text-xs sm:text-sm font-mono-tech mb-8">Last Updated: March 29, 2026 • App Version: Slashboard v4.2.1</p>
+
+            <!-- Quick Privacy Guarantees Grid -->
+            <div class="grid sm:grid-cols-3 gap-4 mb-10">
+                <div class="p-4 rounded-2xl bg-slate-900/90 border border-slate-800">
+                    <div class="text-emerald-400 font-bold text-sm mb-1">✓ No Keystroke Logging</div>
+                    <p class="text-xs text-slate-400">Your typed words, NIC numbers, passwords, and OTPs never leave your device.</p>
+                </div>
+                <div class="p-4 rounded-2xl bg-slate-900/90 border border-slate-800">
+                    <div class="text-cyan-400 font-bold text-sm mb-1">✓ Local SQLite Mini-POS</div>
+                    <p class="text-xs text-slate-400">Invoices, business profiles, and catalog items are stored 100% locally on your device.</p>
+                </div>
+                <div class="p-4 rounded-2xl bg-slate-900/90 border border-slate-800">
+                    <div class="text-indigo-400 font-bold text-sm mb-1">✓ Zero Third-Party Ads</div>
+                    <p class="text-xs text-slate-400">No advertising SDKs, behavioral trackers, or analytics scripts are embedded.</p>
+                </div>
+            </div>
+
+            <div class="space-y-8 text-slate-300 leading-relaxed text-sm sm:text-base">
+                <section>
+                    <h2 class="text-xl font-bold text-white mb-3">1. Introduction</h2>
+                    <p>Welcome to <strong>Slashboard</strong> ("we," "our," or "us"). We are committed to protecting your privacy. This Privacy Policy explains how our Sinhala Keyboard application (v4.2.1) across Android Phones, Tablets, and Android TV devices handles information. Slashboard is architected from the ground up as a <strong>privacy-first, local-execution keyboard</strong>.</p>
+                </section>
+
+                <section>
+                    <h2 class="text-xl font-bold text-white mb-3">2. Information We Do NOT Collect</h2>
+                    <p class="mb-3">As an Input Method Editor (IME), Android displays a standard system warning when enabling any third-party keyboard. Despite this generic system prompt, <strong>Slashboard NEVER collects, transmits, or sells:</strong></p>
+                    <ul class="list-disc pl-6 space-y-2 text-slate-400">
+                        <li>Any text, characters, Singlish transliterations, or messages you type in any application.</li>
+                        <li>Passwords, PINs, credit card numbers, banking data, or One-Time Passwords (OTPs).</li>
+                        <li>Clipboard history, pinned clips, or Sri Lankan NIC numbers analyzed by the built-in NIC utility.</li>
+                        <li>Invoices, customer details, or product catalogs created inside the In-Keyboard Mini-POS & Invoice Studio.</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h2 class="text-xl font-bold text-white mb-3">3. How On-Device Features Operate in v4.2.1</h2>
+                    <ul class="space-y-3 text-slate-400">
+                        <li><strong class="text-white">Word Predictions & Personal Dictionary:</strong> Learned words and next-word predictions are stored strictly inside your device's private application sandbox (<code class="text-cyan-300 font-mono-tech">LocalLearningStore</code>) and can be cleared anytime from Settings.</li>
+                        <li><strong class="text-white">Mini-POS & Invoice Studio:</strong> All business profiles, items, and generated receipts are saved locally in an on-device Android Room (SQLite) database. Invoices are shared only when you explicitly tap Share or Save.</li>
+                        <li><strong class="text-white">Low-RAM Memory Engine:</strong> Our 2GB/3GB RAM optimizer automatically recycles bitmaps and clears transient UI caches in RAM without writing personal data to external storage.</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h2 class="text-xl font-bold text-white mb-3">4. Transparent Permissions Explanation</h2>
+                    <p class="mb-3">Slashboard requests only the minimum permissions necessary for features you actively choose to use:</p>
+                    <div class="space-y-3">
+                        <div class="p-4 rounded-xl bg-slate-900/70 border border-slate-800">
+                            <span class="font-mono-tech text-xs text-cyan-400 font-semibold">RECORD_AUDIO (Microphone)</span>
+                            <p class="text-xs sm:text-sm text-slate-400 mt-1">Used exclusively when you tap the Microphone icon for Sinhala or English Voice Typing via Android's native <code class="text-slate-200">SpeechRecognizer</code>. Slashboard never records audio in the background.</p>
+                        </div>
+                        <div class="p-4 rounded-xl bg-slate-900/70 border border-slate-800">
+                            <span class="font-mono-tech text-xs text-indigo-400 font-semibold">INTERNET & ACCESS_NETWORK_STATE</span>
+                            <p class="text-xs sm:text-sm text-slate-400 mt-1">Used strictly for: (1) User-initiated In-Keyboard Translation queries when you explicitly use the Translate bar, (2) Downloading optional Emoji Style Packs (iOS/Apple, Facebook, Twitter/X, or Google Noto) from Maven Central when you click Download in Settings (WhatsApp Emoji Style is pre-installed offline), and (3) Checking for official app updates via Google Play Core.</p>
+                        </div>
+                        <div class="p-4 rounded-xl bg-slate-900/70 border border-slate-800">
+                            <span class="font-mono-tech text-xs text-emerald-400 font-semibold">VIBRATE</span>
+                            <p class="text-xs sm:text-sm text-slate-400 mt-1">Provides tactile keypress haptic feedback according to your slider setting.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <section>
+                    <h2 class="text-xl font-bold text-white mb-3">5. Data Retention & User Control</h2>
+                    <p class="text-slate-400">Because all preferences, learned words, downloaded emoji packs, and Mini-POS records reside locally on your device, you have 100% control. You can delete individual learned words, delete downloaded emoji packs to free storage, reset keyboard settings, or clear all app data via Android System Settings or by uninstalling the app.</p>
+                </section>
+
+                <section>
+                    <h2 class="text-xl font-bold text-white mb-3">6. Contact Us</h2>
+                    <p class="text-slate-400">If you have any questions or concerns about this Privacy Policy or Slashboard's privacy architecture, please contact us:</p>
+                    <p class="mt-2 font-mono-tech text-cyan-400"><a href="mailto:dinushlakmal01@gmail.com" class="hover:underline">dinushlakmal01@gmail.com</a></p>
+                </section>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-950 border-t border-slate-800/80 py-8 mt-12">
+        <div class="max-w-6xl mx-auto px-4 text-center text-slate-500 text-xs sm:text-sm">
+            <p>© 2026 Slashboard v4.2.1. All rights reserved. • <a href="index.html" class="text-cyan-400 hover:underline">Back to Home</a></p>
+        </div>
+    </footer>
+
+    <!-- Mobile Bottom Quick-Navigation Dock -->
+    <div class="md:hidden fixed bottom-0 inset-x-0 z-50 bg-slate-950/95 backdrop-blur-xl border-t border-slate-800 px-3 py-2 flex items-center justify-around text-[11px] font-medium text-slate-400">
+        <a href="index.html" class="flex flex-col items-center gap-0.5 hover:text-cyan-400 py-1"><span>🏠</span><span>Home</span></a>
+        <a href="home.html" class="flex flex-col items-center gap-0.5 hover:text-cyan-400 py-1"><span>📘</span><span>Guide</span></a>
+        <a href="privacy.html" class="flex flex-col items-center gap-0.5 text-cyan-400 py-1"><span>🔒</span><span>Privacy</span></a>
+        <a href="terms.html" class="flex flex-col items-center gap-0.5 hover:text-cyan-400 py-1"><span>📜</span><span>Terms</span></a>
     </div>
-
 </body>
 </html>
