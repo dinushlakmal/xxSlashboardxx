@@ -7,7 +7,7 @@
 [![Facebook](https://img.shields.io/badge/Facebook-Follow-1877F2?style=for-the-badge&logo=facebook)](https://www.facebook.com/profile.php?id=61593856756750)
 
 Slashboard යනු Android උපාංග සඳහා විශේෂයෙන් නිර්මාණය කරන ලද, 100% On-Device සහ ආරක්ෂිත (Offline & Private) ස්වදේශික සිංහල යතුරුපුවරු යෙදුමකි (Native Sinhala IME).
-**Created by Dinush Lakmal | Slash Studios**
+**Developed By Dinush Lakmal | Slash Studios**
 
 ### 🔗 ප්‍රයෝජනවත් සබැඳි (Quick Links):
 - 📥 **Direct Download APK & AAB (v4.0.0):** [GitHub Releases](https://github.com/dinushlakmal/xxSlashboardxx/releases)
